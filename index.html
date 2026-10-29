@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#070b0b">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<title>Habesha Keno — Demo</title>
+<style>
+:root{--bg:#070b0b;--panel:#101817;--gold:#ffc83d;--gold2:#ff9d00;--green:#00d878;--muted:#9aaba5;--line:#5c4815}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#172923 0,#070b0b 55%);color:#f7f4e8;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
+button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:100vh;padding:14px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1px solid #3a321b;border-radius:18px;background:#080d0c;box-shadow:0 0 22px #ffb00012}
+.brand{display:flex;align-items:center;gap:12px}.badge{width:46px;height:46px;border:2px solid var(--gold);border-radius:50%;display:grid;place-items:center;color:var(--gold);font-weight:900;font-size:19px;text-shadow:0 0 12px #ffb000}.brand h1{font-size:19px;margin:0;color:#ffdc78}.brand small{display:block;color:var(--muted);font-size:12px}.balance{border:1px solid var(--line);padding:10px 14px;border-radius:12px;color:var(--gold);font-weight:800}
+.hero{text-align:center;padding:22px 12px 18px;margin:14px 0;border-radius:20px;border:1px solid #3e3519;background:linear-gradient(120deg,#11241b,#09100f 55%,#1b170a);position:relative;overflow:hidden}
+.hero:before{content:"✦  ETHIOPIA  ✦";letter-spacing:8px;color:#7d6a2b;font-size:10px}.hero h2{margin:8px 0 2px;font-size:clamp(34px,7vw,62px);line-height:1;color:var(--gold);text-shadow:0 0 9px #ffb000,0 0 30px #ffb00055;font-weight:1000;letter-spacing:2px}.hero p{margin:8px 0 0;color:#d9c78d;letter-spacing:2px;font-size:13px}
+.notice{padding:10px 12px;background:#241b08;border:1px solid #8c671c;border-radius:12px;color:#f5d98b;font-size:12px;line-height:1.5;margin-bottom:14px}
+.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.8fr);gap:14px}.card{background:linear-gradient(145deg,#111a17,#080d0c);border:1px solid #4c3b16;border-radius:17px;padding:15px;box-shadow:0 0 18px #ffb0000b}.card h3{margin:0 0 13px;color:#ffdc78;font-size:16px}.sub{font-size:12px;color:var(--muted);margin-top:-7px;margin-bottom:13px}
+.grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}.num{min-width:0;aspect-ratio:1.22;border:1px solid #65501c;border-radius:8px;background:linear-gradient(#17211d,#0b100f);color:#f6f0d9;font-weight:750;font-size:clamp(11px,2vw,16px);box-shadow:inset 0 1px #ffffff0a;transition:.12s}.num:hover{border-color:var(--gold)}.num.selected{background:linear-gradient(#ffe88b,#ffad14);color:#201400;border-color:#fff0a6;box-shadow:0 0 12px #ffb000, inset 0 1px #fff8c8}
+.controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:13px;flex-wrap:wrap}.pill{border:1px solid #4d401e;border-radius:10px;padding:8px 10px;background:#0b1110;color:#f6e6b0;font-size:13px}.goldbtn{border:0;border-radius:12px;padding:12px 16px;background:linear-gradient(#ffe58a,#ffb31b 65%,#dc8100);color:#241700;font-weight:900;box-shadow:0 0 14px #ffb00035}.goldbtn:disabled{opacity:.45;cursor:not-allowed}.greenbtn{width:100%;border:1px solid #a8ffca;border-radius:13px;padding:15px;background:linear-gradient(#15ed79,#008b45);color:#001b0d;font-weight:950;font-size:17px;box-shadow:0 0 20px #00db7840}.stack{display:grid;gap:14px}.field{display:flex;align-items:center;justify-content:space-between;gap:10px}.field label{color:#d9d2bb;font-size:13px}.field input{width:110px;background:#060a09;border:1px solid #55451c;border-radius:9px;padding:10px;color:#fff;text-align:right;font-weight:800}.quick{display:flex;gap:6px;margin-top:9px}.quick button{flex:1;padding:8px 2px;border:1px solid #7b5a1b;border-radius:8px;background:#2b210c;color:#ffdb78;font-weight:800;font-size:12px}.stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #ffffff10;font-size:13px}.stat:last-child{border:0}.stat strong{color:var(--gold)}.drawballs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.ball{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 25%,#fff0a4,#ffb000 65%,#8d4d00);color:#201400;font-weight:900;font-size:12px;box-shadow:0 0 10px #ffb00035}.result{padding:11px;border-radius:10px;background:#092217;border:1px solid #087b43;color:#c9ffe0;font-size:13px;line-height:1.6;display:none}.result.show{display:block}.nav{display:flex;gap:8px;margin-top:14px}.nav button{flex:1;padding:11px 4px;border:1px solid #3c351e;border-radius:11px;background:#0b100f;color:#c9c4b4;font-size:12px}.nav button.active{border-color:var(--gold);color:var(--gold);box-shadow:0 0 12px #ffb00020}.foot{text-align:center;color:#73827a;font-size:11px;margin:16px 0 8px}
+@media(max-width:700px){.app{padding:9px}.layout{grid-template-columns:1fr}.hero{padding:18px 8px}.grid{gap:4px}.num{border-radius:6px}.card{padding:12px}.top{padding:10px}.balance{font-size:12px;padding:8px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><div class="badge">HK</div><div><h1>Habesha Keno</h1><small id="platformLabel">Telegram Mini App • Demo</small></div></div>
+    <div class="balance">🪙 <span id="balance">1,000</span> credits</div>
+  </header>
+  <section class="hero"><h2>HABESHA KENO</h2><p>✦ PLAY • MATCH • CELEBRATE ✦</p></section>
+  <div class="notice"><strong>DEMO ONLY:</strong> This prototype uses virtual credits with no cash value. Deposits, withdrawals, real-money betting, and cash prizes are not enabled.</div>
+  <main class="layout">
+    <section class="card">
+      <h3>Choose your numbers <span style="float:right;color:#a8b4aa;font-size:12px" id="picked">0 / 10 selected</span></h3>
+      <div class="sub">Pick 1–10 numbers from 1 to 80.</div>
+      <div class="grid" id="numberGrid" aria-label="Keno number grid"></div>
+      <div class="controls"><span class="pill">Selected: <strong id="selectedList">—</strong></span><button class="pill" id="clearBtn">Clear selection</button><button class="pill" id="randomBtn">🎲 Random picks</button></div>
+    </section>
+    <aside class="stack">
+      <section class="card">
+        <h3>🎟️ Demo bet</h3>
+        <div class="field"><label for="bet">Bet amount (credits)</label><input id="bet" type="number" min="10" max="500" step="10" value="50"></div>
+        <div class="quick"><button data-bet="10">10</button><button data-bet="50">50</button><button data-bet="100">100</button><button data-bet="250">250</button></div>
+        <div class="stat" style="margin-top:12px"><span>Numbers picked</span><strong id="pickCount">0</strong></div>
+        <div class="stat"><span>Demo draw</span><strong>20 numbers</strong></div>
+        <div class="stat"><span>Possible payout</span><strong>Practice only</strong></div>
+        <button class="greenbtn" id="playBtn" style="margin-top:14px">▶ Draw numbers</button>
+        <p style="font-size:11px;color:#84938b;line-height:1.5;margin-bottom:0">Each draw is generated locally for demonstration. This is not an audited or production random-number system.</p>
+      </section>
+      <section class="card">
+        <h3>✨ Draw results</h3>
+        <div id="drawStatus" style="font-size:13px;color:#aab5ad">Your latest draw will appear here.</div>
+        <div class="drawballs" id="drawBalls"></div>
+        <div class="result" id="result"></div>
+      </section>
+      <section class="card">
+        <h3>📊 Session stats</h3>
+        <div class="stat"><span>Rounds played</span><strong id="rounds">0</strong></div>
+        <div class="stat"><span>Total demo credits wagered</span><strong id="wagered">0</strong></div>
+        <div class="stat"><span>Total matches</span><strong id="matches">0</strong></div>
+      </section>
+    </aside>
+  </main>
+  <nav class="nav"><button class="active">⌂ Home</button><button id="kenoNav">▦ Keno</button><button id="walletNav">▣ Wallet (demo)</button><button id="leaderNav">♜ Leaderboard (demo)</button></nav>
+  <div class="foot">Habesha Keno • Local prototype • Progress resets when you refresh</div>
+</div>
+<script>
+const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  try {
+    tg.setHeaderColor('#080d0c');
+    tg.setBackgroundColor('#070b0b');
+  } catch (e) {}
+  document.getElementById('platformLabel').textContent = 'Telegram Mini App • Virtual-credit demo';
+} else {
+  document.getElementById('platformLabel').textContent = 'Browser preview • Virtual-credit demo';
+}
+const grid=document.getElementById('numberGrid');
+const selected=new Set(); let balance=1000, rounds=0, wagered=0, totalMatches=0;
+const fmt=n=>Number(n).toLocaleString('en-US');
+for(let n=1;n<=80;n++){const b=document.createElement('button');b.className='num';b.textContent=n;b.setAttribute('aria-label','Number '+n);b.onclick=()=>toggle(n,b);grid.appendChild(b)}
+function toggle(n,b){if(selected.has(n)){selected.delete(n);b.classList.remove('selected')}else{if(selected.size>=10){status('You can select up to 10 numbers.');return}selected.add(n);b.classList.add('selected')}updatePicks();document.getElementById('result').classList.remove('show')}
+function updatePicks(){document.getElementById('picked').textContent=`${selected.size} / 10 selected`;document.getElementById('pickCount').textContent=selected.size;document.getElementById('selectedList').textContent=[...selected].sort((a,b)=>a-b).join(', ')||'—'}
+function status(s){document.getElementById('drawStatus').textContent=s}
+document.getElementById('clearBtn').onclick=()=>{selected.clear();document.querySelectorAll('.num').forEach(b=>b.classList.remove('selected'));updatePicks();document.getElementById('result').classList.remove('show')};
+document.getElementById('randomBtn').onclick=()=>{selected.clear();while(selected.size<10)selected.add(1+Math.floor(Math.random()*80));document.querySelectorAll('.num').forEach((b,i)=>b.classList.toggle('selected',selected.has(i+1)));updatePicks()};
+document.querySelectorAll('[data-bet]').forEach(b=>b.onclick=()=>document.getElementById('bet').value=b.dataset.bet);
+document.getElementById('playBtn').onclick=()=>{
+ const bet=Number(document.getElementById('bet').value);
+ if(selected.size<1){status('Choose at least one number first.');return}
+ if(!Number.isFinite(bet)||bet<10||bet>500||bet%10!==0){status('Choose a bet from 10 to 500 credits, in steps of 10.');return}
+ if(bet>balance){status('Not enough demo credits. Lower your bet.');return}
+ balance-=bet;wagered+=bet;rounds++;document.getElementById('balance').textContent=fmt(balance);
+ const draw=new Set();while(draw.size<20)draw.add(1+Math.floor(Math.random()*80));
+ const hits=[...selected].filter(n=>draw.has(n)).sort((a,b)=>a-b);
+ const sorted=[...draw].sort((a,b)=>a-b);
+ document.getElementById('drawBalls').innerHTML=sorted.map(n=>`<span class="ball" title="Drawn number ${n}">${n}</span>`).join('');
+ status('Draw complete — 20 numbers drawn.');
+ // No prize payout is enabled in this prototype; it is a safe virtual-credit interaction demo.
+ const r=document.getElementById('result');r.innerHTML=`<strong>Round complete</strong><br>Matched numbers: <strong>${hits.length}</strong><br>${hits.length?`Your matches: ${hits.join(', ')}`:'No matches this round.'}<br>Demo bet used: ${fmt(bet)} credits<br><strong>No winnings are paid in this prototype.</strong>`;r.classList.add('show');
+ totalMatches+=hits.length;document.getElementById('rounds').textContent=rounds;document.getElementById('wagered').textContent=fmt(wagered);document.getElementById('matches').textContent=totalMatches;
+};
+document.getElementById('walletNav').onclick=()=>alert('Demo wallet only: '+fmt(balance)+' virtual credits. Deposits and withdrawals are disabled.');
+document.getElementById('leaderNav').onclick=()=>alert('Leaderboard is not connected in this local prototype.');
+document.getElementById('kenoNav').onclick=()=>document.getElementById('numberGrid').scrollIntoView({behavior:'smooth',block:'center'});
+updatePicks();
+</script>
+</body></html>
