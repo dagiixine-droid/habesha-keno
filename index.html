@@ -5,31 +5,143 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#070b0b">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <title>Habesha Keno — Demo</title>
 <style>
-:root{--bg:#070b0b;--panel:#101817;--gold:#ffc83d;--gold2:#ff9d00;--green:#00d878;--muted:#9aaba5;--line:#5c4815}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#172923 0,#070b0b 55%);color:#f7f4e8;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
+:root{--bg:#050707;--panel:#101817;--gold:#ffd35a;--gold2:#ff9d00;--green:#00e985;--blue:#42d9ff;--purple:#a77bff;--muted:#9aaba5;--line:#5c4815}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% -12%,#263626 0,#0a100e 38%,#050707 75%);color:#f7f4e8;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;min-height:100vh}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.13;background-image:linear-gradient(30deg,transparent 48%,#ffd35a 49%,transparent 50%),linear-gradient(150deg,transparent 48%,#42d9ff 49%,transparent 50%);background-size:74px 74px;mask-image:linear-gradient(to bottom,black,transparent 70%);z-index:-1}
+    button{transition:transform .18s ease,filter .18s ease,border-color .18s ease,box-shadow .18s ease}button:active{transform:scale(.97)}@keyframes goldPulse{0%,100%{box-shadow:0 0 12px #ffb00024, inset 0 1px #fff2}50%{box-shadow:0 0 24px #ffb00058, inset 0 1px #fff7}}@keyframes riseIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes ballPop{0%{opacity:0;transform:scale(.35) rotate(-25deg)}75%{transform:scale(1.13) rotate(4deg)}100%{opacity:1;transform:scale(1) rotate(0)}}@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
 button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:100vh;padding:14px}
-.top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1px solid #3a321b;border-radius:18px;background:#080d0c;box-shadow:0 0 22px #ffb00012}
-.brand{display:flex;align-items:center;gap:12px}.badge{width:46px;height:46px;border:2px solid var(--gold);border-radius:50%;display:grid;place-items:center;color:var(--gold);font-weight:900;font-size:19px;text-shadow:0 0 12px #ffb000}.brand h1{font-size:19px;margin:0;color:#ffdc78}.brand small{display:block;color:var(--muted);font-size:12px}.balance{border:1px solid var(--line);padding:10px 14px;border-radius:12px;color:var(--gold);font-weight:800}
-.hero{text-align:center;padding:22px 12px 18px;margin:14px 0;border-radius:20px;border:1px solid #3e3519;background:linear-gradient(120deg,#11241b,#09100f 55%,#1b170a);position:relative;overflow:hidden}
-.hero:before{content:"✦  ETHIOPIA  ✦";letter-spacing:8px;color:#7d6a2b;font-size:10px}.hero h2{margin:8px 0 2px;font-size:clamp(34px,7vw,62px);line-height:1;color:var(--gold);text-shadow:0 0 9px #ffb000,0 0 30px #ffb00055;font-weight:1000;letter-spacing:2px}.hero p{margin:8px 0 0;color:#d9c78d;letter-spacing:2px;font-size:13px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1px solid #5b481c;border-radius:18px;background:linear-gradient(120deg,#101612,#070b0a);box-shadow:0 8px 32px #0008,0 0 24px #ffb00012;position:relative;overflow:hidden}.top:after{content:'';position:absolute;left:0;top:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),var(--blue),transparent)}
+.top .balance{display:none!important}
+.brand{display:flex;align-items:center;gap:12px}.badge{width:46px;height:46px;border:2px solid var(--gold);border-radius:50%;display:grid;place-items:center;color:var(--gold);font-weight:900;font-size:19px;text-shadow:0 0 12px #ffb000;background:radial-gradient(circle,#42320e,#090d0b 72%);box-shadow:0 0 18px #ffb00024,inset 0 0 10px #ffb00020;flex-shrink:0}.brand h1{font-size:19px;margin:0;color:#ffdc78}.brand small{display:block;color:var(--muted);font-size:12px}.balance{border:1px solid #8b681f;padding:10px 14px;border-radius:12px;color:var(--gold);font-weight:850;background:linear-gradient(135deg,#2b210b,#0b100e);box-shadow:0 0 18px #ffb00017;white-space:nowrap}
+.hero{text-align:center;padding:26px 12px 22px;margin:14px 0;border-radius:20px;border:1px solid #5b481c;background:radial-gradient(ellipse at 50% 0%,#29311c 0,#101713 45%,#090c0b 100%);position:relative;overflow:hidden;box-shadow:inset 0 1px #fff1,0 12px 30px #0006}.hero:after{content:'';position:absolute;inset:auto -20% -70% -20%;height:100%;background:radial-gradient(ellipse,#ffb00018,transparent 65%);pointer-events:none}
+.hero:before{content:"✦  ETHIOPIA  ✦";letter-spacing:8px;color:#7d6a2b;font-size:10px}.hero h2{margin:10px 0 2px;font-size:clamp(32px,7vw,62px);line-height:1;color:var(--gold);background:linear-gradient(100deg,#fff1a7,#ffbd26,#fff0a0,#ff9d00);background-size:200% auto;background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 28px #ffb00030;font-weight:1000;letter-spacing:2px;animation:shimmer 5s linear infinite}.hero p{margin:8px 0 0;color:#d9c78d;letter-spacing:2px;font-size:13px}
 .notice{padding:10px 12px;background:#241b08;border:1px solid #8c671c;border-radius:12px;color:#f5d98b;font-size:12px;line-height:1.5;margin-bottom:14px}
-.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.8fr);gap:14px}.card{background:linear-gradient(145deg,#111a17,#080d0c);border:1px solid #4c3b16;border-radius:17px;padding:15px;box-shadow:0 0 18px #ffb0000b}.card h3{margin:0 0 13px;color:#ffdc78;font-size:16px}.sub{font-size:12px;color:var(--muted);margin-top:-7px;margin-bottom:13px}
-.grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}.num{min-width:0;aspect-ratio:1.22;border:1px solid #65501c;border-radius:8px;background:linear-gradient(#17211d,#0b100f);color:#f6f0d9;font-weight:750;font-size:clamp(11px,2vw,16px);box-shadow:inset 0 1px #ffffff0a;transition:.12s}.num:hover{border-color:var(--gold)}.num.selected{background:linear-gradient(#ffe88b,#ffad14);color:#201400;border-color:#fff0a6;box-shadow:0 0 12px #ffb000, inset 0 1px #fff8c8}
-.controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:13px;flex-wrap:wrap}.pill{border:1px solid #4d401e;border-radius:10px;padding:8px 10px;background:#0b1110;color:#f6e6b0;font-size:13px}.goldbtn{border:0;border-radius:12px;padding:12px 16px;background:linear-gradient(#ffe58a,#ffb31b 65%,#dc8100);color:#241700;font-weight:900;box-shadow:0 0 14px #ffb00035}.goldbtn:disabled{opacity:.45;cursor:not-allowed}.greenbtn{width:100%;border:1px solid #a8ffca;border-radius:13px;padding:15px;background:linear-gradient(#15ed79,#008b45);color:#001b0d;font-weight:950;font-size:17px;box-shadow:0 0 20px #00db7840}.stack{display:grid;gap:14px}.field{display:flex;align-items:center;justify-content:space-between;gap:10px}.field label{color:#d9d2bb;font-size:13px}.field input{width:110px;background:#060a09;border:1px solid #55451c;border-radius:9px;padding:10px;color:#fff;text-align:right;font-weight:800}.quick{display:flex;gap:6px;margin-top:9px}.quick button{flex:1;padding:8px 2px;border:1px solid #7b5a1b;border-radius:8px;background:#2b210c;color:#ffdb78;font-weight:800;font-size:12px}.stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #ffffff10;font-size:13px}.stat:last-child{border:0}.stat strong{color:var(--gold)}.drawballs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.ball{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 25%,#fff0a4,#ffb000 65%,#8d4d00);color:#201400;font-weight:900;font-size:12px;box-shadow:0 0 10px #ffb00035}.result{padding:11px;border-radius:10px;background:#092217;border:1px solid #087b43;color:#c9ffe0;font-size:13px;line-height:1.6;display:none}.result.show{display:block}.nav{display:flex;gap:8px;margin-top:14px}.nav button{flex:1;padding:11px 4px;border:1px solid #3c351e;border-radius:11px;background:#0b100f;color:#c9c4b4;font-size:12px}.nav button.active{border-color:var(--gold);color:var(--gold);box-shadow:0 0 12px #ffb00020}.foot{text-align:center;color:#73827a;font-size:11px;margin:16px 0 8px}
-@media(max-width:700px){.app{padding:9px}.layout{grid-template-columns:1fr}.hero{padding:18px 8px}.grid{gap:4px}.num{border-radius:6px}.card{padding:12px}.top{padding:10px}.balance{font-size:12px;padding:8px}}
+.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.8fr);gap:14px}.card{background:linear-gradient(145deg,#131b17eF,#080d0cf5);border:1px solid #4c3b16;border-radius:17px;padding:15px;box-shadow:0 10px 28px #0005,0 0 18px #ffb0000b;backdrop-filter:blur(8px);animation:riseIn .45s ease both}.card:nth-child(2){animation-delay:.06s}.card:nth-child(3){animation-delay:.12s}.card h3{margin:0 0 13px;color:#ffdc78;font-size:16px}.sub{font-size:12px;color:var(--muted);margin-top:-7px;margin-bottom:13px}
+.grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}.num{min-width:0;aspect-ratio:1.22;border:1px solid #65501c;border-radius:8px;background:linear-gradient(#17211d,#0b100f);color:#f6f0d9;font-weight:750;font-size:clamp(11px,2vw,16px);box-shadow:inset 0 1px #ffffff0a;transition:.12s}.num:hover{border-color:var(--gold);filter:brightness(1.25);transform:translateY(-1px)}.num.selected{background:linear-gradient(145deg,#fff0a0,#ffbd26 62%,#e58b00);color:#201400;border-color:#fff4b8;box-shadow:0 0 12px #ffb000,0 0 25px #ffb00055,inset 0 1px #fff8c8;animation:goldPulse 1.8s ease-in-out infinite;font-weight:950}
+.controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:13px;flex-wrap:wrap}.pill{border:1px solid #4d401e;border-radius:10px;padding:8px 10px;background:#0b1110;color:#f6e6b0;font-size:13px}.goldbtn{border:0;border-radius:12px;padding:12px 16px;background:linear-gradient(135deg,#fff0a0,#ffbd26 60%,#dc8100);color:#241700;font-weight:900;box-shadow:0 0 14px #ffb00035}.goldbtn:hover,.greenbtn:hover{filter:brightness(1.08);box-shadow:0 0 24px #ffb00055}.goldbtn:disabled{opacity:.45;cursor:not-allowed}.greenbtn{width:100%;border:1px solid #a8ffca;border-radius:13px;padding:15px;background:linear-gradient(120deg,#27ff91,#00bf68,#00914d);background-size:180% 180%;color:#001b0d;font-weight:950;font-size:17px;box-shadow:0 0 20px #00db7840;animation:shimmer 5s linear infinite}.stack{display:grid;gap:14px}.field{display:flex;align-items:center;justify-content:space-between;gap:10px}.field label{color:#d9d2bb;font-size:13px}.field input{width:110px;background:#060a09;border:1px solid #55451c;border-radius:9px;padding:10px;color:#fff;text-align:right;font-weight:800}.quick{display:flex;gap:6px;margin-top:9px}.quick button{flex:1;padding:8px 2px;border:1px solid #7b5a1b;border-radius:8px;background:#2b210c;color:#ffdb78;font-weight:800;font-size:12px}.stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #ffffff10;font-size:13px}.stat:last-child{border:0}.stat strong{color:var(--gold)}.drawballs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.countdown-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;margin-bottom:14px;border:1px solid #7b5b1b;border-radius:14px;background:linear-gradient(120deg,#211a09,#0c1210)}.countdown-label{font-size:11px;color:#c9b979;letter-spacing:1px;font-weight:800}.countdown-time{font-size:27px;font-weight:1000;color:var(--gold);font-variant-numeric:tabular-nums;text-shadow:0 0 14px #ffb00040}.countdown-note{font-size:11px;color:#9eaaa0;margin-top:3px}.draw-diagram{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px;margin-top:12px}.diagram-num{aspect-ratio:1;border:1px solid #39443a;border-radius:7px;background:#0b100e;color:#aab7ab;font-size:12px;font-weight:800;display:grid;place-items:center}.diagram-num.picked{border-color:#b98c25;background:#30240b;color:#ffdf83}.diagram-num.drawn{border-color:#16c779;background:linear-gradient(145deg,#b8ffd7,#19d17c);color:#002313;box-shadow:0 0 9px #00df7930}.diagram-num.hit{border-color:#fff0a0;background:linear-gradient(145deg,#fff2a7,#ffb000);color:#201400;box-shadow:0 0 12px #ffb00080}.diagram-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;color:#aab5ad;font-size:10px}.legend-dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px}.draw-diagram-wrap{margin-top:12px;padding-top:12px;border-top:1px solid #ffffff12}.draw-diagram-title{font-size:12px;color:#d8d0b5;font-weight:800}.ball{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 25%,#fff0a4,#ffb000 65%,#8d4d00);color:#201400;font-weight:900;font-size:12px;box-shadow:0 0 10px #ffb00035;animation:ballPop .35s cubic-bezier(.2,.8,.2,1) both}.result{padding:11px;border-radius:10px;background:#092217;border:1px solid #087b43;color:#c9ffe0;font-size:13px;line-height:1.6;display:none}.result.show{display:block;animation:riseIn .35s ease both}.nav{display:flex;gap:8px;margin-top:14px}.nav button{flex:1;padding:11px 4px;border:1px solid #3c351e;border-radius:11px;background:#0b100f;color:#c9c4b4;font-size:12px}.nav button.active{border-color:var(--gold);color:var(--gold);background:linear-gradient(135deg,#2b210c,#0b100f);box-shadow:0 0 12px #ffb00020}.nav button:hover{border-color:#8a6a24;color:#ffe29a}.foot{text-align:center;color:#73827a;font-size:11px;margin:16px 0 8px}.notice{box-shadow:inset 0 1px #fff1}.field input:focus{outline:1px solid var(--gold);border-color:var(--gold);box-shadow:0 0 12px #ffb00020}::selection{background:#ffca45;color:#201400}
+.how-to-card h3{margin-bottom:8px}.how-to-list{list-style:none;padding:0;margin:14px 0;display:grid;gap:14px}.how-to-list li{display:flex;align-items:flex-start;gap:11px}.step-number{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:linear-gradient(135deg,#fff0a0,#ffbd26);color:#241700;font-weight:950}.how-to-list strong{font-size:13px;color:#fff0bf}.how-to-list p{margin:3px 0 0;color:#aeb9ae;font-size:12px;line-height:1.5}.how-to-note{padding:10px 11px;border:1px solid #3f482b;border-radius:10px;background:#10180f;color:#c8d3b4;font-size:11px;line-height:1.55}.how-to-start{margin-top:13px;width:100%}
+.mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px;border:1px solid #4c3b16;border-radius:14px;background:#090e0c}.mode-btn{min-height:44px;border:1px solid #344037;border-radius:10px;background:#111814;color:#c3cbbf;font-weight:850}.mode-btn.active{border-color:var(--gold);background:linear-gradient(135deg,#3b2b0b,#17170e);color:#ffdf83;box-shadow:0 0 14px #ffb0001c}.mode-btn.real.active{border-color:#a77bff;color:#ddccff;background:linear-gradient(135deg,#28183e,#111018)}.mode-message{padding:11px 12px;border-radius:11px;border:1px solid #8a6926;background:#241b08;color:#f5d98b;font-size:12px;line-height:1.5}.mode-message.real-preview{border-color:#7754b5;background:#1a1228;color:#e1d3ff}.home-panel{display:grid;gap:13px;margin:14px 0}.home-balance{padding:18px;background:radial-gradient(ellipse at 90% 0%,#5a4318 0,transparent 46%),linear-gradient(130deg,#171e17,#090d0b 72%);border-color:#8a6926;position:relative;overflow:hidden}.balance-top,.balance-foot,.payment-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}.eyebrow{font-size:11px;letter-spacing:1.7px;color:#d6c58d;font-weight:800}.demo-tag,.soon-tag{font-size:10px;letter-spacing:1px;font-weight:900;color:#ffdf83;border:1px solid #8a6926;background:#30240d;padding:6px 8px;border-radius:999px;white-space:nowrap}.balance-amount{display:flex;align-items:baseline;gap:10px;margin:13px 0 12px;color:#ffda68;font-size:clamp(36px,8vw,54px);font-weight:1000;letter-spacing:-1px;text-shadow:0 0 18px #ffb00030}.balance-amount small{font-size:12px;letter-spacing:0;color:#c5b987;font-weight:650;text-shadow:none}.balance-foot{font-size:11px;color:#9aa99d;border-top:1px solid #ffffff12;padding-top:11px}.refresh-btn{border:1px solid #5b481c;background:#0a100d;color:#ffda68;border-radius:9px;padding:7px 10px;font-size:12px}.payment-actions{display:grid;grid-template-columns:1fr 1fr;gap:11px}.action-card{display:flex;align-items:center;gap:10px;text-align:left;padding:14px 12px;border-radius:15px;border:1px solid #6c531e;background:linear-gradient(135deg,#2c230d,#10130e);color:#fff0bf;min-width:0;box-shadow:0 8px 20px #0004}.deposit-action{border-color:#a47b27;background:linear-gradient(135deg,#42300b,#17150b)}.withdraw-action{border-color:#315e51;background:linear-gradient(135deg,#10372a,#0c1511)}.action-icon{width:38px;height:38px;display:grid;place-items:center;flex-shrink:0;border-radius:12px;background:#ffcf4a;color:#241800;font-size:24px;font-weight:900;box-shadow:0 0 15px #ffb00028}.withdraw-action .action-icon{background:#19dc83;color:#002313;box-shadow:0 0 15px #00db7830}.action-card strong,.method strong{display:block;font-size:14px}.action-card small,.method small{display:block;font-size:10px;color:#aeb6a9;margin-top:3px}.action-arrow{margin-left:auto;color:#ffdb76;font-size:25px}.payment-card h3{margin-bottom:6px}.payment-heading{align-items:flex-start}.payment-heading .sub{margin:0;line-height:1.4}.soon-tag{font-size:9px;color:#b8e7d0;border-color:#245742;background:#0c2118}.payment-methods{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin-top:15px}.method{display:flex;align-items:center;gap:8px;min-width:0;text-align:left;padding:10px 8px;border:1px solid #344037;border-radius:12px;background:linear-gradient(145deg,#151d18,#0a0e0c);color:#f7f1dc}.method-mark{width:30px;height:30px;flex-shrink:0;display:grid;place-items:center;border-radius:9px;font-weight:1000;color:#07120b;background:linear-gradient(135deg,#b8f7d2,#20c87d)}.method-mark.cbe{background:linear-gradient(135deg,#c9eaff,#6bb5f3)}.method-mark.bank{background:linear-gradient(135deg,#f5df9c,#caa84a)}.method strong{font-size:11px}.method small{font-size:9px}.method-arrow{display:none}.payment-note{font-size:10px;color:#8e9b90;line-height:1.5;margin:12px 0 0}.action-card:hover,.method:hover{transform:translateY(-2px);filter:brightness(1.12);border-color:var(--gold)}#kenoGame{scroll-margin-top:12px}#kenoPanel[hidden],#homePanel[hidden]{display:none!important}#kenoPanel{animation:riseIn .3s ease both}#homePanel{animation:riseIn .3s ease both}
+@media(max-width:700px){.app{padding:9px}.layout{grid-template-columns:1fr}.hero{padding:18px 8px}.grid{gap:4px}.num{border-radius:6px;aspect-ratio:1.08}.card{padding:12px}.top{padding:10px}.balance{font-size:12px;padding:8px}.brand{gap:8px}.brand h1{font-size:16px}.badge{width:40px;height:40px;font-size:16px}.nav{gap:5px}.nav button{font-size:11px;padding:10px 2px}.home-balance{padding:15px}.payment-methods{grid-template-columns:1fr}.method{padding:10px}.method-arrow{display:block;margin-left:auto;color:#d9bd68;font-size:20px}.action-card{padding:12px 10px}.action-card strong{font-size:13px}.payment-heading{flex-direction:column;gap:8px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}}
+
+.payment-modal-backdrop{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;background:#000b;backdrop-filter:blur(8px)}.payment-modal-backdrop.open{display:flex;animation:riseIn .2s ease both}.payment-modal{width:min(100%,460px);max-height:90vh;overflow:auto;padding:18px;border:1px solid #8a6926;border-radius:20px;background:radial-gradient(ellipse at 100% 0%,#3a2c10 0,transparent 48%),linear-gradient(145deg,#121a16,#070b09);box-shadow:0 24px 80px #000b}.payment-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.payment-modal-head h3{margin:0;color:#ffdc78;font-size:20px}.modal-close{width:38px;height:38px;border-radius:10px;border:1px solid #4a503e;background:#0b100e;color:#fff;font-size:22px}.payment-method-choice{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid #3d5946;border-radius:13px;background:#0b1711;margin:12px 0 16px}.payment-method-choice .method-mark{width:40px;height:40px;font-size:18px}.payment-method-choice strong{display:block;color:#f6e8b8}.payment-method-choice small{display:block;color:#9ba99f;margin-top:3px}.payment-modal label{display:block;color:#d8d0b5;font-size:13px;margin:12px 0 7px}.payment-modal input{width:100%;padding:13px;border:1px solid #5b4a20;border-radius:11px;background:#050908;color:#fff;font:inherit;font-weight:800}.amount-shortcuts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:9px}.amount-shortcuts button{padding:9px 5px;border:1px solid #6b521e;border-radius:9px;background:#211a0a;color:#ffdc78;font-weight:800}.payment-demo-warning{padding:11px;border:1px solid #6a501e;border-radius:11px;background:#211908;color:#f2d995;font-size:11px;line-height:1.55;margin:14px 0}.payment-feedback{display:none;padding:11px;border:1px solid #167c4b;border-radius:10px;background:#092217;color:#c9ffe0;font-size:12px;line-height:1.5;margin-top:12px}.payment-feedback.show{display:block}.payment-modal .greenbtn{font-size:15px;padding:13px}.payment-modal .sub{line-height:1.5;margin-bottom:10px}
+
+
+.account-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.account-tab{padding:11px;border:1px solid #51421f;border-radius:10px;background:#0b100f;color:#d8cfb7;font-weight:800}.account-tab.active{border-color:var(--gold);color:var(--gold);background:linear-gradient(135deg,#2b210c,#0b100f);box-shadow:0 0 12px #ffb00020}.account-card{margin-bottom:13px}.account-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.account-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.account-form label{display:grid;gap:6px;color:#d9d2bb;font-size:12px}.account-form input{width:100%;min-width:0;background:#060a09;border:1px solid #55451c;border-radius:9px;padding:11px;color:#fff;font:inherit}.account-form input:focus{outline:1px solid var(--gold);border-color:var(--gold)}.account-form button{grid-column:1/-1}.account-help{font-size:11px;color:#9eaaa0;line-height:1.5;margin:11px 0 0}.account-feedback{font-size:12px;line-height:1.5;color:#ffe29a;margin:9px 0 0;min-height:0}.account-feedback:empty{display:none}.account-status{color:#c9ffe0;font-size:13px;line-height:1.5}@media(max-width:560px){.account-form{grid-template-columns:1fr}}
+#homePanel .home-balance,#homePanel .payment-actions,#homePanel .payment-card{display:none!important}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
     <div class="brand"><div class="badge">HK</div><div><h1>Habesha Keno</h1><small id="platformLabel">Telegram Mini App • Demo</small></div></div>
-    <div class="balance">🪙 <span id="balance">1,000</span> credits</div>
   </header>
   <section class="hero"><h2>HABESHA KENO</h2><p>✦ PLAY • MATCH • CELEBRATE ✦</p></section>
-  <div class="notice"><strong>DEMO ONLY:</strong> This prototype uses virtual credits with no cash value. Deposits, withdrawals, real-money betting, and cash prizes are not enabled.</div>
-  <main class="layout">
+  <section class="card account-card" id="accountCard" style="margin-top:14px">
+    <div class="account-head"><div><h3>👤 Player account</h3><p class="sub" style="margin:0">Sign in or create your Habesha Keno account.</p></div><span class="soon-tag">ACCOUNT</span></div>
+    <div id="accountSignedOut">
+      <div class="account-tabs" role="tablist" aria-label="Account options">
+        <button type="button" class="account-tab active" id="loginTabBtn" role="tab" aria-selected="true" aria-controls="loginPanel">Login</button>
+        <button type="button" class="account-tab" id="registerTabBtn" role="tab" aria-selected="false" aria-controls="registerPanel">Registration</button>
+      </div>
+      <div id="loginPanel" role="tabpanel" aria-labelledby="loginTabBtn">
+        <form id="loginForm" class="account-form">
+          <label>Username<input id="loginUsername" name="username" minlength="3" maxlength="20" autocomplete="username" placeholder="Your username" required></label>
+          <label>Password<input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Your password" required></label>
+          <button class="goldbtn" type="submit" id="loginBtn">Login</button>
+        </form>
+        <p class="account-help">Username login is being connected through a secure server function. Your password is never stored in this browser as plain text.</p>
+      </div>
+      <div id="registerPanel" role="tabpanel" aria-labelledby="registerTabBtn" hidden>
+        <form id="registerForm" class="account-form">
+          <label>Username<input id="regUsername" name="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" autocomplete="username" placeholder="e.g. Abebe_12" required></label>
+          <label>Email address<input id="regEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label>
+          <label>Password<input id="regPassword" name="password" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" required></label>
+          <label>Confirm password<input id="regConfirm" name="confirm" type="password" minlength="8" autocomplete="new-password" placeholder="Enter password again" required></label>
+          <button class="goldbtn" type="submit" id="registerBtn">Create account</button>
+        </form>
+        <p class="account-help">Your email is used for account verification and recovery. Choose a username that does not reveal private information. Never reuse an important password.</p>
+      </div>
+    </div>
+    <div id="accountSignedIn" hidden>
+      <p class="account-status" id="accountStatus" aria-live="polite"></p>
+      <button class="pill" type="button" id="signOutBtn">Sign out</button>
+    </div>
+    <p class="account-feedback" id="accountFeedback" role="status" aria-live="polite"></p>
+  </section>
+  <section id="homePanel" class="home-panel">
+    <section class="card" aria-label="Choose game mode">
+      <h3 style="margin-bottom:10px">Choose your mode</h3>
+      <div class="mode-switch" role="group" aria-label="Game mode">
+        <button type="button" class="mode-btn active" id="demoModeBtn" aria-pressed="true">🎮 Demo Mode</button>
+        <button type="button" class="mode-btn real" id="realModeBtn" aria-pressed="false">✦ Real Mode</button>
+      </div>
+      <div class="mode-message" id="modeMessage" style="margin-top:10px" aria-live="polite">Demo Mode is active. Play using virtual credits only.</div>
+    </section>
+    <div class="home-balance card">
+      <div class="balance-top"><span class="eyebrow">YOUR AVAILABLE BALANCE</span><span class="demo-tag" id="modeBadge">DEMO MODE</span></div>
+      <div class="balance-amount"><span id="homeBalance">1,000</span><small>virtual credits</small></div>
+      <div class="balance-foot"><span>🔒 Secure demo wallet</span><button class="refresh-btn" id="refreshBalance" type="button">↻ Refresh</button></div>
+    </div>
+    <div class="payment-actions">
+      <button class="action-card deposit-action" id="depositBtn" type="button"><span class="action-icon">＋</span><span><strong>Deposit</strong><small>Contact admin on Telegram</small></span><span class="action-arrow">›</span></button>
+      <button class="action-card withdraw-action" id="withdrawBtn" type="button"><span class="action-icon">↗</span><span><strong>Withdraw</strong><small>Demo request only</small></span><span class="action-arrow">›</span></button>
+    </div>
+    <section class="card how-to-card">
+      <h3>🎮 How to play Habesha Keno</h3>
+      <p class="sub" style="margin-top:-5px;line-height:1.5">Learn the basics in a few quick steps.</p>
+      <ol class="how-to-list">
+        <li><span class="step-number">1</span><div><strong>Open Keno</strong><p>Tap <b>Keno</b> in the bottom navigation.</p></div></li>
+        <li><span class="step-number">2</span><div><strong>Pick your numbers</strong><p>Select 1–10 numbers from the grid numbered 1 to 80, or use <b>Random picks</b>.</p></div></li>
+        <li><span class="step-number">3</span><div><strong>Choose demo credits</strong><p>Set a virtual-credit amount between 10 and 500, then check your selection.</p></div></li>
+        <li><span class="step-number">4</span><div><strong>Draw and compare</strong><p>Tap <b>Draw numbers</b>. The game draws 20 numbers and shows how many match yours.</p></div></li>
+      </ol>
+      <div class="how-to-note">Practice mode only: credits have no cash value, and this prototype does not pay winnings or support real-money deposits or withdrawals.</div>
+      <button class="goldbtn how-to-start" id="startKenoBtn" type="button">Start playing in Keno →</button>
+    </section>
+    <section class="card payment-card">
+      <div class="payment-heading"><div><h3>Payment options</h3><p class="sub">Preview payment methods for a future integration.</p></div><span class="soon-tag">COMING LATER</span></div>
+      <div class="payment-methods">
+        <button class="method" type="button" data-method="Telebirr"><span class="method-mark telebirr">T</span><span><strong>Telebirr</strong><small>Not connected</small></span><span class="method-arrow">›</span></button>
+      </div>
+      <p class="payment-note">Demo only: these options do not send or receive money. Real payments will require a verified payment provider and secure backend.</p>
+    </section>
+  </section>
+  <section id="walletPanel" hidden>
+    <div class="stack">
+      <div id="walletBalanceSlot"></div>
+      <section id="walletAccountSlot"></section>
+      <section class="card payment-card" id="walletPaymentCard">
+        <div class="payment-heading"><div><h3>Payment options</h3><p class="sub">Available payment contact.</p></div></div>
+        <div class="payment-methods"><button class="method" type="button" id="walletTelebirrBtn"><span class="method-mark telebirr">T</span><span><strong>Telebirr</strong><small>Contact admin on Telegram</small></span><span class="method-arrow">›</span></button></div>
+        <div class="payment-actions">
+          <button class="action-card deposit-action" id="walletDepositBtn" type="button"><span class="action-icon">＋</span><span><strong>Deposit</strong><small>Contact admin on Telegram</small></span><span class="action-arrow">›</span></button>
+          <button class="action-card withdraw-action" id="walletWithdrawBtn" type="button"><span class="action-icon">↗</span><span><strong>Withdraw</strong><small>Demo request only</small></span><span class="action-arrow">›</span></button>
+        </div>
+        <p class="payment-note">Demo only: no money is transferred or received.</p>
+      </section>
+      <section class="card" id="walletHistoryCard">
+        <div class="payment-heading"><div><h3>Wallet activity</h3><p class="sub">Recent virtual-credit changes and requests.</p></div><button class="refresh-btn" id="clearWalletHistory" type="button">Clear history</button></div>
+        <div id="walletHistoryList" aria-live="polite"><p class="payment-note">No wallet activity yet.</p></div>
+        <p class="payment-note">History is saved in this browser only for now. It is not yet synced to your Supabase account.</p>
+      </section>
+    </div>
+  </section>
+  <section id="kenoPanel" hidden>
+  <div class="notice" id="kenoModeNotice"><strong>DEMO ONLY:</strong> This prototype uses virtual credits with no cash value. Deposits, withdrawals, real-money betting, and cash prizes are not enabled.</div>
+  <section class="countdown-card" aria-live="polite">
+    <div><div class="countdown-label">⏱ NEXT DRAW STARTS IN</div><div class="countdown-note" id="timerNote">Choose numbers and join during the countdown</div></div>
+    <div class="countdown-time" id="countdown">01:00</div>
+  </section>
+  <section class="card" style="margin-bottom:14px">
+    <h3>🌐 Scheduled demo draw <span style="float:right;color:#a8b4aa;font-size:12px">20 numbers • 1/sec</span></h3>
+    <div id="scheduledStatus" class="sub" aria-live="polite">The 60-second entry window is open. Join the next draw with your picks.</div>
+    <div class="drawballs" id="drawBalls" aria-live="polite" aria-label="Scheduled demo numbers revealed one at a time"></div>
+    <p style="font-size:11px;color:#84938b;line-height:1.5;margin-bottom:0">Demo synchronization: visitors using this same page see the same sequence for each UTC minute. This browser-only preview is not server-verified or suitable for real-money play.</p>
+  </section>
+  <main class="layout" id="kenoGame">
     <section class="card">
       <h3>Choose your numbers <span style="float:right;color:#a8b4aa;font-size:12px" id="picked">0 / 10 selected</span></h3>
       <div class="sub">Pick 1–10 numbers from 1 to 80.</div>
@@ -44,13 +156,12 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
         <div class="stat" style="margin-top:12px"><span>Numbers picked</span><strong id="pickCount">0</strong></div>
         <div class="stat"><span>Demo draw</span><strong>20 numbers</strong></div>
         <div class="stat"><span>Possible payout</span><strong>Practice only</strong></div>
-        <button class="greenbtn" id="playBtn" style="margin-top:14px">▶ Draw numbers</button>
-        <p style="font-size:11px;color:#84938b;line-height:1.5;margin-bottom:0">Each draw is generated locally for demonstration. This is not an audited or production random-number system.</p>
+        <button class="greenbtn" id="playBtn" style="margin-top:14px">▶ Join next draw</button>
+        <p style="font-size:11px;color:#84938b;line-height:1.5;margin-bottom:0">This browser-only demo runs a 60-second entry window, then reveals 20 numbers one per second. It is not server-verified or suitable for real-money play.</p>
       </section>
       <section class="card">
         <h3>✨ Draw results</h3>
         <div id="drawStatus" style="font-size:13px;color:#aab5ad">Your latest draw will appear here.</div>
-        <div class="drawballs" id="drawBalls"></div>
         <div class="result" id="result"></div>
       </section>
       <section class="card">
@@ -61,8 +172,37 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
       </section>
     </aside>
   </main>
-  <nav class="nav"><button class="active">⌂ Home</button><button id="kenoNav">▦ Keno</button><button id="walletNav">▣ Wallet (demo)</button><button id="leaderNav">♜ Leaderboard (demo)</button></nav>
-  <div class="foot">Habesha Keno • Local prototype • Progress resets when you refresh</div>
+  </section>
+
+
+  <section id="leaderPanel" hidden>
+    <section class="card" style="margin-bottom:14px">
+      <h3>🏆 Recent demo games</h3>
+      <p class="sub">Sample results only — usernames and winners below are fictional, not real player records.</p>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:440px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">20 drawn numbers</th><th style="padding:10px 6px">Sample winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="3" style="padding:12px 6px;color:#9aaba5">No completed demo games yet. The first result will appear here.</td></tr></tbody></table></div>
+    </section>
+    <section class="card">
+      <h3>🥇 Top 12 leaderboard</h3>
+      <p class="sub">Fictional practice players. Points update after each completed practice game.</p>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Demo points</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
+    </section>
+  </section>
+  <div class="payment-modal-backdrop" id="paymentModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="paymentModalTitle" aria-hidden="true">
+    <section class="payment-modal">
+      <div class="payment-modal-head"><h3 id="paymentModalTitle">Telebirr demo</h3><button type="button" class="modal-close" id="closePaymentModal" aria-label="Close payment screen">×</button></div>
+      <p class="sub" id="paymentModalSubtitle">Add virtual credits to your practice wallet.</p>
+      <div class="payment-method-choice"><span class="method-mark">T</span><span><strong>Telebirr</strong><small>Demo preview • Not connected to Telebirr</small></span></div>
+      <label for="paymentAmount" id="paymentAmountLabel">Virtual credits to add</label>
+      <input id="paymentAmount" type="number" min="10" max="10000" step="10" value="100" inputmode="numeric">
+      <div class="amount-shortcuts"><button type="button" data-demo-amount="100">100 credits</button><button type="button" data-demo-amount="500">500 credits</button><button type="button" data-demo-amount="1000">1,000 credits</button></div>
+      <div class="payment-demo-warning">DEMO ONLY: no phone number or payment details are collected. This screen does not send or receive money, and virtual credits have no cash value.</div>
+      <button type="button" class="greenbtn" id="confirmDemoPayment">Add demo credits</button>
+      <div class="payment-feedback" id="paymentFeedback" aria-live="polite"></div>
+    </section>
+  </div>
+
+  <nav class="nav"><button id="homeNav" class="active">⌂ Home</button><button id="kenoNav">▦ Keno</button><button id="walletNav">▣ Wallet</button><button id="leaderNav">♜ Leaderboard</button></nav>
+  <div class="foot">Habesha Keno • Local prototype • Virtual balance and activity are saved in this browser only</div>
 </div>
 <script>
 const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
@@ -78,9 +218,157 @@ if (tg) {
   document.getElementById('platformLabel').textContent = 'Browser preview • Virtual-credit demo';
 }
 const grid=document.getElementById('numberGrid');
-const selected=new Set(); let balance=1000, rounds=0, wagered=0, totalMatches=0;
+const selected=new Set();
+const WALLET_BALANCE_KEY='habesha_keno_virtual_wallet_balance_v1';
+let balance=1000;
+try{const savedBalance=localStorage.getItem(WALLET_BALANCE_KEY);if(savedBalance!==null&&Number.isFinite(Number(savedBalance))&&Number(savedBalance)>=0)balance=Number(savedBalance);}catch(_){}
+let rounds=0, wagered=0, totalMatches=0;
+let timerRemaining=60, timerInterval=null, revealInterval=null, lastDraw=new Set(), lastHits=new Set();
+let scheduledDrawNumbers=[], phase='countdown', phaseDeadline=Date.now()+60000, revealCount=0, queuedEntry=null, roundSequence=0;
+const ethiopianFirstNames=['Abebe','Liya','Dawit','Hana','Mikias','Selam','Nahom','Eden','Bereket','Mahlet','Yonas','Sara','Meron','Daniel','Ruth','Samuel','Bethel','Henok','Rahel','Natnael','Tigist','Fikru','Mimi','Kalkidan','Biruk','Saron','Yonatan','Marta','Solomon','Hiwot','Fitsum','Hirut','Robel','Elias','Feven','Amanuel','Genet','Mesfin','Senait','Eyob'];
+const ethiopianHandles=['Addis','Bole','Arada','Kality','Mekelle','Gondar','Hawassa','DireDawa','Jimma','BahirDar','Adama','Harar','Wolaita','Gurage','Shewa','Tigray','Sidama','Oromo','Habesha','BlueNile'];
+const demoNames=Array.from({length:260},(_,i)=>`${ethiopianFirstNames[i%ethiopianFirstNames.length]}_${ethiopianHandles[Math.floor(i/ethiopianFirstNames.length)%ethiopianHandles.length]}${String(i+1).padStart(3,'0')}`);
+const demoScores=demoNames.map((_,i)=>Math.max(10,1200-i*4+(i*37)%83));
+const recentDemoGames=[];
+let gameMode='demo';
+function setGameMode(mode){
+  gameMode=mode;
+  const demo=mode==='demo';
+  document.getElementById('demoModeBtn').classList.toggle('active',demo);
+  document.getElementById('realModeBtn').classList.toggle('active',!demo);
+  document.getElementById('demoModeBtn').setAttribute('aria-pressed',String(demo));
+  document.getElementById('realModeBtn').setAttribute('aria-pressed',String(!demo));
+  document.getElementById('modeBadge').textContent=demo?'DEMO MODE':'REAL MODE PREVIEW';
+  const msg=document.getElementById('modeMessage');
+  msg.classList.toggle('real-preview',!demo);
+  msg.textContent=demo?'Demo Mode is active. Play using virtual credits only.':'Real Mode is a preview only and is not active. Real-money play, deposits, withdrawals, and cash prizes are not available.';
+  document.getElementById('kenoModeNotice').innerHTML=demo?'<strong>DEMO ONLY:</strong> This prototype uses virtual credits with no cash value. Deposits, withdrawals, real-money betting, and cash prizes are not enabled.':'<strong>REAL MODE PREVIEW:</strong> Real-money play is not enabled. Switch back to Demo Mode to play with virtual credits.';
+  document.getElementById('playBtn').disabled=!demo;
+  document.getElementById('playBtn').textContent=demo?(queuedEntry?'✓ Joined next draw':'▶ Join next draw'):'Real Mode unavailable';
+  document.querySelectorAll('#numberGrid .num, #clearBtn, #randomBtn, [data-bet], #bet').forEach(el=>el.disabled=!demo);
+}
 const fmt=n=>Number(n).toLocaleString('en-US');
+function saveVirtualBalance(){try{localStorage.setItem(WALLET_BALANCE_KEY,String(balance));}catch(_){}}
+function syncHomeBalance(){saveVirtualBalance();const el=document.getElementById('homeBalance');if(el)el.textContent=fmt(balance)}
+const WALLET_HISTORY_KEY='habesha_keno_virtual_wallet_history_v1';
+let walletHistory=[];
+try{walletHistory=JSON.parse(localStorage.getItem(WALLET_HISTORY_KEY)||'[]');if(!Array.isArray(walletHistory))walletHistory=[];}catch(_){walletHistory=[];}
+function saveWalletHistory(){try{localStorage.setItem(WALLET_HISTORY_KEY,JSON.stringify(walletHistory.slice(0,50)));}catch(_){}}
+function addWalletActivity(type,amount,details){
+  walletHistory.unshift({id:Date.now()+Math.random(),type,amount,details,balance,createdAt:new Date().toISOString()});
+  walletHistory=walletHistory.slice(0,50);saveWalletHistory();renderWalletHistory();
+}
+function renderWalletHistory(){
+  const host=document.getElementById('walletHistoryList');if(!host)return;
+  if(!walletHistory.length){host.innerHTML='<p class="payment-note">No wallet activity yet.</p>';return;}
+  host.innerHTML='';
+  walletHistory.forEach(item=>{
+    const row=document.createElement('div');row.style.cssText='display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:11px 0;border-top:1px solid #ffffff18;';
+    const left=document.createElement('div');left.style.minWidth='0';
+    const title=document.createElement('strong');title.style.cssText='display:block;color:#f5e7bd;font-size:13px';title.textContent=item.type;
+    const detail=document.createElement('small');detail.style.cssText='display:block;color:#9eaa9f;font-size:11px;margin-top:4px';detail.textContent=item.details+' · '+new Date(item.createdAt).toLocaleString();
+    left.append(title,detail);
+    const right=document.createElement('div');right.style.cssText='text-align:right;color:#ffdf83;font-weight:800;font-size:12px;white-space:nowrap';
+    right.textContent=(item.amount>0?'+':'')+fmt(item.amount)+' credits';
+    const bal=document.createElement('small');bal.style.cssText='display:block;color:#9eaa9f;font-weight:500;margin-top:4px';bal.textContent='Balance: '+fmt(item.balance);right.appendChild(bal);row.append(left,right);host.appendChild(row);
+  });
+}
+document.getElementById('clearWalletHistory')?.addEventListener('click',()=>{walletHistory=[];saveWalletHistory();renderWalletHistory();});
 for(let n=1;n<=80;n++){const b=document.createElement('button');b.className='num';b.textContent=n;b.setAttribute('aria-label','Number '+n);b.onclick=()=>toggle(n,b);grid.appendChild(b)}
+function paintCountdown(){
+  const remaining=Math.max(0,Math.ceil((phaseDeadline-Date.now())/1000));
+  timerRemaining=remaining;
+  const m=String(Math.floor(remaining/60)).padStart(2,'0');
+  const sec=String(remaining%60).padStart(2,'0');
+  document.getElementById('countdown').textContent=`${m}:${sec}`;
+  document.getElementById('timerNote').textContent=phase==='countdown'?'Choose numbers and join before time runs out':'Drawing numbers — next entry window starts after results';
+}
+function getRoundDraw(roundId){
+  // Deterministic practice draw for this local demo round; a real shared draw needs a server.
+  let seed=(roundId ^ 0x9e3779b9)>>>0;
+  const rand=()=>{seed=(seed+0x6D2B79F5)>>>0;let t=seed;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};
+  const pool=Array.from({length:80},(_,i)=>i+1), result=[];
+  while(result.length<20){const idx=Math.floor(rand()*pool.length);result.push(pool.splice(idx,1)[0]);}
+  return result;
+}
+function revealOneNumber(){
+  if(revealCount>=20)return;
+  const n=scheduledDrawNumbers[revealCount];
+  const ball=document.createElement('span');ball.className='ball';ball.textContent=n;ball.title='Demo draw number '+n;
+  document.getElementById('drawBalls').appendChild(ball);
+  revealCount++;
+  document.getElementById('scheduledStatus').textContent=`Drawing in progress — ${revealCount} of 20 numbers revealed.`;
+  if(revealCount===20)finishDraw();
+}
+function finishDraw(){
+  const drawNumbers=scheduledDrawNumbers.slice();
+  const winnerIndex=(roundSequence*7)%demoNames.length;
+  const sampleWinner=demoNames[winnerIndex];
+  // Practice-only scoring: the selected fictional winner receives 10 points per completed round.
+  demoScores[winnerIndex]+=10;
+  recentDemoGames.unshift({round:roundSequence,numbers:drawNumbers.slice(),winner:sampleWinner});
+  recentDemoGames.splice(10);
+  renderRecentGames();
+  renderLeaderboard();
+  document.getElementById('scheduledStatus').textContent='Draw complete — all 20 numbers have been revealed.';
+  if(queuedEntry){
+    const entry=queuedEntry;queuedEntry=null;
+    const hits=entry.picks.filter(n=>drawNumbers.includes(n)).sort((a,b)=>a-b);
+    lastDraw=new Set(drawNumbers);lastHits=new Set(hits);
+    status('Round complete. Your result is shown below after all 20 numbers were drawn.');
+    const r=document.getElementById('result');
+    r.innerHTML=`<strong>Demo round result</strong><br>Your numbers: <strong>${entry.picks.join(', ')}</strong><br>Draw numbers: <strong>${drawNumbers.join(', ')}</strong><br>Matched numbers: <strong>${hits.length}</strong><br>${hits.length?`Your matches: ${hits.join(', ')}`:'No matches this round.'}<br>Demo bet used: ${fmt(entry.bet)} credits<br><strong>No winnings are paid in this prototype.</strong>`;
+    r.classList.add('show');
+    totalMatches+=hits.length;document.getElementById('rounds').textContent=rounds;document.getElementById('wagered').textContent=fmt(wagered);document.getElementById('matches').textContent=totalMatches;
+  }else{
+    status('Draw complete. You did not join this round, so no personal result was recorded.');
+  }
+  document.getElementById('playBtn').textContent='▶ Join next draw';
+  phase='countdown';phaseDeadline=Date.now()+60000;
+  document.getElementById('scheduledStatus').textContent='Next 60-second entry window is open. Choose numbers and join the next draw.';
+}
+function renderRecentGames(){
+  const body=document.getElementById('recentGamesBody');
+  if(!body)return;
+  body.innerHTML='';
+  recentDemoGames.forEach(game=>{
+    const tr=document.createElement('tr');tr.style.borderTop='1px solid #ffffff18';
+    const cells=[`#${game.round}`,game.numbers.join(', '),game.winner];
+    cells.forEach((value,i)=>{const td=document.createElement('td');td.style.padding='10px 6px';td.style.verticalAlign='top';td.style.color=i===2?'#ffdf83':'#e9e5d5';td.textContent=value;tr.appendChild(td)});
+    body.appendChild(tr);
+  });
+}
+function renderLeaderboard(){
+  const body=document.getElementById('leaderboardBody');if(!body)return;body.innerHTML='';
+  const topTwelve=demoNames.map((name,index)=>({name,points:demoScores[index]}))
+    .sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name)).slice(0,12);
+  topTwelve.forEach((player,i)=>{const tr=document.createElement('tr');tr.style.borderTop='1px solid #ffffff18';
+    [String(i+1),player.name,player.points.toLocaleString('en-US')].forEach((value,j)=>{const td=document.createElement('td');td.style.padding='10px 6px';td.style.color=j===0?'#ffdf83':'#e9e5d5';td.textContent=value;tr.appendChild(td)});body.appendChild(tr)});
+}
+renderLeaderboard();
+function beginDraw(){
+  phase='drawing';roundSequence++;
+  scheduledDrawNumbers=getRoundDraw(roundSequence);
+  revealCount=0;
+  document.getElementById('drawBalls').innerHTML='';
+  document.getElementById('scheduledStatus').textContent='Draw starting — 20 numbers will appear one per second.';
+  if(queuedEntry){
+    // The virtual-credit amount is reserved when the player joins; the entry is settled after all 20 numbers appear.
+    rounds++;
+  }
+  revealOneNumber();
+  if(revealCount<20){revealInterval=setInterval(()=>{revealOneNumber();if(revealCount>=20&&revealInterval){clearInterval(revealInterval);revealInterval=null}},1000)}
+}
+function syncScheduledDraw(){
+  paintCountdown();
+  if(phase==='countdown'&&Date.now()>=phaseDeadline){beginDraw();paintCountdown();}
+}
+function startCountdown(){
+  if(timerInterval)clearInterval(timerInterval);
+  if(revealInterval)clearInterval(revealInterval);
+  phase='countdown';phaseDeadline=Date.now()+60000;
+  syncScheduledDraw();timerInterval=setInterval(syncScheduledDraw,200);
+}
 function toggle(n,b){if(selected.has(n)){selected.delete(n);b.classList.remove('selected')}else{if(selected.size>=10){status('You can select up to 10 numbers.');return}selected.add(n);b.classList.add('selected')}updatePicks();document.getElementById('result').classList.remove('show')}
 function updatePicks(){document.getElementById('picked').textContent=`${selected.size} / 10 selected`;document.getElementById('pickCount').textContent=selected.size;document.getElementById('selectedList').textContent=[...selected].sort((a,b)=>a-b).join(', ')||'—'}
 function status(s){document.getElementById('drawStatus').textContent=s}
@@ -88,23 +376,187 @@ document.getElementById('clearBtn').onclick=()=>{selected.clear();document.query
 document.getElementById('randomBtn').onclick=()=>{selected.clear();while(selected.size<10)selected.add(1+Math.floor(Math.random()*80));document.querySelectorAll('.num').forEach((b,i)=>b.classList.toggle('selected',selected.has(i+1)));updatePicks()};
 document.querySelectorAll('[data-bet]').forEach(b=>b.onclick=()=>document.getElementById('bet').value=b.dataset.bet);
 document.getElementById('playBtn').onclick=()=>{
- const bet=Number(document.getElementById('bet').value);
+ if(gameMode!=='demo')return;
+ if(phase!=='countdown'){status('The draw is already in progress. Choose numbers for the next entry window.');return}
+ if(queuedEntry){status('You have already joined the next draw.');return}
  if(selected.size<1){status('Choose at least one number first.');return}
- if(!Number.isFinite(bet)||bet<10||bet>500||bet%10!==0){status('Choose a bet from 10 to 500 credits, in steps of 10.');return}
- if(bet>balance){status('Not enough demo credits. Lower your bet.');return}
- balance-=bet;wagered+=bet;rounds++;document.getElementById('balance').textContent=fmt(balance);
- const draw=new Set();while(draw.size<20)draw.add(1+Math.floor(Math.random()*80));
- const hits=[...selected].filter(n=>draw.has(n)).sort((a,b)=>a-b);
- const sorted=[...draw].sort((a,b)=>a-b);
- document.getElementById('drawBalls').innerHTML=sorted.map(n=>`<span class="ball" title="Drawn number ${n}">${n}</span>`).join('');
- status('Draw complete — 20 numbers drawn.');
- // No prize payout is enabled in this prototype; it is a safe virtual-credit interaction demo.
- const r=document.getElementById('result');r.innerHTML=`<strong>Round complete</strong><br>Matched numbers: <strong>${hits.length}</strong><br>${hits.length?`Your matches: ${hits.join(', ')}`:'No matches this round.'}<br>Demo bet used: ${fmt(bet)} credits<br><strong>No winnings are paid in this prototype.</strong>`;r.classList.add('show');
- totalMatches+=hits.length;document.getElementById('rounds').textContent=rounds;document.getElementById('wagered').textContent=fmt(wagered);document.getElementById('matches').textContent=totalMatches;
+ const bet=Number(document.getElementById('bet').value);
+ if(!Number.isFinite(bet)||bet<10||bet>500||bet%10!==0){status('Choose a demo bet from 10 to 500 credits, in steps of 10.');return}
+ if(bet>balance){status('Not enough demo credits. Lower your demo bet.');return}
+ const picks=[...selected].sort((a,b)=>a-b);
+ balance-=bet;wagered+=bet;syncHomeBalance();addWalletActivity('Game entry',-bet,`Round ${roundSequence+1} virtual-credit entry`);
+ queuedEntry={picks,bet};
+ document.getElementById('playBtn').textContent='✓ Joined next draw';
+ status(`You joined the next demo draw with ${picks.length} number${picks.length===1?'':'s'}. Results appear after all 20 numbers are revealed.`);
+ document.getElementById('result').classList.remove('show');
 };
-document.getElementById('walletNav').onclick=()=>alert('Demo wallet only: '+fmt(balance)+' virtual credits. Deposits and withdrawals are disabled.');
-document.getElementById('leaderNav').onclick=()=>alert('Leaderboard is not connected in this local prototype.');
-document.getElementById('kenoNav').onclick=()=>document.getElementById('numberGrid').scrollIntoView({behavior:'smooth',block:'center'});
-updatePicks();
+startCountdown();
+const homePanel=document.getElementById('homePanel');
+const kenoPanel=document.getElementById('kenoPanel');
+const walletPanel=document.getElementById('walletPanel');
+// Keep the Wallet tab focused on balance, account, and payment options.
+document.getElementById('walletAccountSlot').appendChild(document.getElementById('accountCard'));
+document.getElementById('walletBalanceSlot').appendChild(homePanel.querySelector('.home-balance'));
+document.getElementById('walletDepositBtn').onclick=()=>openTelegramAdmin();
+document.getElementById('walletTelebirrBtn').onclick=()=>openTelegramAdmin();
+document.getElementById('walletWithdrawBtn').onclick=()=>openAdminTelegramSupport('Hello admin, I need help with my Habesha Keno virtual-credit account. I understand these demo credits have no cash value.');
+const navButtons=[document.getElementById('homeNav'),document.getElementById('kenoNav'),document.getElementById('walletNav'),document.getElementById('leaderNav')];
+function showTab(tab){
+  homePanel.hidden=tab!=='home';
+  kenoPanel.hidden=tab!=='keno';
+  walletPanel.hidden=tab!=='wallet';
+  document.getElementById('leaderPanel').hidden=tab!=='leader';
+  navButtons.forEach((b,i)=>b.classList.toggle('active',(tab==='home'&&i===0)||(tab==='keno'&&i===1)||(tab==='wallet'&&i===2)||(tab==='leader'&&i===3)));
+  if(tab==='wallet'){homePanel.hidden=true;kenoPanel.hidden=true;}
+  else if(tab==='leader'){homePanel.hidden=true;kenoPanel.hidden=true;renderLeaderboard();renderRecentGames();}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.getElementById('demoModeBtn').onclick=()=>setGameMode('demo');
+document.getElementById('realModeBtn').onclick=()=>setGameMode('real');
+document.getElementById('startKenoBtn').onclick=()=>showTab('keno');
+document.getElementById('homeNav').onclick=()=>showTab('home');
+document.getElementById('kenoNav').onclick=()=>showTab('keno');
+document.getElementById('walletNav').onclick=()=>showTab('wallet');
+document.getElementById('leaderNav').onclick=()=>showTab('leader');
+function openTelegramAdmin(){ window.open('https://t.me/habesha_keno?text='+encodeURIComponent('Hello admin, I need help with Habesha Keno.'),'_blank','noopener'); }
+let paymentAction='deposit';
+const paymentBackdrop=document.getElementById('paymentModalBackdrop');
+const paymentAmount=document.getElementById('paymentAmount');
+const paymentFeedback=document.getElementById('paymentFeedback');
+function openPaymentScreen(action){
+  paymentAction=action;
+  const isDeposit=action==='deposit';
+  document.getElementById('paymentModalTitle').textContent=isDeposit?'Telebirr — Demo deposit':'Telebirr — Demo withdrawal';
+  document.getElementById('paymentModalSubtitle').textContent=isDeposit?'Add virtual credits to your practice wallet.':'Preview a withdrawal request using virtual credits only.';
+  document.getElementById('paymentAmountLabel').textContent=isDeposit?'Virtual credits to add':'Virtual credits for demo request';
+  document.getElementById('confirmDemoPayment').textContent=isDeposit?'＋ Add demo credits':'↗ Preview withdrawal request';
+  paymentAmount.value=isDeposit?'100':'100';
+  paymentAmount.max=isDeposit?'10000':String(Math.max(10,balance));
+  paymentFeedback.classList.remove('show');paymentFeedback.textContent='';
+  paymentBackdrop.classList.add('open');paymentBackdrop.setAttribute('aria-hidden','false');
+  setTimeout(()=>paymentAmount.focus(),60);
+}
+function closePaymentScreen(){paymentBackdrop.classList.remove('open');paymentBackdrop.setAttribute('aria-hidden','true')}
+function openAdminTelegramSupport(message='Hello admin, I need help with Habesha Keno demo mode.'){
+  // Opens a support conversation only; virtual credits cannot be redeemed for cash.
+  const url='https://t.me/habesha_keno?text='+encodeURIComponent(message);
+  if(tg && typeof tg.openTelegramLink==='function') tg.openTelegramLink(url);
+  else window.open(url,'_blank','noopener,noreferrer');
+}
+document.getElementById('depositBtn').onclick=openAdminTelegramSupport;
+document.getElementById('withdrawBtn').onclick=()=>openAdminTelegramSupport('Hello admin, I need help with my Habesha Keno virtual-credit account. I understand these demo credits have no cash value.');
+document.getElementById('closePaymentModal').onclick=closePaymentScreen;
+paymentBackdrop.addEventListener('click',e=>{if(e.target===paymentBackdrop)closePaymentScreen()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePaymentScreen()});
+document.querySelectorAll('[data-demo-amount]').forEach(b=>b.onclick=()=>{paymentAmount.value=b.dataset.demoAmount});
+document.getElementById('confirmDemoPayment').onclick=()=>{
+  const amount=Number(paymentAmount.value);
+  if(gameMode!=='demo'){
+    paymentFeedback.textContent='Real Mode is only a preview. Payment features are unavailable; switch to Demo Mode to use virtual credits.';
+    paymentFeedback.classList.add('show');return;
+  }
+  if(!Number.isInteger(amount)||amount<10||amount%10!==0){paymentFeedback.textContent='Enter a whole number of credits: at least 10, in steps of 10.';paymentFeedback.classList.add('show');return;}
+  if(paymentAction==='deposit'){
+    if(amount>10000){paymentFeedback.textContent='Demo deposits are limited to 10,000 virtual credits per action.';paymentFeedback.classList.add('show');return;}
+    balance+=amount;syncHomeBalance();addWalletActivity('Virtual credit added',amount,'Practice-wallet adjustment');
+    paymentFeedback.textContent=`Demo deposit complete: ${fmt(amount)} virtual credits added. New demo balance: ${fmt(balance)} credits. No money was transferred.`;
+  }else{
+    if(amount>balance){paymentFeedback.textContent=`Your demo balance is ${fmt(balance)} credits. Enter that amount or less.`;paymentFeedback.classList.add('show');return;}
+    addWalletActivity('Withdrawal preview',0,`${fmt(amount)} credits requested; balance unchanged`);paymentFeedback.textContent=`Demo withdrawal request previewed for ${fmt(amount)} virtual credits. Your balance is unchanged, and no money was sent.`;
+  }
+  paymentFeedback.classList.add('show');
+};
+document.querySelectorAll('[data-method]').forEach(b=>b.onclick=()=>{if(b.dataset.method==='Telebirr')openPaymentScreen('deposit');else alert(b.dataset.method+' is a demo preview only. No real payments are connected.');});
+document.getElementById('refreshBalance').onclick=()=>{syncHomeBalance();document.getElementById('refreshBalance').textContent='✓ Updated';setTimeout(()=>document.getElementById('refreshBalance').textContent='↻ Refresh',1200);};
+updatePicks();syncHomeBalance();renderWalletHistory();startCountdown();setGameMode('demo');
+
+// Supabase account registration. The publishable key is intended for browser use;
+// database access remains protected by the project's RLS policies.
+const SUPABASE_URL='https://guynwdzhvyaakbmbmzcy.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable__E2dKaym14KVuzRHs-xSpg_2YLX8MEZ';
+const accountFeedback=document.getElementById('accountFeedback');
+const signedOutBox=document.getElementById('accountSignedOut');
+const signedInBox=document.getElementById('accountSignedIn');
+const loginPanel=document.getElementById('loginPanel');
+const registerPanel=document.getElementById('registerPanel');
+function setAccountTab(tab){
+  const isLogin=tab==='login';
+  loginPanel.hidden=!isLogin; registerPanel.hidden=isLogin;
+  document.getElementById('loginTabBtn').classList.toggle('active',isLogin);
+  document.getElementById('registerTabBtn').classList.toggle('active',!isLogin);
+  document.getElementById('loginTabBtn').setAttribute('aria-selected',String(isLogin));
+  document.getElementById('registerTabBtn').setAttribute('aria-selected',String(!isLogin));
+  accountFeedback.textContent='';
+}
+document.getElementById('loginTabBtn').addEventListener('click',()=>setAccountTab('login'));
+document.getElementById('registerTabBtn').addEventListener('click',()=>setAccountTab('register'));
+let supabaseClient=null;
+function accountMessage(message,isError=false){accountFeedback.textContent=message;accountFeedback.style.color=isError?'#ffb2a8':'#ffe29a';}
+function showAccountSession(session){
+  signedOutBox.hidden=!!session;
+  signedInBox.hidden=!session;
+  if(session){
+    const username=session.user.user_metadata?.username||'Player';
+    document.getElementById('accountStatus').textContent=`Signed in as ${username}. Your player profile is connected.`;
+  }
+}
+if(window.supabase?.createClient){
+  supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+  supabaseClient.auth.getSession().then(({data,error})=>{
+    if(error) accountMessage('Could not check account session. Please refresh and try again.',true);
+    showAccountSession(data?.session||null);
+  });
+  supabaseClient.auth.onAuthStateChange((_event,session)=>showAccountSession(session));
+}else{
+  accountMessage('Account service could not load. Check your internet connection and refresh.',true);
+}
+document.getElementById('loginForm').addEventListener('submit',async(event)=>{
+  event.preventDefault();
+  if(!supabaseClient){accountMessage('Account service is unavailable. Refresh and try again.',true);return;}
+  const username=document.getElementById('loginUsername').value.trim();
+  const password=document.getElementById('loginPassword').value;
+  if(!/^[A-Za-z0-9_]{3,20}$/.test(username)){accountMessage('Enter a valid username (3–20 letters, numbers, or underscores).',true);return;}
+  const button=document.getElementById('loginBtn');button.disabled=true;button.textContent='Checking…';
+  accountMessage('Username login needs the secure username-login server function, which we will set up next.',true);
+  try{
+    const {data,error}=await supabaseClient.functions.invoke('username-login',{body:{username,password}});
+    if(error) throw error;
+    if(!data?.email){throw new Error('The username-login function response is incomplete.');}
+    const {data:loginData,error:loginError}=await supabaseClient.auth.signInWithPassword({email:data.email,password});
+    if(loginError) throw loginError;
+    accountMessage('Login successful.');showAccountSession(loginData.session);event.target.reset();
+  }catch(error){
+    accountMessage('Username login is not active yet. We need to deploy the secure username-login function before players can sign in.',true);
+  }finally{button.disabled=false;button.textContent='Login';}
+});
+document.getElementById('registerForm').addEventListener('submit',async(event)=>{
+  event.preventDefault();
+  if(!supabaseClient){accountMessage('Account service is unavailable. Refresh and try again.',true);return;}
+  const username=document.getElementById('regUsername').value.trim();
+  const email=document.getElementById('regEmail').value.trim();
+  const password=document.getElementById('regPassword').value;
+  const confirm=document.getElementById('regConfirm').value;
+  if(!/^[A-Za-z0-9_]{3,20}$/.test(username)){accountMessage('Username must be 3–20 characters: letters, numbers, and underscores only.',true);return;}
+  if(password.length<8){accountMessage('Choose a password with at least 8 characters.',true);return;}
+  if(password!==confirm){accountMessage('The passwords do not match.',true);return;}
+  const button=document.getElementById('registerBtn');button.disabled=true;button.textContent='Creating account…';
+  accountMessage('Creating your account…');
+  try{
+    const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{username}}});
+    if(error) throw error;
+    if(data.session){accountMessage('Account created successfully. Your profile is ready.');showAccountSession(data.session);}
+    else accountMessage('Registration received! Check your email for the verification link. After verifying, return here to sign in.');
+    event.target.reset();
+  }catch(error){
+    const message=String(error?.message||'Registration failed.');
+    accountMessage(message.toLowerCase().includes('duplicate')||message.toLowerCase().includes('unique')?'That username is already taken. Please choose another.':message,true);
+  }finally{button.disabled=false;button.textContent='Create account';}
+});
+document.getElementById('signOutBtn').addEventListener('click',async()=>{
+  if(!supabaseClient)return;
+  const {error}=await supabaseClient.auth.signOut();
+  if(error)accountMessage('Could not sign out. Please try again.',true);
+  else accountMessage('You have signed out.');
+});
 </script>
 </body></html>
