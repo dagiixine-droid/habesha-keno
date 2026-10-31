@@ -540,10 +540,7 @@ async function checkAdminAccess() {
   } catch (error) {
     console.error("Admin access check failed:", error);
   }
-}
-}else{
-  accountMessage('Account service could not load. Check your internet connection and refresh.',true);
-}
+
 document.getElementById('loginForm').addEventListener('submit',async(event)=>{
   event.preventDefault();
   if(!supabaseClient){accountMessage('Account service is unavailable. Refresh and try again.',true);return;}
@@ -753,13 +750,6 @@ async function adjustPracticeBalance(playerId, type) {
 }
 
 window.adjustPracticeBalance = adjustPracticeBalance;
-async function showAdminButton() {
-  try {
-    const { data, error } = await supabaseClient.functions.invoke(
-      "admin-players"
-    );
-
-    // Only authorized admins receive access
     if (error || !data?.players) {
       console.log("Admin access not available.");
       return;
