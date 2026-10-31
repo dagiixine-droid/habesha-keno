@@ -631,6 +631,15 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
             <p>${player.email || "No email"}</p>
             <p>Games Played: ${player.games_played ?? 0}</p>
             <p>Practice Balance: ${Number(player.practice_balance || 0).toFixed(2)} ETB</p>
+            <button onclick="adjustPracticeBalance('${player.id}', 'ADD')"
+  style="background:#28a745;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;">
+  + Add Practice ETB
+</button>
+
+<button onclick="adjustPracticeBalance('${player.id}', 'DEDUCT')"
+  style="background:#dc3545;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;margin-left:5px;">
+  - Deduct Practice ETB
+</button>
             <p>Account Status: ${player.account_status || "Registered"}</p>
             <small>Joined: ${new Date(player.created_at).toLocaleDateString()}</small>
           </div>
