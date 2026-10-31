@@ -597,7 +597,7 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
     console.error("Dashboard error:", error);
     alert("Dashboard error: " + error.message);
   }
-} {
+} 
   const { data: sessionData } = await supabaseClient.auth.getSession();
 
  if (error) {
@@ -605,25 +605,7 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
   alert("Admin error: " + error.message);
   return;
 }
-
-  const { data, error } = await supabaseClient.functions.invoke(
-    "admin-players",
-    {
-      headers: {
-        Authorization: `Bearer ${sessionData.session.access_token}`
-      }
-    }
-  );
-
-  if (error) {
-    alert("Admin access failed. Please check your permissions.");
-    return;
-  }
-
-  console.log("Admin players:", data.players);
-  alert(`Admin access successful! Players found: ${data.players.length}`);
-}
-    const adminButton = document.createElement("button");
+   const adminButton = document.createElement("button");
 
 adminButton.textContent = "Admin Dashboard";
 adminButton.style.cssText =
