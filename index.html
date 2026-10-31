@@ -646,12 +646,13 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
       dashboard.remove();
     });
 
-  } catch (error) {
+   } catch (error) {
     console.error("Dashboard error:", error);
     alert("Dashboard error: " + error.message);
   }
+}
 
-   const adminButton = document.createElement("button");
+const adminButton = document.createElement("button");
 
 adminButton.textContent = "Admin Dashboard";
 adminButton.style.cssText =
