@@ -620,18 +620,15 @@ dashboard.innerHTML = `
 document.body.appendChild(dashboard);
 
 function renderPlayers(search = "") {
-  const filtered = players.filter(player =>
-    (player.username || "").toLowerCase().includes(search.toLowerCase())
-  );
+const filtered = players.filter(player =>
+(player.username || "").toLowerCase().includes(search.toLowerCase())
+);
 
-  document.getElementById("playerList").innerHTML =
-    filtered.map(player => `
-      <div style="padding:12px;border-bottom:1px solid #555;">
-        <strong>${player.username || "No username"}</strong>
-        <p>${player.email || "No email"}</p>
-        <small>Joined: ${new Date(player.created_at).toLocaleDateString()}</small>
-      </div>
+document.getElementById("playerList").innerHTML =
+filtered.map(player => `       <div style="padding:12px;border-bottom:1px solid #555;">         <strong>${player.username || "No username"}</strong>         <p>${player.email || "No email"}</p>         <p>Games Played: ${player.games_played ?? 0}</p>         <p>Account Status: ${player.account_status || "Registered"}</p>         <small>Joined: ${new Date(player.created_at).toLocaleDateString()}</small>       </div>
     `).join("") || "<p>No players found.</p>";
+}
+
 }
 
 renderPlayers();
