@@ -630,6 +630,7 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
             <strong>${player.username || "No username"}</strong>
             <p>${player.email || "No email"}</p>
             <p>Games Played: ${player.games_played ?? 0}</p>
+            <p>Practice Balance: ${Number(player.practice_balance || 0).toFixed(2)} ETB</p>
             <p>Account Status: ${player.account_status || "Registered"}</p>
             <small>Joined: ${new Date(player.created_at).toLocaleDateString()}</small>
           </div>
