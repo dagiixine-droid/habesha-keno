@@ -661,7 +661,49 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
     alert("Dashboard error: " + error.message);
   }
 }
+async function adjustPracticeBalance(playerId, type) {
+  const amount = prompt(
+    type === "ADD"
+      ? "Enter Practice ETB amount to add:"
+      : "Enter Practice ETB amount to deduct:"
+  );
 
+  if (amount === null) return;
+
+  const numericAmount = Number(amount);
+
+  if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+    alert("Please enter a valid positive amount.");
+    return;
+  }
+
+  const reason = prompt("Enter a reason for this adjustment:") || "";
+
+  try {
+    const { data, error } = await supabaseClient.rpc(
+      "adjust_practice_balance",
+      {
+        p_player_id: playerId,
+        p_type: type,
+        p_amount: numericAmount,
+        p_reason: reason
+      }
+    );
+
+    if (error) throw error;
+
+    alert("Practice balance updated successfully! New balance: " +
+      Number(data).toFixed(2) + " ETB");
+
+    await loadAdminDashboard();
+
+  } catch (error) {
+    console.error("Balance adjustment error:", error);
+    alert("Could not update balance: " + error.message);
+  }
+}
+
+window.adjustPracticeBalance = adjustPracticeBalance;
 const adminButton = document.createElement("button");
 
 adminButton.textContent = "Admin Dashboard";
