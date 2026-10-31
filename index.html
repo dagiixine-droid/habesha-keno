@@ -589,7 +589,7 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
     }
 
     const players = data.players ?? [];
-
+const transactions = data.transactions ?? [];
     document.getElementById("adminDashboard")?.remove();
 
     const dashboard = document.createElement("div");
@@ -615,6 +615,21 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
       <input id="playerSearch" placeholder="Search username..."
         style="padding:10px;width:100%;margin-bottom:15px;">
       <div id="playerList"></div>
+      <h2 style="color:#c9a227;margin-top:25px;">
+  Practice Transaction History
+</h2>
+
+<div id="transactionList">
+  ${transactions.length ? transactions.map(transaction => `
+    <div style="padding:12px;border-bottom:1px solid #555;">
+      <strong>${transaction.transaction_type === "ADD" ? "➕ Added" : "➖ Deducted"}</strong>
+      <p>Amount: ${Number(transaction.amount).toFixed(2)} Practice ETB</p>
+      <p>Player ID: ${transaction.auth_user_id}</p>
+      <p>Reason: ${transaction.reason || "No reason provided"}</p>
+      <small>${new Date(transaction.created_at).toLocaleString()}</small>
+    </div>
+  `).join("") : "<p>No transactions yet.</p>"}
+</div>
     `;
 
     document.body.appendChild(dashboard);
