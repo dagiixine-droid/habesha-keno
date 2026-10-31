@@ -598,13 +598,6 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
     alert("Dashboard error: " + error.message);
   }
 } 
-  const { data: sessionData } = await supabaseClient.auth.getSession();
-
- if (error) {
-  console.error("Admin error:", error);
-  alert("Admin error: " + error.message);
-  return;
-}
    const adminButton = document.createElement("button");
 
 adminButton.textContent = "Admin Dashboard";
