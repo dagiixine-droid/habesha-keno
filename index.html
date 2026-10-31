@@ -600,7 +600,18 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
     dashboard.innerHTML = `
       <button id="closeAdmin">Close ✕</button>
       <h2 style="color:#c9a227">Admin Dashboard</h2>
-      <p>Total registered players: ${players.length}</p>
+     <div style="display:flex;gap:12px;flex-wrap:wrap;margin:20px 0;">
+  <div style="background:#252525;padding:15px;border-radius:10px;flex:1;">
+    <h3>Total Players</h3>
+    <h2>${players.length}</h2>
+  </div>
+
+  <div style="background:#252525;padding:15px;border-radius:10px;flex:1;">
+    <h3>Total Games Played</h3>
+    <h2>${players.reduce((total, player) =>
+      total + Number(player.games_played || 0), 0)}</h2>
+  </div>
+</div>
       <input id="playerSearch" placeholder="Search username..."
         style="padding:10px;width:100%;margin-bottom:15px;">
       <div id="playerList"></div>
