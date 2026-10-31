@@ -10,8 +10,8 @@
 <style>
 :root{--bg:#050707;--panel:#101817;--gold:#ffd35a;--gold2:#ff9d00;--green:#00e985;--blue:#42d9ff;--purple:#a77bff;--muted:#9aaba5;--line:#5c4815}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% -12%,#263626 0,#0a100e 38%,#050707 75%);color:#f7f4e8;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;min-height:100vh}
-    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.13;background-image:linear-gradient(30deg,transparent 48%,#ffd35a 49%,transparent 50%),linear-gradient(150deg,transparent 48%,#42d9ff 49%,transparent 50%);background-size:74px 74px;mask-image:linear-gradient(to bottom,black,transparent 70%);z-index:-1}
-    button{transition:transform .18s ease,filter .18s ease,border-color .18s ease,box-shadow .18s ease}button:active{transform:scale(.97)}@keyframes goldPulse{0%,100%{box-shadow:0 0 12px #ffb00024, inset 0 1px #fff2}50%{box-shadow:0 0 24px #ffb00058, inset 0 1px #fff7}}@keyframes riseIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes ballPop{0%{opacity:0;transform:scale(.35) rotate(-25deg)}75%{transform:scale(1.13) rotate(4deg)}100%{opacity:1;transform:scale(1) rotate(0)}}@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.13;background-image:linear-gradient(30deg,transparent 48%,#ffd35a 49%,transparent 50%),linear-gradient(150deg,transparent 48%,#42d9ff 49%,transparent 50%);background-size:74px 74px;mask-image:linear-gradient(to bottom,black,transparent 70%);z-index:-1}
+button{transition:transform .18s ease,filter .18s ease,border-color .18s ease,box-shadow .18s ease}button:active{transform:scale(.97)}@keyframes goldPulse{0%,100%{box-shadow:0 0 12px #ffb00024, inset 0 1px #fff2}50%{box-shadow:0 0 24px #ffb00058, inset 0 1px #fff7}}@keyframes riseIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes ballPop{0%{opacity:0;transform:scale(.35) rotate(-25deg)}75%{transform:scale(1.13) rotate(4deg)}100%{opacity:1;transform:scale(1) rotate(0)}}@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
 button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:100vh;padding:14px}
 .top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1px solid #5b481c;border-radius:18px;background:linear-gradient(120deg,#101612,#070b0a);box-shadow:0 8px 32px #0008,0 0 24px #ffb00012;position:relative;overflow:hidden}.top:after{content:'';position:absolute;left:0;top:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),var(--blue),transparent)}
 .top .balance{display:none!important}
@@ -35,187 +35,187 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
 </head>
 <body>
 <div class="app">
-  <header class="top">
-    <div class="brand"><div class="badge">HK</div><div><h1>Habesha Keno</h1><small id="platformLabel">Telegram Mini App • Demo</small></div></div>
-  </header>
-  <section class="hero"><h2>HABESHA KENO</h2><p>✦ PLAY • MATCH • CELEBRATE ✦</p></section>
-  <section class="card account-card" id="accountCard" style="margin-top:14px">
-    <div class="account-head"><div><h3>👤 Player account</h3><p class="sub" style="margin:0">Sign in or create your Habesha Keno account.</p></div><span class="soon-tag">ACCOUNT</span></div>
-    <div id="accountSignedOut">
-      <div class="account-tabs" role="tablist" aria-label="Account options">
-        <button type="button" class="account-tab active" id="loginTabBtn" role="tab" aria-selected="true" aria-controls="loginPanel">Login</button>
-        <button type="button" class="account-tab" id="registerTabBtn" role="tab" aria-selected="false" aria-controls="registerPanel">Registration</button>
-      </div>
-      <div id="loginPanel" role="tabpanel" aria-labelledby="loginTabBtn">
-        <form id="loginForm" class="account-form">
-          <label>Username<input id="loginUsername" name="username" minlength="3" maxlength="20" autocomplete="username" placeholder="Your username" required></label>
-          <label>Password<input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Your password" required></label>
-          <button class="goldbtn" type="submit" id="loginBtn">Login</button>
-        </form>
-        <p class="account-help">Username login is being connected through a secure server function. Your password is never stored in this browser as plain text.</p>
-      </div>
-      <div id="registerPanel" role="tabpanel" aria-labelledby="registerTabBtn" hidden>
-        <form id="registerForm" class="account-form">
-          <label>Username<input id="regUsername" name="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" autocomplete="username" placeholder="e.g. Abebe_12" required></label>
-          <label>Email address<input id="regEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label>
-          <label>Password<input id="regPassword" name="password" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" required></label>
-          <label>Confirm password<input id="regConfirm" name="confirm" type="password" minlength="8" autocomplete="new-password" placeholder="Enter password again" required></label>
-          <button class="goldbtn" type="submit" id="registerBtn">Create account</button>
-        </form>
-        <p class="account-help">Your email is used for account verification and recovery. Choose a username that does not reveal private information. Never reuse an important password.</p>
-      </div>
-    </div>
-    <div id="accountSignedIn" hidden>
-      <p class="account-status" id="accountStatus" aria-live="polite"></p>
-      <button class="pill" type="button" id="signOutBtn">Sign out</button>
-    </div>
-    <p class="account-feedback" id="accountFeedback" role="status" aria-live="polite"></p>
-  </section>
-  <section id="homePanel" class="home-panel">
-    <section class="card" aria-label="Choose game mode">
-      <h3 style="margin-bottom:10px">Choose your mode</h3>
-      <div class="mode-switch" role="group" aria-label="Game mode">
-        <button type="button" class="mode-btn active" id="demoModeBtn" aria-pressed="true">🎮 Demo Mode</button>
-        <button type="button" class="mode-btn real" id="realModeBtn" aria-pressed="false">✦ Real Mode</button>
-      </div>
-      <div class="mode-message" id="modeMessage" style="margin-top:10px" aria-live="polite">Demo Mode is active. Play using virtual credits only.</div>
-    </section>
-    <div class="home-balance card">
-      <div class="balance-top"><span class="eyebrow">YOUR AVAILABLE BALANCE</span><span class="demo-tag" id="modeBadge">DEMO MODE</span></div>
-      <div class="balance-amount"><span id="homeBalance">1,000</span><small>virtual credits</small></div>
-      <div class="balance-foot"><span>🔒 Secure demo wallet</span><button class="refresh-btn" id="refreshBalance" type="button">↻ Refresh</button></div>
-    </div>
-    <div class="payment-actions">
-      <button class="action-card deposit-action" id="depositBtn" type="button"><span class="action-icon">＋</span><span><strong>Deposit</strong><small>Contact admin on Telegram</small></span><span class="action-arrow">›</span></button>
-      <button class="action-card withdraw-action" id="withdrawBtn" type="button"><span class="action-icon">↗</span><span><strong>Withdraw</strong><small>Demo request only</small></span><span class="action-arrow">›</span></button>
-    </div>
-    <section class="card how-to-card">
-      <h3>🎮 How to play Habesha Keno</h3>
-      <p class="sub" style="margin-top:-5px;line-height:1.5">Learn the basics in a few quick steps.</p>
-      <ol class="how-to-list">
-        <li><span class="step-number">1</span><div><strong>Open Keno</strong><p>Tap <b>Keno</b> in the bottom navigation.</p></div></li>
-        <li><span class="step-number">2</span><div><strong>Pick your numbers</strong><p>Select 1–10 numbers from the grid numbered 1 to 80, or use <b>Random picks</b>.</p></div></li>
-        <li><span class="step-number">3</span><div><strong>Choose demo credits</strong><p>Set a virtual-credit amount between 10 and 500, then check your selection.</p></div></li>
-        <li><span class="step-number">4</span><div><strong>Draw and compare</strong><p>Tap <b>Draw numbers</b>. The game draws 20 numbers and shows how many match yours.</p></div></li>
-      </ol>
-      <div class="how-to-note">Practice mode only: credits have no cash value, and this prototype does not pay winnings or support real-money deposits or withdrawals.</div>
-      <button class="goldbtn how-to-start" id="startKenoBtn" type="button">Start playing in Keno →</button>
-    </section>
-    <section class="card payment-card">
-      <div class="payment-heading"><div><h3>Payment options</h3><p class="sub">Preview payment methods for a future integration.</p></div><span class="soon-tag">COMING LATER</span></div>
-      <div class="payment-methods">
-        <button class="method" type="button" data-method="Telebirr"><span class="method-mark telebirr">T</span><span><strong>Telebirr</strong><small>Not connected</small></span><span class="method-arrow">›</span></button>
-      </div>
-      <p class="payment-note">Demo only: these options do not send or receive money. Real payments will require a verified payment provider and secure backend.</p>
-    </section>
-  </section>
-  <section id="walletPanel" hidden>
-    <div class="stack">
-      <div id="walletBalanceSlot"></div>
-      <section id="walletAccountSlot"></section>
-      <section class="card payment-card" id="walletPaymentCard">
-        <div class="payment-heading"><div><h3>Payment options</h3><p class="sub">Available payment contact.</p></div></div>
-        <div class="payment-methods"><button class="method" type="button" id="walletTelebirrBtn"><span class="method-mark telebirr">T</span><span><strong>Telebirr</strong><small>Contact admin on Telegram</small></span><span class="method-arrow">›</span></button></div>
-        <div class="payment-actions">
-          <button class="action-card deposit-action" id="walletDepositBtn" type="button"><span class="action-icon">＋</span><span><strong>Deposit</strong><small>Contact admin on Telegram</small></span><span class="action-arrow">›</span></button>
-          <button class="action-card withdraw-action" id="walletWithdrawBtn" type="button"><span class="action-icon">↗</span><span><strong>Withdraw</strong><small>Demo request only</small></span><span class="action-arrow">›</span></button>
-        </div>
-        <p class="payment-note">Demo only: no money is transferred or received.</p>
-      </section>
-      <section class="card" id="walletHistoryCard">
-        <div class="payment-heading"><div><h3>Wallet activity</h3><p class="sub">Recent virtual-credit changes and requests.</p></div><button class="refresh-btn" id="clearWalletHistory" type="button">Clear history</button></div>
-        <div id="walletHistoryList" aria-live="polite"><p class="payment-note">No wallet activity yet.</p></div>
-        <p class="payment-note">History is saved in this browser only for now. It is not yet synced to your Supabase account.</p>
-      </section>
-    </div>
-  </section>
-  <section id="kenoPanel" hidden>
-  <div class="notice" id="kenoModeNotice"><strong>DEMO ONLY:</strong> This prototype uses virtual credits with no cash value. Deposits, withdrawals, real-money betting, and cash prizes are not enabled.</div>
-  <section class="countdown-card" aria-live="polite">
-    <div><div class="countdown-label">⏱ NEXT DRAW STARTS IN</div><div class="countdown-note" id="timerNote">Choose numbers and join during the countdown</div></div>
-    <div class="countdown-time" id="countdown">01:00</div>
-  </section>
-  <section class="card" style="margin-bottom:14px">
-    <h3>🌐 Scheduled demo draw <span style="float:right;color:#a8b4aa;font-size:12px">20 numbers • 1/sec</span></h3>
-    <div id="scheduledStatus" class="sub" aria-live="polite">The 60-second entry window is open. Join the next draw with your picks.</div>
-    <div class="drawballs" id="drawBalls" aria-live="polite" aria-label="Scheduled demo numbers revealed one at a time"></div>
-    <p style="font-size:11px;color:#84938b;line-height:1.5;margin-bottom:0">Demo synchronization: visitors using this same page see the same sequence for each UTC minute. This browser-only preview is not server-verified or suitable for real-money play.</p>
-  </section>
-  <main class="layout" id="kenoGame">
-    <section class="card">
-      <h3>Choose your numbers <span style="float:right;color:#a8b4aa;font-size:12px" id="picked">0 / 10 selected</span></h3>
-      <div class="sub">Pick 1–10 numbers from 1 to 80.</div>
-      <div class="grid" id="numberGrid" aria-label="Keno number grid"></div>
-      <div class="controls"><span class="pill">Selected: <strong id="selectedList">—</strong></span><button class="pill" id="clearBtn">Clear selection</button><button class="pill" id="randomBtn">🎲 Random picks</button></div>
-    </section>
-    <aside class="stack">
-      <section class="card">
-        <h3>🎟️ Demo bet</h3>
-        <div class="field"><label for="bet">Bet amount (credits)</label><input id="bet" type="number" min="10" max="500" step="10" value="50"></div>
-        <div class="quick"><button data-bet="10">10</button><button data-bet="50">50</button><button data-bet="100">100</button><button data-bet="250">250</button></div>
-        <div class="stat" style="margin-top:12px"><span>Numbers picked</span><strong id="pickCount">0</strong></div>
-        <div class="stat"><span>Demo draw</span><strong>20 numbers</strong></div>
-        <div class="stat"><span>Possible payout</span><strong>Practice only</strong></div>
-        <button class="greenbtn" id="playBtn" style="margin-top:14px">▶ Join next draw</button>
-        <p style="font-size:11px;color:#84938b;line-height:1.5;margin-bottom:0">This browser-only demo runs a 60-second entry window, then reveals 20 numbers one per second. It is not server-verified or suitable for real-money play.</p>
-      </section>
-      <section class="card">
-        <h3>✨ Draw results</h3>
-        <div id="drawStatus" style="font-size:13px;color:#aab5ad">Your latest draw will appear here.</div>
-        <div class="result" id="result"></div>
-      </section>
-      <section class="card">
-        <h3>📊 Session stats</h3>
-        <div class="stat"><span>Rounds played</span><strong id="rounds">0</strong></div>
-        <div class="stat"><span>Total demo credits wagered</span><strong id="wagered">0</strong></div>
-        <div class="stat"><span>Total matches</span><strong id="matches">0</strong></div>
-      </section>
-    </aside>
-  </main>
-  </section>
+<header class="top">
+<div class="brand"><div class="badge">HK</div><div><h1>Habesha Keno</h1><small id="platformLabel">Telegram Mini App • Demo</small></div></div>
+</header>
+<section class="hero"><h2>HABESHA KENO</h2><p>✦ PLAY • MATCH • CELEBRATE ✦</p></section>
+<section class="card account-card" id="accountCard" style="margin-top:14px">
+<div class="account-head"><div><h3>👤 Player account</h3><p class="sub" style="margin:0">Sign in or create your Habesha Keno account.</p></div><span class="soon-tag">ACCOUNT</span></div>
+<div id="accountSignedOut">
+<div class="account-tabs" role="tablist" aria-label="Account options">
+<button type="button" class="account-tab active" id="loginTabBtn" role="tab" aria-selected="true" aria-controls="loginPanel">Login</button>
+<button type="button" class="account-tab" id="registerTabBtn" role="tab" aria-selected="false" aria-controls="registerPanel">Registration</button>
+</div>
+<div id="loginPanel" role="tabpanel" aria-labelledby="loginTabBtn">
+<form id="loginForm" class="account-form">
+<label>Username<input id="loginUsername" name="username" minlength="3" maxlength="20" autocomplete="username" placeholder="Your username" required></label>
+<label>Password<input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Your password" required></label>
+<button class="goldbtn" type="submit" id="loginBtn">Login</button>
+</form>
+<p class="account-help">Username login is being connected through a secure server function. Your password is never stored in this browser as plain text.</p>
+</div>
+<div id="registerPanel" role="tabpanel" aria-labelledby="registerTabBtn" hidden>
+<form id="registerForm" class="account-form">
+<label>Username<input id="regUsername" name="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" autocomplete="username" placeholder="e.g. Abebe_12" required></label>
+<label>Email address<input id="regEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label>
+<label>Password<input id="regPassword" name="password" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" required></label>
+<label>Confirm password<input id="regConfirm" name="confirm" type="password" minlength="8" autocomplete="new-password" placeholder="Enter password again" required></label>
+<button class="goldbtn" type="submit" id="registerBtn">Create account</button>
+</form>
+<p class="account-help">Your email is used for account verification and recovery. Choose a username that does not reveal private information. Never reuse an important password.</p>
+</div>
+</div>
+<div id="accountSignedIn" hidden>
+<p class="account-status" id="accountStatus" aria-live="polite"></p>
+<button class="pill" type="button" id="signOutBtn">Sign out</button>
+</div>
+<p class="account-feedback" id="accountFeedback" role="status" aria-live="polite"></p>
+</section>
+<section id="homePanel" class="home-panel">
+<section class="card" aria-label="Choose game mode">
+<h3 style="margin-bottom:10px">Choose your mode</h3>
+<div class="mode-switch" role="group" aria-label="Game mode">
+<button type="button" class="mode-btn active" id="demoModeBtn" aria-pressed="true">🎮 Demo Mode</button>
+<button type="button" class="mode-btn real" id="realModeBtn" aria-pressed="false">✦ Real Mode</button>
+</div>
+<div class="mode-message" id="modeMessage" style="margin-top:10px" aria-live="polite">Demo Mode is active. Play using virtual credits only.</div>
+</section>
+<div class="home-balance card">
+<div class="balance-top"><span class="eyebrow">YOUR AVAILABLE BALANCE</span><span class="demo-tag" id="modeBadge">DEMO MODE</span></div>
+<div class="balance-amount"><span id="homeBalance">1,000</span><small>virtual credits</small></div>
+<div class="balance-foot"><span>🔒 Secure demo wallet</span><button class="refresh-btn" id="refreshBalance" type="button">↻ Refresh</button></div>
+</div>
+<div class="payment-actions">
+<button class="action-card deposit-action" id="depositBtn" type="button"><span class="action-icon">＋</span><span><strong>Deposit</strong><small>Contact admin on Telegram</small></span><span class="action-arrow">›</span></button>
+<button class="action-card withdraw-action" id="withdrawBtn" type="button"><span class="action-icon">↗</span><span><strong>Withdraw</strong><small>Demo request only</small></span><span class="action-arrow">›</span></button>
+</div>
+<section class="card how-to-card">
+<h3>🎮 How to play Habesha Keno</h3>
+<p class="sub" style="margin-top:-5px;line-height:1.5">Learn the basics in a few quick steps.</p>
+<ol class="how-to-list">
+<li><span class="step-number">1</span><div><strong>Open Keno</strong><p>Tap <b>Keno</b> in the bottom navigation.</p></div></li>
+<li><span class="step-number">2</span><div><strong>Pick your numbers</strong><p>Select 1–10 numbers from the grid numbered 1 to 80, or use <b>Random picks</b>.</p></div></li>
+<li><span class="step-number">3</span><div><strong>Choose demo credits</strong><p>Set a virtual-credit amount between 10 and 500, then check your selection.</p></div></li>
+<li><span class="step-number">4</span><div><strong>Draw and compare</strong><p>Tap <b>Draw numbers</b>. The game draws 20 numbers and shows how many match yours.</p></div></li>
+</ol>
+<div class="how-to-note">Practice mode only: credits have no cash value, and this prototype does not pay winnings or support real-money deposits or withdrawals.</div>
+<button class="goldbtn how-to-start" id="startKenoBtn" type="button">Start playing in Keno →</button>
+</section>
+<section class="card payment-card">
+<div class="payment-heading"><div><h3>Payment options</h3><p class="sub">Preview payment methods for a future integration.</p></div><span class="soon-tag">COMING LATER</span></div>
+<div class="payment-methods">
+<button class="method" type="button" data-method="Telebirr"><span class="method-mark telebirr">T</span><span><strong>Telebirr</strong><small>Not connected</small></span><span class="method-arrow">›</span></button>
+</div>
+<p class="payment-note">Demo only: these options do not send or receive money. Real payments will require a verified payment provider and secure backend.</p>
+</section>
+</section>
+<section id="walletPanel" hidden>
+<div class="stack">
+<div id="walletBalanceSlot"></div>
+<section id="walletAccountSlot"></section>
+<section class="card payment-card" id="walletPaymentCard">
+<div class="payment-heading"><div><h3>Payment options</h3><p class="sub">Available payment contact.</p></div></div>
+<div class="payment-methods"><button class="method" type="button" id="walletTelebirrBtn"><span class="method-mark telebirr">T</span><span><strong>Telebirr</strong><small>Contact admin on Telegram</small></span><span class="method-arrow">›</span></button></div>
+<div class="payment-actions">
+<button class="action-card deposit-action" id="walletDepositBtn" type="button"><span class="action-icon">＋</span><span><strong>Deposit</strong><small>Contact admin on Telegram</small></span><span class="action-arrow">›</span></button>
+<button class="action-card withdraw-action" id="walletWithdrawBtn" type="button"><span class="action-icon">↗</span><span><strong>Withdraw</strong><small>Demo request only</small></span><span class="action-arrow">›</span></button>
+</div>
+<p class="payment-note">Demo only: no money is transferred or received.</p>
+</section>
+<section class="card" id="walletHistoryCard">
+<div class="payment-heading"><div><h3>Wallet activity</h3><p class="sub">Recent virtual-credit changes and requests.</p></div><button class="refresh-btn" id="clearWalletHistory" type="button">Clear history</button></div>
+<div id="walletHistoryList" aria-live="polite"><p class="payment-note">No wallet activity yet.</p></div>
+<p class="payment-note">History is saved in this browser only for now. It is not yet synced to your Supabase account.</p>
+</section>
+</div>
+</section>
+<section id="kenoPanel" hidden>
+<div class="notice" id="kenoModeNotice"><strong>DEMO ONLY:</strong> This prototype uses virtual credits with no cash value. Deposits, withdrawals, real-money betting, and cash prizes are not enabled.</div>
+<section class="countdown-card" aria-live="polite">
+<div><div class="countdown-label">⏱ NEXT DRAW STARTS IN</div><div class="countdown-note" id="timerNote">Choose numbers and join during the countdown</div></div>
+<div class="countdown-time" id="countdown">01:00</div>
+</section>
+<section class="card" style="margin-bottom:14px">
+<h3>🌐 Scheduled demo draw <span style="float:right;color:#a8b4aa;font-size:12px">20 numbers • 1/sec</span></h3>
+<div id="scheduledStatus" class="sub" aria-live="polite">The 60-second entry window is open. Join the next draw with your picks.</div>
+<div class="drawballs" id="drawBalls" aria-live="polite" aria-label="Scheduled demo numbers revealed one at a time"></div>
+<p style="font-size:11px;color:#84938b;line-height:1.5;margin-bottom:0">Demo synchronization: visitors using this same page see the same sequence for each UTC minute. This browser-only preview is not server-verified or suitable for real-money play.</p>
+</section>
+<main class="layout" id="kenoGame">
+<section class="card">
+<h3>Choose your numbers <span style="float:right;color:#a8b4aa;font-size:12px" id="picked">0 / 10 selected</span></h3>
+<div class="sub">Pick 1–10 numbers from 1 to 80.</div>
+<div class="grid" id="numberGrid" aria-label="Keno number grid"></div>
+<div class="controls"><span class="pill">Selected: <strong id="selectedList">—</strong></span><button class="pill" id="clearBtn">Clear selection</button><button class="pill" id="randomBtn">🎲 Random picks</button></div>
+</section>
+<aside class="stack">
+<section class="card">
+<h3>🎟️ Demo bet</h3>
+<div class="field"><label for="bet">Bet amount (credits)</label><input id="bet" type="number" min="10" max="500" step="10" value="50"></div>
+<div class="quick"><button data-bet="10">10</button><button data-bet="50">50</button><button data-bet="100">100</button><button data-bet="250">250</button></div>
+<div class="stat" style="margin-top:12px"><span>Numbers picked</span><strong id="pickCount">0</strong></div>
+<div class="stat"><span>Demo draw</span><strong>20 numbers</strong></div>
+<div class="stat"><span>Possible payout</span><strong>Practice only</strong></div>
+<button class="greenbtn" id="playBtn" style="margin-top:14px">▶ Join next draw</button>
+<p style="font-size:11px;color:#84938b;line-height:1.5;margin-bottom:0">This browser-only demo runs a 60-second entry window, then reveals 20 numbers one per second. It is not server-verified or suitable for real-money play.</p>
+</section>
+<section class="card">
+<h3>✨ Draw results</h3>
+<div id="drawStatus" style="font-size:13px;color:#aab5ad">Your latest draw will appear here.</div>
+<div class="result" id="result"></div>
+</section>
+<section class="card">
+<h3>📊 Session stats</h3>
+<div class="stat"><span>Rounds played</span><strong id="rounds">0</strong></div>
+<div class="stat"><span>Total demo credits wagered</span><strong id="wagered">0</strong></div>
+<div class="stat"><span>Total matches</span><strong id="matches">0</strong></div>
+</section>
+</aside>
+</main>
+</section>
 
 
-  <section id="leaderPanel" hidden>
-    <section class="card" style="margin-bottom:14px">
-      <h3>🏆 Recent demo games</h3>
-      <p class="sub">Sample results only — usernames and winners below are fictional, not real player records.</p>
-      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:440px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">20 drawn numbers</th><th style="padding:10px 6px">Sample winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="3" style="padding:12px 6px;color:#9aaba5">No completed demo games yet. The first result will appear here.</td></tr></tbody></table></div>
-    </section>
-    <section class="card">
-      <h3>🥇 Top 12 leaderboard</h3>
-      <p class="sub">Fictional practice players. Points update after each completed practice game.</p>
-      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Demo points</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
-    </section>
-  </section>
-  <div class="payment-modal-backdrop" id="paymentModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="paymentModalTitle" aria-hidden="true">
-    <section class="payment-modal">
-      <div class="payment-modal-head"><h3 id="paymentModalTitle">Telebirr demo</h3><button type="button" class="modal-close" id="closePaymentModal" aria-label="Close payment screen">×</button></div>
-      <p class="sub" id="paymentModalSubtitle">Add virtual credits to your practice wallet.</p>
-      <div class="payment-method-choice"><span class="method-mark">T</span><span><strong>Telebirr</strong><small>Demo preview • Not connected to Telebirr</small></span></div>
-      <label for="paymentAmount" id="paymentAmountLabel">Virtual credits to add</label>
-      <input id="paymentAmount" type="number" min="10" max="10000" step="10" value="100" inputmode="numeric">
-      <div class="amount-shortcuts"><button type="button" data-demo-amount="100">100 credits</button><button type="button" data-demo-amount="500">500 credits</button><button type="button" data-demo-amount="1000">1,000 credits</button></div>
-      <div class="payment-demo-warning">DEMO ONLY: no phone number or payment details are collected. This screen does not send or receive money, and virtual credits have no cash value.</div>
-      <button type="button" class="greenbtn" id="confirmDemoPayment">Add demo credits</button>
-      <div class="payment-feedback" id="paymentFeedback" aria-live="polite"></div>
-    </section>
-  </div>
+<section id="leaderPanel" hidden>
+<section class="card" style="margin-bottom:14px">
+<h3>🏆 Recent demo games</h3>
+<p class="sub">Sample results only — usernames and winners below are fictional, not real player records.</p>
+<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:440px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">20 drawn numbers</th><th style="padding:10px 6px">Sample winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="3" style="padding:12px 6px;color:#9aaba5">No completed demo games yet. The first result will appear here.</td></tr></tbody></table></div>
+</section>
+<section class="card">
+<h3>🥇 Top 12 leaderboard</h3>
+<p class="sub">Fictional practice players. Points update after each completed practice game.</p>
+<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Demo points</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
+</section>
+</section>
+<div class="payment-modal-backdrop" id="paymentModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="paymentModalTitle" aria-hidden="true">
+<section class="payment-modal">
+<div class="payment-modal-head"><h3 id="paymentModalTitle">Telebirr demo</h3><button type="button" class="modal-close" id="closePaymentModal" aria-label="Close payment screen">×</button></div>
+<p class="sub" id="paymentModalSubtitle">Add virtual credits to your practice wallet.</p>
+<div class="payment-method-choice"><span class="method-mark">T</span><span><strong>Telebirr</strong><small>Demo preview • Not connected to Telebirr</small></span></div>
+<label for="paymentAmount" id="paymentAmountLabel">Virtual credits to add</label>
+<input id="paymentAmount" type="number" min="10" max="10000" step="10" value="100" inputmode="numeric">
+<div class="amount-shortcuts"><button type="button" data-demo-amount="100">100 credits</button><button type="button" data-demo-amount="500">500 credits</button><button type="button" data-demo-amount="1000">1,000 credits</button></div>
+<div class="payment-demo-warning">DEMO ONLY: no phone number or payment details are collected. This screen does not send or receive money, and virtual credits have no cash value.</div>
+<button type="button" class="greenbtn" id="confirmDemoPayment">Add demo credits</button>
+<div class="payment-feedback" id="paymentFeedback" aria-live="polite"></div>
+</section>
+</div>
 
-  <nav class="nav"><button id="homeNav" class="active">⌂ Home</button><button id="kenoNav">▦ Keno</button><button id="walletNav">▣ Wallet</button><button id="leaderNav">♜ Leaderboard</button></nav>
-  <div class="foot">Habesha Keno • Local prototype • Virtual balance and activity are saved in this browser only</div>
+<nav class="nav"><button id="homeNav" class="active">⌂ Home</button><button id="kenoNav">▦ Keno</button><button id="walletNav">▣ Wallet</button><button id="leaderNav">♜ Leaderboard</button></nav>
+<div class="foot">Habesha Keno • Local prototype • Virtual balance and activity are saved in this browser only</div>
 </div>
 <script>
 const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 if (tg) {
-  tg.ready();
-  tg.expand();
-  try {
-    tg.setHeaderColor('#080d0c');
-    tg.setBackgroundColor('#070b0b');
-  } catch (e) {}
-  document.getElementById('platformLabel').textContent = 'Telegram Mini App • Virtual-credit demo';
+tg.ready();
+tg.expand();
+try {
+tg.setHeaderColor('#080d0c');
+tg.setBackgroundColor('#070b0b');
+} catch (e) {}
+document.getElementById('platformLabel').textContent = 'Telegram Mini App • Virtual-credit demo';
 } else {
-  document.getElementById('platformLabel').textContent = 'Browser preview • Virtual-credit demo';
+document.getElementById('platformLabel').textContent = 'Browser preview • Virtual-credit demo';
 }
 const grid=document.getElementById('numberGrid');
 const selected=new Set();
@@ -232,20 +232,20 @@ const demoScores=demoNames.map((_,i)=>Math.max(10,1200-i*4+(i*37)%83));
 const recentDemoGames=[];
 let gameMode='demo';
 function setGameMode(mode){
-  gameMode=mode;
-  const demo=mode==='demo';
-  document.getElementById('demoModeBtn').classList.toggle('active',demo);
-  document.getElementById('realModeBtn').classList.toggle('active',!demo);
-  document.getElementById('demoModeBtn').setAttribute('aria-pressed',String(demo));
-  document.getElementById('realModeBtn').setAttribute('aria-pressed',String(!demo));
-  document.getElementById('modeBadge').textContent=demo?'DEMO MODE':'REAL MODE PREVIEW';
-  const msg=document.getElementById('modeMessage');
-  msg.classList.toggle('real-preview',!demo);
-  msg.textContent=demo?'Demo Mode is active. Play using virtual credits only.':'Real Mode is a preview only and is not active. Real-money play, deposits, withdrawals, and cash prizes are not available.';
-  document.getElementById('kenoModeNotice').innerHTML=demo?'<strong>DEMO ONLY:</strong> This prototype uses virtual credits with no cash value. Deposits, withdrawals, real-money betting, and cash prizes are not enabled.':'<strong>REAL MODE PREVIEW:</strong> Real-money play is not enabled. Switch back to Demo Mode to play with virtual credits.';
-  document.getElementById('playBtn').disabled=!demo;
-  document.getElementById('playBtn').textContent=demo?(queuedEntry?'✓ Joined next draw':'▶ Join next draw'):'Real Mode unavailable';
-  document.querySelectorAll('#numberGrid .num, #clearBtn, #randomBtn, [data-bet], #bet').forEach(el=>el.disabled=!demo);
+gameMode=mode;
+const demo=mode==='demo';
+document.getElementById('demoModeBtn').classList.toggle('active',demo);
+document.getElementById('realModeBtn').classList.toggle('active',!demo);
+document.getElementById('demoModeBtn').setAttribute('aria-pressed',String(demo));
+document.getElementById('realModeBtn').setAttribute('aria-pressed',String(!demo));
+document.getElementById('modeBadge').textContent=demo?'DEMO MODE':'REAL MODE PREVIEW';
+const msg=document.getElementById('modeMessage');
+msg.classList.toggle('real-preview',!demo);
+msg.textContent=demo?'Demo Mode is active. Play using virtual credits only.':'Real Mode is a preview only and is not active. Real-money play, deposits, withdrawals, and cash prizes are not available.';
+document.getElementById('kenoModeNotice').innerHTML=demo?'<strong>DEMO ONLY:</strong> This prototype uses virtual credits with no cash value. Deposits, withdrawals, real-money betting, and cash prizes are not enabled.':'<strong>REAL MODE PREVIEW:</strong> Real-money play is not enabled. Switch back to Demo Mode to play with virtual credits.';
+document.getElementById('playBtn').disabled=!demo;
+document.getElementById('playBtn').textContent=demo?(queuedEntry?'✓ Joined next draw':'▶ Join next draw'):'Real Mode unavailable';
+document.querySelectorAll('#numberGrid .num, #clearBtn, #randomBtn, [data-bet], #bet').forEach(el=>el.disabled=!demo);
 }
 const fmt=n=>Number(n).toLocaleString('en-US');
 function saveVirtualBalance(){try{localStorage.setItem(WALLET_BALANCE_KEY,String(balance));}catch(_){}}
@@ -255,119 +255,119 @@ let walletHistory=[];
 try{walletHistory=JSON.parse(localStorage.getItem(WALLET_HISTORY_KEY)||'[]');if(!Array.isArray(walletHistory))walletHistory=[];}catch(_){walletHistory=[];}
 function saveWalletHistory(){try{localStorage.setItem(WALLET_HISTORY_KEY,JSON.stringify(walletHistory.slice(0,50)));}catch(_){}}
 function addWalletActivity(type,amount,details){
-  walletHistory.unshift({id:Date.now()+Math.random(),type,amount,details,balance,createdAt:new Date().toISOString()});
-  walletHistory=walletHistory.slice(0,50);saveWalletHistory();renderWalletHistory();
+walletHistory.unshift({id:Date.now()+Math.random(),type,amount,details,balance,createdAt:new Date().toISOString()});
+walletHistory=walletHistory.slice(0,50);saveWalletHistory();renderWalletHistory();
 }
 function renderWalletHistory(){
-  const host=document.getElementById('walletHistoryList');if(!host)return;
-  if(!walletHistory.length){host.innerHTML='<p class="payment-note">No wallet activity yet.</p>';return;}
-  host.innerHTML='';
-  walletHistory.forEach(item=>{
-    const row=document.createElement('div');row.style.cssText='display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:11px 0;border-top:1px solid #ffffff18;';
-    const left=document.createElement('div');left.style.minWidth='0';
-    const title=document.createElement('strong');title.style.cssText='display:block;color:#f5e7bd;font-size:13px';title.textContent=item.type;
-    const detail=document.createElement('small');detail.style.cssText='display:block;color:#9eaa9f;font-size:11px;margin-top:4px';detail.textContent=item.details+' · '+new Date(item.createdAt).toLocaleString();
-    left.append(title,detail);
-    const right=document.createElement('div');right.style.cssText='text-align:right;color:#ffdf83;font-weight:800;font-size:12px;white-space:nowrap';
-    right.textContent=(item.amount>0?'+':'')+fmt(item.amount)+' credits';
-    const bal=document.createElement('small');bal.style.cssText='display:block;color:#9eaa9f;font-weight:500;margin-top:4px';bal.textContent='Balance: '+fmt(item.balance);right.appendChild(bal);row.append(left,right);host.appendChild(row);
-  });
+const host=document.getElementById('walletHistoryList');if(!host)return;
+if(!walletHistory.length){host.innerHTML='<p class="payment-note">No wallet activity yet.</p>';return;}
+host.innerHTML='';
+walletHistory.forEach(item=>{
+const row=document.createElement('div');row.style.cssText='display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:11px 0;border-top:1px solid #ffffff18;';
+const left=document.createElement('div');left.style.minWidth='0';
+const title=document.createElement('strong');title.style.cssText='display:block;color:#f5e7bd;font-size:13px';title.textContent=item.type;
+const detail=document.createElement('small');detail.style.cssText='display:block;color:#9eaa9f;font-size:11px;margin-top:4px';detail.textContent=item.details+' · '+new Date(item.createdAt).toLocaleString();
+left.append(title,detail);
+const right=document.createElement('div');right.style.cssText='text-align:right;color:#ffdf83;font-weight:800;font-size:12px;white-space:nowrap';
+right.textContent=(item.amount>0?'+':'')+fmt(item.amount)+' credits';
+const bal=document.createElement('small');bal.style.cssText='display:block;color:#9eaa9f;font-weight:500;margin-top:4px';bal.textContent='Balance: '+fmt(item.balance);right.appendChild(bal);row.append(left,right);host.appendChild(row);
+});
 }
 document.getElementById('clearWalletHistory')?.addEventListener('click',()=>{walletHistory=[];saveWalletHistory();renderWalletHistory();});
 for(let n=1;n<=80;n++){const b=document.createElement('button');b.className='num';b.textContent=n;b.setAttribute('aria-label','Number '+n);b.onclick=()=>toggle(n,b);grid.appendChild(b)}
 function paintCountdown(){
-  const remaining=Math.max(0,Math.ceil((phaseDeadline-Date.now())/1000));
-  timerRemaining=remaining;
-  const m=String(Math.floor(remaining/60)).padStart(2,'0');
-  const sec=String(remaining%60).padStart(2,'0');
-  document.getElementById('countdown').textContent=`${m}:${sec}`;
-  document.getElementById('timerNote').textContent=phase==='countdown'?'Choose numbers and join before time runs out':'Drawing numbers — next entry window starts after results';
+const remaining=Math.max(0,Math.ceil((phaseDeadline-Date.now())/1000));
+timerRemaining=remaining;
+const m=String(Math.floor(remaining/60)).padStart(2,'0');
+const sec=String(remaining%60).padStart(2,'0');
+document.getElementById('countdown').textContent=`${m}:${sec}`;
+document.getElementById('timerNote').textContent=phase==='countdown'?'Choose numbers and join before time runs out':'Drawing numbers — next entry window starts after results';
 }
 function getRoundDraw(roundId){
-  // Deterministic practice draw for this local demo round; a real shared draw needs a server.
-  let seed=(roundId ^ 0x9e3779b9)>>>0;
-  const rand=()=>{seed=(seed+0x6D2B79F5)>>>0;let t=seed;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};
-  const pool=Array.from({length:80},(_,i)=>i+1), result=[];
-  while(result.length<20){const idx=Math.floor(rand()*pool.length);result.push(pool.splice(idx,1)[0]);}
-  return result;
+// Deterministic practice draw for this local demo round; a real shared draw needs a server.
+let seed=(roundId ^ 0x9e3779b9)>>>0;
+const rand=()=>{seed=(seed+0x6D2B79F5)>>>0;let t=seed;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};
+const pool=Array.from({length:80},(_,i)=>i+1), result=[];
+while(result.length<20){const idx=Math.floor(rand()*pool.length);result.push(pool.splice(idx,1)[0]);}
+return result;
 }
 function revealOneNumber(){
-  if(revealCount>=20)return;
-  const n=scheduledDrawNumbers[revealCount];
-  const ball=document.createElement('span');ball.className='ball';ball.textContent=n;ball.title='Demo draw number '+n;
-  document.getElementById('drawBalls').appendChild(ball);
-  revealCount++;
-  document.getElementById('scheduledStatus').textContent=`Drawing in progress — ${revealCount} of 20 numbers revealed.`;
-  if(revealCount===20)finishDraw();
+if(revealCount>=20)return;
+const n=scheduledDrawNumbers[revealCount];
+const ball=document.createElement('span');ball.className='ball';ball.textContent=n;ball.title='Demo draw number '+n;
+document.getElementById('drawBalls').appendChild(ball);
+revealCount++;
+document.getElementById('scheduledStatus').textContent=`Drawing in progress — ${revealCount} of 20 numbers revealed.`;
+if(revealCount===20)finishDraw();
 }
 function finishDraw(){
-  const drawNumbers=scheduledDrawNumbers.slice();
-  const winnerIndex=(roundSequence*7)%demoNames.length;
-  const sampleWinner=demoNames[winnerIndex];
-  // Practice-only scoring: the selected fictional winner receives 10 points per completed round.
-  demoScores[winnerIndex]+=10;
-  recentDemoGames.unshift({round:roundSequence,numbers:drawNumbers.slice(),winner:sampleWinner});
-  recentDemoGames.splice(10);
-  renderRecentGames();
-  renderLeaderboard();
-  document.getElementById('scheduledStatus').textContent='Draw complete — all 20 numbers have been revealed.';
-  if(queuedEntry){
-    const entry=queuedEntry;queuedEntry=null;
-    const hits=entry.picks.filter(n=>drawNumbers.includes(n)).sort((a,b)=>a-b);
-    lastDraw=new Set(drawNumbers);lastHits=new Set(hits);
-    status('Round complete. Your result is shown below after all 20 numbers were drawn.');
-    const r=document.getElementById('result');
-    r.innerHTML=`<strong>Demo round result</strong><br>Your numbers: <strong>${entry.picks.join(', ')}</strong><br>Draw numbers: <strong>${drawNumbers.join(', ')}</strong><br>Matched numbers: <strong>${hits.length}</strong><br>${hits.length?`Your matches: ${hits.join(', ')}`:'No matches this round.'}<br>Demo bet used: ${fmt(entry.bet)} credits<br><strong>No winnings are paid in this prototype.</strong>`;
-    r.classList.add('show');
-    totalMatches+=hits.length;document.getElementById('rounds').textContent=rounds;document.getElementById('wagered').textContent=fmt(wagered);document.getElementById('matches').textContent=totalMatches;
-  }else{
-    status('Draw complete. You did not join this round, so no personal result was recorded.');
-  }
-  document.getElementById('playBtn').textContent='▶ Join next draw';
-  phase='countdown';phaseDeadline=Date.now()+60000;
-  document.getElementById('scheduledStatus').textContent='Next 60-second entry window is open. Choose numbers and join the next draw.';
+const drawNumbers=scheduledDrawNumbers.slice();
+const winnerIndex=(roundSequence*7)%demoNames.length;
+const sampleWinner=demoNames[winnerIndex];
+// Practice-only scoring: the selected fictional winner receives 10 points per completed round.
+demoScores[winnerIndex]+=10;
+recentDemoGames.unshift({round:roundSequence,numbers:drawNumbers.slice(),winner:sampleWinner});
+recentDemoGames.splice(10);
+renderRecentGames();
+renderLeaderboard();
+document.getElementById('scheduledStatus').textContent='Draw complete — all 20 numbers have been revealed.';
+if(queuedEntry){
+const entry=queuedEntry;queuedEntry=null;
+const hits=entry.picks.filter(n=>drawNumbers.includes(n)).sort((a,b)=>a-b);
+lastDraw=new Set(drawNumbers);lastHits=new Set(hits);
+status('Round complete. Your result is shown below after all 20 numbers were drawn.');
+const r=document.getElementById('result');
+r.innerHTML=`<strong>Demo round result</strong><br>Your numbers: <strong>${entry.picks.join(', ')}</strong><br>Draw numbers: <strong>${drawNumbers.join(', ')}</strong><br>Matched numbers: <strong>${hits.length}</strong><br>${hits.length?`Your matches: ${hits.join(', ')}`:'No matches this round.'}<br>Demo bet used: ${fmt(entry.bet)} credits<br><strong>No winnings are paid in this prototype.</strong>`;
+r.classList.add('show');
+totalMatches+=hits.length;document.getElementById('rounds').textContent=rounds;document.getElementById('wagered').textContent=fmt(wagered);document.getElementById('matches').textContent=totalMatches;
+}else{
+status('Draw complete. You did not join this round, so no personal result was recorded.');
+}
+document.getElementById('playBtn').textContent='▶ Join next draw';
+phase='countdown';phaseDeadline=Date.now()+60000;
+document.getElementById('scheduledStatus').textContent='Next 60-second entry window is open. Choose numbers and join the next draw.';
 }
 function renderRecentGames(){
-  const body=document.getElementById('recentGamesBody');
-  if(!body)return;
-  body.innerHTML='';
-  recentDemoGames.forEach(game=>{
-    const tr=document.createElement('tr');tr.style.borderTop='1px solid #ffffff18';
-    const cells=[`#${game.round}`,game.numbers.join(', '),game.winner];
-    cells.forEach((value,i)=>{const td=document.createElement('td');td.style.padding='10px 6px';td.style.verticalAlign='top';td.style.color=i===2?'#ffdf83':'#e9e5d5';td.textContent=value;tr.appendChild(td)});
-    body.appendChild(tr);
-  });
+const body=document.getElementById('recentGamesBody');
+if(!body)return;
+body.innerHTML='';
+recentDemoGames.forEach(game=>{
+const tr=document.createElement('tr');tr.style.borderTop='1px solid #ffffff18';
+const cells=[`#${game.round}`,game.numbers.join(', '),game.winner];
+cells.forEach((value,i)=>{const td=document.createElement('td');td.style.padding='10px 6px';td.style.verticalAlign='top';td.style.color=i===2?'#ffdf83':'#e9e5d5';td.textContent=value;tr.appendChild(td)});
+body.appendChild(tr);
+});
 }
 function renderLeaderboard(){
-  const body=document.getElementById('leaderboardBody');if(!body)return;body.innerHTML='';
-  const topTwelve=demoNames.map((name,index)=>({name,points:demoScores[index]}))
-    .sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name)).slice(0,12);
-  topTwelve.forEach((player,i)=>{const tr=document.createElement('tr');tr.style.borderTop='1px solid #ffffff18';
-    [String(i+1),player.name,player.points.toLocaleString('en-US')].forEach((value,j)=>{const td=document.createElement('td');td.style.padding='10px 6px';td.style.color=j===0?'#ffdf83':'#e9e5d5';td.textContent=value;tr.appendChild(td)});body.appendChild(tr)});
+const body=document.getElementById('leaderboardBody');if(!body)return;body.innerHTML='';
+const topTwelve=demoNames.map((name,index)=>({name,points:demoScores[index]}))
+.sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name)).slice(0,12);
+topTwelve.forEach((player,i)=>{const tr=document.createElement('tr');tr.style.borderTop='1px solid #ffffff18';
+[String(i+1),player.name,player.points.toLocaleString('en-US')].forEach((value,j)=>{const td=document.createElement('td');td.style.padding='10px 6px';td.style.color=j===0?'#ffdf83':'#e9e5d5';td.textContent=value;tr.appendChild(td)});body.appendChild(tr)});
 }
 renderLeaderboard();
 function beginDraw(){
-  phase='drawing';roundSequence++;
-  scheduledDrawNumbers=getRoundDraw(roundSequence);
-  revealCount=0;
-  document.getElementById('drawBalls').innerHTML='';
-  document.getElementById('scheduledStatus').textContent='Draw starting — 20 numbers will appear one per second.';
-  if(queuedEntry){
-    // The virtual-credit amount is reserved when the player joins; the entry is settled after all 20 numbers appear.
-    rounds++;
-  }
-  revealOneNumber();
-  if(revealCount<20){revealInterval=setInterval(()=>{revealOneNumber();if(revealCount>=20&&revealInterval){clearInterval(revealInterval);revealInterval=null}},1000)}
+phase='drawing';roundSequence++;
+scheduledDrawNumbers=getRoundDraw(roundSequence);
+revealCount=0;
+document.getElementById('drawBalls').innerHTML='';
+document.getElementById('scheduledStatus').textContent='Draw starting — 20 numbers will appear one per second.';
+if(queuedEntry){
+// The virtual-credit amount is reserved when the player joins; the entry is settled after all 20 numbers appear.
+rounds++;
+}
+revealOneNumber();
+if(revealCount<20){revealInterval=setInterval(()=>{revealOneNumber();if(revealCount>=20&&revealInterval){clearInterval(revealInterval);revealInterval=null}},1000)}
 }
 function syncScheduledDraw(){
-  paintCountdown();
-  if(phase==='countdown'&&Date.now()>=phaseDeadline){beginDraw();paintCountdown();}
+paintCountdown();
+if(phase==='countdown'&&Date.now()>=phaseDeadline){beginDraw();paintCountdown();}
 }
 function startCountdown(){
-  if(timerInterval)clearInterval(timerInterval);
-  if(revealInterval)clearInterval(revealInterval);
-  phase='countdown';phaseDeadline=Date.now()+60000;
-  syncScheduledDraw();timerInterval=setInterval(syncScheduledDraw,200);
+if(timerInterval)clearInterval(timerInterval);
+if(revealInterval)clearInterval(revealInterval);
+phase='countdown';phaseDeadline=Date.now()+60000;
+syncScheduledDraw();timerInterval=setInterval(syncScheduledDraw,200);
 }
 function toggle(n,b){if(selected.has(n)){selected.delete(n);b.classList.remove('selected')}else{if(selected.size>=10){status('You can select up to 10 numbers.');return}selected.add(n);b.classList.add('selected')}updatePicks();document.getElementById('result').classList.remove('show')}
 function updatePicks(){document.getElementById('picked').textContent=`${selected.size} / 10 selected`;document.getElementById('pickCount').textContent=selected.size;document.getElementById('selectedList').textContent=[...selected].sort((a,b)=>a-b).join(', ')||'—'}
@@ -376,19 +376,19 @@ document.getElementById('clearBtn').onclick=()=>{selected.clear();document.query
 document.getElementById('randomBtn').onclick=()=>{selected.clear();while(selected.size<10)selected.add(1+Math.floor(Math.random()*80));document.querySelectorAll('.num').forEach((b,i)=>b.classList.toggle('selected',selected.has(i+1)));updatePicks()};
 document.querySelectorAll('[data-bet]').forEach(b=>b.onclick=()=>document.getElementById('bet').value=b.dataset.bet);
 document.getElementById('playBtn').onclick=()=>{
- if(gameMode!=='demo')return;
- if(phase!=='countdown'){status('The draw is already in progress. Choose numbers for the next entry window.');return}
- if(queuedEntry){status('You have already joined the next draw.');return}
- if(selected.size<1){status('Choose at least one number first.');return}
- const bet=Number(document.getElementById('bet').value);
- if(!Number.isFinite(bet)||bet<10||bet>500||bet%10!==0){status('Choose a demo bet from 10 to 500 credits, in steps of 10.');return}
- if(bet>balance){status('Not enough demo credits. Lower your demo bet.');return}
- const picks=[...selected].sort((a,b)=>a-b);
- balance-=bet;wagered+=bet;syncHomeBalance();addWalletActivity('Game entry',-bet,`Round ${roundSequence+1} virtual-credit entry`);
- queuedEntry={picks,bet};
- document.getElementById('playBtn').textContent='✓ Joined next draw';
- status(`You joined the next demo draw with ${picks.length} number${picks.length===1?'':'s'}. Results appear after all 20 numbers are revealed.`);
- document.getElementById('result').classList.remove('show');
+if(gameMode!=='demo')return;
+if(phase!=='countdown'){status('The draw is already in progress. Choose numbers for the next entry window.');return}
+if(queuedEntry){status('You have already joined the next draw.');return}
+if(selected.size<1){status('Choose at least one number first.');return}
+const bet=Number(document.getElementById('bet').value);
+if(!Number.isFinite(bet)||bet<10||bet>500||bet%10!==0){status('Choose a demo bet from 10 to 500 credits, in steps of 10.');return}
+if(bet>balance){status('Not enough demo credits. Lower your demo bet.');return}
+const picks=[...selected].sort((a,b)=>a-b);
+balance-=bet;wagered+=bet;syncHomeBalance();addWalletActivity('Game entry',-bet,`Round ${roundSequence+1} virtual-credit entry`);
+queuedEntry={picks,bet};
+document.getElementById('playBtn').textContent='✓ Joined next draw';
+status(`You joined the next demo draw with ${picks.length} number${picks.length===1?'':'s'}. Results appear after all 20 numbers are revealed.`);
+document.getElementById('result').classList.remove('show');
 };
 startCountdown();
 const homePanel=document.getElementById('homePanel');
@@ -402,14 +402,14 @@ document.getElementById('walletTelebirrBtn').onclick=()=>openTelegramAdmin();
 document.getElementById('walletWithdrawBtn').onclick=()=>openAdminTelegramSupport('Hello admin, I need help with my Habesha Keno virtual-credit account. I understand these demo credits have no cash value.');
 const navButtons=[document.getElementById('homeNav'),document.getElementById('kenoNav'),document.getElementById('walletNav'),document.getElementById('leaderNav')];
 function showTab(tab){
-  homePanel.hidden=tab!=='home';
-  kenoPanel.hidden=tab!=='keno';
-  walletPanel.hidden=tab!=='wallet';
-  document.getElementById('leaderPanel').hidden=tab!=='leader';
-  navButtons.forEach((b,i)=>b.classList.toggle('active',(tab==='home'&&i===0)||(tab==='keno'&&i===1)||(tab==='wallet'&&i===2)||(tab==='leader'&&i===3)));
-  if(tab==='wallet'){homePanel.hidden=true;kenoPanel.hidden=true;}
-  else if(tab==='leader'){homePanel.hidden=true;kenoPanel.hidden=true;renderLeaderboard();renderRecentGames();}
-  window.scrollTo({top:0,behavior:'smooth'});
+homePanel.hidden=tab!=='home';
+kenoPanel.hidden=tab!=='keno';
+walletPanel.hidden=tab!=='wallet';
+document.getElementById('leaderPanel').hidden=tab!=='leader';
+navButtons.forEach((b,i)=>b.classList.toggle('active',(tab==='home'&&i===0)||(tab==='keno'&&i===1)||(tab==='wallet'&&i===2)||(tab==='leader'&&i===3)));
+if(tab==='wallet'){homePanel.hidden=true;kenoPanel.hidden=true;}
+else if(tab==='leader'){homePanel.hidden=true;kenoPanel.hidden=true;renderLeaderboard();renderRecentGames();}
+window.scrollTo({top:0,behavior:'smooth'});
 }
 document.getElementById('demoModeBtn').onclick=()=>setGameMode('demo');
 document.getElementById('realModeBtn').onclick=()=>setGameMode('real');
@@ -424,24 +424,24 @@ const paymentBackdrop=document.getElementById('paymentModalBackdrop');
 const paymentAmount=document.getElementById('paymentAmount');
 const paymentFeedback=document.getElementById('paymentFeedback');
 function openPaymentScreen(action){
-  paymentAction=action;
-  const isDeposit=action==='deposit';
-  document.getElementById('paymentModalTitle').textContent=isDeposit?'Telebirr — Demo deposit':'Telebirr — Demo withdrawal';
-  document.getElementById('paymentModalSubtitle').textContent=isDeposit?'Add virtual credits to your practice wallet.':'Preview a withdrawal request using virtual credits only.';
-  document.getElementById('paymentAmountLabel').textContent=isDeposit?'Virtual credits to add':'Virtual credits for demo request';
-  document.getElementById('confirmDemoPayment').textContent=isDeposit?'＋ Add demo credits':'↗ Preview withdrawal request';
-  paymentAmount.value=isDeposit?'100':'100';
-  paymentAmount.max=isDeposit?'10000':String(Math.max(10,balance));
-  paymentFeedback.classList.remove('show');paymentFeedback.textContent='';
-  paymentBackdrop.classList.add('open');paymentBackdrop.setAttribute('aria-hidden','false');
-  setTimeout(()=>paymentAmount.focus(),60);
+paymentAction=action;
+const isDeposit=action==='deposit';
+document.getElementById('paymentModalTitle').textContent=isDeposit?'Telebirr — Demo deposit':'Telebirr — Demo withdrawal';
+document.getElementById('paymentModalSubtitle').textContent=isDeposit?'Add virtual credits to your practice wallet.':'Preview a withdrawal request using virtual credits only.';
+document.getElementById('paymentAmountLabel').textContent=isDeposit?'Virtual credits to add':'Virtual credits for demo request';
+document.getElementById('confirmDemoPayment').textContent=isDeposit?'＋ Add demo credits':'↗ Preview withdrawal request';
+paymentAmount.value=isDeposit?'100':'100';
+paymentAmount.max=isDeposit?'10000':String(Math.max(10,balance));
+paymentFeedback.classList.remove('show');paymentFeedback.textContent='';
+paymentBackdrop.classList.add('open');paymentBackdrop.setAttribute('aria-hidden','false');
+setTimeout(()=>paymentAmount.focus(),60);
 }
 function closePaymentScreen(){paymentBackdrop.classList.remove('open');paymentBackdrop.setAttribute('aria-hidden','true')}
 function openAdminTelegramSupport(message='Hello admin, I need help with Habesha Keno demo mode.'){
-  // Opens a support conversation only; virtual credits cannot be redeemed for cash.
-  const url='https://t.me/habesha_keno?text='+encodeURIComponent(message);
-  if(tg && typeof tg.openTelegramLink==='function') tg.openTelegramLink(url);
-  else window.open(url,'_blank','noopener,noreferrer');
+// Opens a support conversation only; virtual credits cannot be redeemed for cash.
+const url='https://t.me/habesha_keno?text='+encodeURIComponent(message);
+if(tg && typeof tg.openTelegramLink==='function') tg.openTelegramLink(url);
+else window.open(url,'_blank','noopener,noreferrer');
 }
 document.getElementById('depositBtn').onclick=openAdminTelegramSupport;
 document.getElementById('withdrawBtn').onclick=()=>openAdminTelegramSupport('Hello admin, I need help with my Habesha Keno virtual-credit account. I understand these demo credits have no cash value.');
@@ -450,21 +450,21 @@ paymentBackdrop.addEventListener('click',e=>{if(e.target===paymentBackdrop)close
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closePaymentScreen()});
 document.querySelectorAll('[data-demo-amount]').forEach(b=>b.onclick=()=>{paymentAmount.value=b.dataset.demoAmount});
 document.getElementById('confirmDemoPayment').onclick=()=>{
-  const amount=Number(paymentAmount.value);
-  if(gameMode!=='demo'){
-    paymentFeedback.textContent='Real Mode is only a preview. Payment features are unavailable; switch to Demo Mode to use virtual credits.';
-    paymentFeedback.classList.add('show');return;
-  }
-  if(!Number.isInteger(amount)||amount<10||amount%10!==0){paymentFeedback.textContent='Enter a whole number of credits: at least 10, in steps of 10.';paymentFeedback.classList.add('show');return;}
-  if(paymentAction==='deposit'){
-    if(amount>10000){paymentFeedback.textContent='Demo deposits are limited to 10,000 virtual credits per action.';paymentFeedback.classList.add('show');return;}
-    balance+=amount;syncHomeBalance();addWalletActivity('Virtual credit added',amount,'Practice-wallet adjustment');
-    paymentFeedback.textContent=`Demo deposit complete: ${fmt(amount)} virtual credits added. New demo balance: ${fmt(balance)} credits. No money was transferred.`;
-  }else{
-    if(amount>balance){paymentFeedback.textContent=`Your demo balance is ${fmt(balance)} credits. Enter that amount or less.`;paymentFeedback.classList.add('show');return;}
-    addWalletActivity('Withdrawal preview',0,`${fmt(amount)} credits requested; balance unchanged`);paymentFeedback.textContent=`Demo withdrawal request previewed for ${fmt(amount)} virtual credits. Your balance is unchanged, and no money was sent.`;
-  }
-  paymentFeedback.classList.add('show');
+const amount=Number(paymentAmount.value);
+if(gameMode!=='demo'){
+paymentFeedback.textContent='Real Mode is only a preview. Payment features are unavailable; switch to Demo Mode to use virtual credits.';
+paymentFeedback.classList.add('show');return;
+}
+if(!Number.isInteger(amount)||amount<10||amount%10!==0){paymentFeedback.textContent='Enter a whole number of credits: at least 10, in steps of 10.';paymentFeedback.classList.add('show');return;}
+if(paymentAction==='deposit'){
+if(amount>10000){paymentFeedback.textContent='Demo deposits are limited to 10,000 virtual credits per action.';paymentFeedback.classList.add('show');return;}
+balance+=amount;syncHomeBalance();addWalletActivity('Virtual credit added',amount,'Practice-wallet adjustment');
+paymentFeedback.textContent=`Demo deposit complete: ${fmt(amount)} virtual credits added. New demo balance: ${fmt(balance)} credits. No money was transferred.`;
+}else{
+if(amount>balance){paymentFeedback.textContent=`Your demo balance is ${fmt(balance)} credits. Enter that amount or less.`;paymentFeedback.classList.add('show');return;}
+addWalletActivity('Withdrawal preview',0,`${fmt(amount)} credits requested; balance unchanged`);paymentFeedback.textContent=`Demo withdrawal request previewed for ${fmt(amount)} virtual credits. Your balance is unchanged, and no money was sent.`;
+}
+paymentFeedback.classList.add('show');
 };
 document.querySelectorAll('[data-method]').forEach(b=>b.onclick=()=>{if(b.dataset.method==='Telebirr')openPaymentScreen('deposit');else alert(b.dataset.method+' is a demo preview only. No real payments are connected.');});
 document.getElementById('refreshBalance').onclick=()=>{syncHomeBalance();document.getElementById('refreshBalance').textContent='✓ Updated';setTimeout(()=>document.getElementById('refreshBalance').textContent='↻ Refresh',1200);};
@@ -480,95 +480,94 @@ const signedInBox=document.getElementById('accountSignedIn');
 const loginPanel=document.getElementById('loginPanel');
 const registerPanel=document.getElementById('registerPanel');
 function setAccountTab(tab){
-  const isLogin=tab==='login';
-  loginPanel.hidden=!isLogin; registerPanel.hidden=isLogin;
-  document.getElementById('loginTabBtn').classList.toggle('active',isLogin);
-  document.getElementById('registerTabBtn').classList.toggle('active',!isLogin);
-  document.getElementById('loginTabBtn').setAttribute('aria-selected',String(isLogin));
-  document.getElementById('registerTabBtn').setAttribute('aria-selected',String(!isLogin));
-  accountFeedback.textContent='';
+const isLogin=tab==='login';
+loginPanel.hidden=!isLogin; registerPanel.hidden=isLogin;
+document.getElementById('loginTabBtn').classList.toggle('active',isLogin);
+document.getElementById('registerTabBtn').classList.toggle('active',!isLogin);
+document.getElementById('loginTabBtn').setAttribute('aria-selected',String(isLogin));
+document.getElementById('registerTabBtn').setAttribute('aria-selected',String(!isLogin));
+accountFeedback.textContent='';
 }
 document.getElementById('loginTabBtn').addEventListener('click',()=>setAccountTab('login'));
 document.getElementById('registerTabBtn').addEventListener('click',()=>setAccountTab('register'));
 let supabaseClient=null;
 function accountMessage(message,isError=false){accountFeedback.textContent=message;accountFeedback.style.color=isError?'#ffb2a8':'#ffe29a';}
 function showAccountSession(session){
-  signedOutBox.hidden=!!session;
-  signedInBox.hidden=!session;
-  if(session){
-    const username=session.user.user_metadata?.username||'Player';
-    document.getElementById('accountStatus').textContent=`Signed in as ${username}. Your player profile is connected.`;
-  }
+signedOutBox.hidden=!!session;
+signedInBox.hidden=!session;
+if(session){
+const username=session.user.user_metadata?.username||'Player';
+document.getElementById('accountStatus').textContent=`Signed in as ${username}. Your player profile is connected.`;
+}
 }
 if(window.supabase?.createClient){
-  supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-  supabaseClient.auth.getSession().then(({data,error})=>{
-    if(error) accountMessage('Could not check account session. Please refresh and try again.',true);
-    showAccountSession(data?.session||null);
-  });
-  supabaseClient.auth.onAuthStateChange((_event,session)=>showAccountSession(session));
+supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+supabaseClient.auth.getSession().then(({data,error})=>{
+if(error) accountMessage('Could not check account session. Please refresh and try again.',true);
+showAccountSession(data?.session||null);
+});
+supabaseClient.auth.onAuthStateChange((_event,session)=>showAccountSession(session));
 }else{
-  accountMessage('Account service could not load. Check your internet connection and refresh.',true);
+accountMessage('Account service could not load. Check your internet connection and refresh.',true);
 }
 document.getElementById('loginForm').addEventListener('submit',async(event)=>{
-  event.preventDefault();
-  if(!supabaseClient){accountMessage('Account service is unavailable. Refresh and try again.',true);return;}
-  const username=document.getElementById('loginUsername').value.trim();
-  const password=document.getElementById('loginPassword').value;
-  if(!/^[A-Za-z0-9_]{3,20}$/.test(username)){accountMessage('Enter a valid username (3–20 letters, numbers, or underscores).',true);return;}
-  const button=document.getElementById('loginBtn');button.disabled=true;button.textContent='Checking…';
-  accountMessage('Username login needs the secure username-login server function, which we will set up next.',true);
-  try{
-    const {data,error}=await supabaseClient.functions.invoke('username-login',{body:{username,password}});
-    if(error) throw error;
-   const { data: sessionData, error: sessionError } =
-  await supabaseClient.auth.setSession({
-    access_token: data.access_token,
-    refresh_token: data.refresh_token
-  });
+event.preventDefault();
+if(!supabaseClient){accountMessage('Account service is unavailable. Refresh and try again.',true);return;}
+const username=document.getElementById('loginUsername').value.trim();
+const password=document.getElementById('loginPassword').value;
+if(!/^[A-Za-z0-9_]{3,20}$/.test(username)){accountMessage('Enter a valid username (3–20 letters, numbers, or underscores).',true);return;}
+const button=document.getElementById('loginBtn');button.disabled=true;button.textContent='Checking…';
+accountMessage('Username login needs the secure username-login server function, which we will set up next.',true);
+try{
+const {data,error}=await supabaseClient.functions.invoke('username-login',{body:{username,password}});
+if(error) throw error;
+const { data: sessionData, error: sessionError } =
+await supabaseClient.auth.setSession({
+access_token: data.access_token,
+refresh_token: data.refresh_token
+});
 
 if (sessionError) throw sessionError;
 
 accountMessage('Login successful.');
 showAccountSession(sessionData.session);
 event.target.reset();
-  }catch(error){
-    accountMessage('Username login is not active yet. We need to deploy the secure username-login function before players can sign in.',true);
-  }finally{button.disabled=false;button.textContent='Login';}
+}catch(error){
+accountMessage('Username login is not active yet. We need to deploy the secure username-login function before players can sign in.',true);
+}finally{button.disabled=false;button.textContent='Login';}
 });
 document.getElementById('registerForm').addEventListener('submit',async(event)=>{
-  event.preventDefault();
-  if(!supabaseClient){accountMessage('Account service is unavailable. Refresh and try again.',true);return;}
-  const username=document.getElementById('regUsername').value.trim();
-  const email=document.getElementById('regEmail').value.trim();
-  const password=document.getElementById('regPassword').value;
-  const confirm=document.getElementById('regConfirm').value;
-  if(!/^[A-Za-z0-9_]{3,20}$/.test(username)){accountMessage('Username must be 3–20 characters: letters, numbers, and underscores only.',true);return;}
-  if(password.length<8){accountMessage('Choose a password with at least 8 characters.',true);return;}
-  if(password!==confirm){accountMessage('The passwords do not match.',true);return;}
-  const button=document.getElementById('registerBtn');button.disabled=true;button.textContent='Creating account…';
-  accountMessage('Creating your account…');
-  try{
-    const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{username}}});
-    if(error) throw error;
-    if(data.session){accountMessage('Account created successfully. Your profile is ready.');showAccountSession(data.session);}
-    else accountMessage('Registration received! Check your email for the verification link. After verifying, return here to sign in.');
-    event.target.reset();
-  }catch(error){
-    const message=String(error?.message||'Registration failed.');
-    accountMessage(message.toLowerCase().includes('duplicate')||message.toLowerCase().includes('unique')?'That username is already taken. Please choose another.':message,true);
-  }finally{button.disabled=false;button.textContent='Create account';}
+event.preventDefault();
+if(!supabaseClient){accountMessage('Account service is unavailable. Refresh and try again.',true);return;}
+const username=document.getElementById('regUsername').value.trim();
+const email=document.getElementById('regEmail').value.trim();
+const password=document.getElementById('regPassword').value;
+const confirm=document.getElementById('regConfirm').value;
+if(!/^[A-Za-z0-9_]{3,20}$/.test(username)){accountMessage('Username must be 3–20 characters: letters, numbers, and underscores only.',true);return;}
+if(password.length<8){accountMessage('Choose a password with at least 8 characters.',true);return;}
+if(password!==confirm){accountMessage('The passwords do not match.',true);return;}
+const button=document.getElementById('registerBtn');button.disabled=true;button.textContent='Creating account…';
+accountMessage('Creating your account…');
+try{
+const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{username}}});
+if(error) throw error;
+if(data.session){accountMessage('Account created successfully. Your profile is ready.');showAccountSession(data.session);}
+else accountMessage('Registration received! Check your email for the verification link. After verifying, return here to sign in.');
+event.target.reset();
+}catch(error){
+const message=String(error?.message||'Registration failed.');
+accountMessage(message.toLowerCase().includes('duplicate')||message.toLowerCase().includes('unique')?'That username is already taken. Please choose another.':message,true);
+}finally{button.disabled=false;button.textContent='Create account';}
 });
 document.getElementById('signOutBtn').addEventListener('click',async()=>{
-  if(!supabaseClient)return;
-  const {error}=await supabaseClient.auth.signOut();
-  if(error)accountMessage('Could not sign out. Please try again.',true);
-  else accountMessage('You have signed out.');
+if(!supabaseClient)return;
+const {error}=await supabaseClient.auth.signOut();
+if(error)accountMessage('Could not sign out. Please try again.',true);
+else accountMessage('You have signed out.');
 });
-    adminButton.addEventListener("click", () => {
-  alert("Admin button is working!");
-  window.loadAdminDashboard();
-});
+async function loadAdminDashboard() {
+  try {
+    alert("Checking administrator access...");
 
     const { data: sessionData, error: sessionError } =
       await supabaseClient.auth.getSession();
@@ -578,7 +577,7 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
     if (!sessionData.session) {
       alert("Please log in first.");
       return;
-    };
+    }
 
     const { data, error } =
       await supabaseClient.functions.invoke("admin-players");
@@ -599,40 +598,40 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
     alert("Dashboard error: " + error.message);
   }
 } {
-  const { data: sessionData } = await supabaseClient.auth.getSession();
+const { data: sessionData } = await supabaseClient.auth.getSession();
 
- if (error) {
-  console.error("Admin error:", error);
-  alert("Admin error: " + error.message);
-  return;
+if (error) {
+console.error("Admin error:", error);
+alert("Admin error: " + error.message);
+return;
 }
 
-  const { data, error } = await supabaseClient.functions.invoke(
-    "admin-players",
-    {
-      headers: {
-        Authorization: `Bearer ${sessionData.session.access_token}`
-      }
-    }
-  );
-
-  if (error) {
-    alert("Admin access failed. Please check your permissions.");
-    return;
-  }
-
-  console.log("Admin players:", data.players);
-  alert(`Admin access successful! Players found: ${data.players.length}`);
+const { data, error } = await supabaseClient.functions.invoke(
+"admin-players",
+{
+headers: {
+Authorization: `Bearer ${sessionData.session.access_token}`
 }
-    const adminButton = document.createElement("button");
+}
+);
+
+if (error) {
+alert("Admin access failed. Please check your permissions.");
+return;
+}
+
+console.log("Admin players:", data.players);
+alert(`Admin access successful! Players found: ${data.players.length}`);
+}
+const adminButton = document.createElement("button");
 
 adminButton.textContent = "Admin Dashboard";
 adminButton.style.cssText =
-  "position:fixed;bottom:20px;right:20px;padding:14px;background:#c9a227;color:#111;border:0;border-radius:10px;z-index:9999;cursor:pointer;";
+"position:fixed;bottom:20px;right:20px;padding:14px;background:#c9a227;color:#111;border:0;border-radius:10px;z-index:9999;cursor:pointer;";
 
 adminButton.addEventListener("click", () => {
-  alert("Admin button is working!");
-  loadAdminDashboard();
+alert("Admin button is working!");
+loadAdminDashboard();
 });
 
 document.body.appendChild(adminButton);
