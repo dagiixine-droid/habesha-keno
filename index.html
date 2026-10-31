@@ -568,10 +568,11 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
     async function loadAdminDashboard() {
   const { data: sessionData } = await supabaseClient.auth.getSession();
 
-  if (!sessionData.session) {
-    alert("Please log in first.");
-    return;
-  }
+ if (error) {
+  console.error("Admin error:", error);
+  alert("Admin error: " + error.message);
+  return;
+}
 
   const { data, error } = await supabaseClient.functions.invoke(
     "admin-players",
