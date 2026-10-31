@@ -565,7 +565,7 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
   if(error)accountMessage('Could not sign out. Please try again.',true);
   else accountMessage('You have signed out.');
 });
-    async function loadAdminDashboard() {
+    aasync function loadAdminDashboard() {
   try {
     alert("Checking administrator access...");
 
@@ -582,68 +582,64 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
     const { data, error } =
       await supabaseClient.functions.invoke("admin-players");
 
- if (error) {
-  console.error("Admin function error:", error);
-
-  let details = error.message;
-
-  if (error.context) {
-    try {
-      details += "\n" + await error.context.clone().text();
-    } catch (e) {
-      console.log("Could not read error details");
+    if (error) {
+      console.error("Admin function error:", error);
+      alert("Admin error: " + error.message);
+      return;
     }
-  }
-
-  alert("Admin error:\n" + details);
-  return;
-}
 
     const players = data.players ?? [];
 
-document.getElementById("adminDashboard")?.remove();
+    document.getElementById("adminDashboard")?.remove();
 
-const dashboard = document.createElement("div");
-dashboard.id = "adminDashboard";
-dashboard.style.cssText =
-  "position:fixed;inset:5%;background:#151515;color:white;padding:20px;border:2px solid #c9a227;border-radius:12px;z-index:10000;overflow:auto;";
+    const dashboard = document.createElement("div");
+    dashboard.id = "adminDashboard";
+    dashboard.style.cssText =
+      "position:fixed;inset:5%;background:#151515;color:white;padding:20px;border:2px solid #c9a227;border-radius:12px;z-index:10000;overflow:auto;";
 
-dashboard.innerHTML = `
-  <button id="closeAdmin">Close ✕</button>
-  <h2 style="color:#c9a227">Admin Dashboard</h2>
-  <p>Total registered players: ${players.length}</p>
-  <input id="playerSearch" placeholder="Search username..."
-    style="padding:10px;width:100%;margin-bottom:15px;">
-  <div id="playerList"></div>
-`;
+    dashboard.innerHTML = `
+      <button id="closeAdmin">Close ✕</button>
+      <h2 style="color:#c9a227">Admin Dashboard</h2>
+      <p>Total registered players: ${players.length}</p>
+      <input id="playerSearch" placeholder="Search username..."
+        style="padding:10px;width:100%;margin-bottom:15px;">
+      <div id="playerList"></div>
+    `;
 
-document.body.appendChild(dashboard);
+    document.body.appendChild(dashboard);
 
-function renderPlayers(search = "") {
-const filtered = players.filter(player =>
-(player.username || "").toLowerCase().includes(search.toLowerCase())
-);
+    function renderPlayers(search = "") {
+      const filtered = players.filter(player =>
+        (player.username || "").toLowerCase().includes(search.toLowerCase())
+      );
 
-document.getElementById("playerList").innerHTML =
-filtered.map(player => `       <div style="padding:12px;border-bottom:1px solid #555;">         <strong>${player.username || "No username"}</strong>         <p>${player.email || "No email"}</p>         <p>Games Played: ${player.games_played ?? 0}</p>         <p>Account Status: ${player.account_status || "Registered"}</p>         <small>Joined: ${new Date(player.created_at).toLocaleDateString()}</small>       </div>
-    `).join("") || "<p>No players found.</p>";
-}
+      document.getElementById("playerList").innerHTML =
+        filtered.map(player => `
+          <div style="padding:12px;border-bottom:1px solid #555;">
+            <strong>${player.username || "No username"}</strong>
+            <p>${player.email || "No email"}</p>
+            <p>Games Played: ${player.games_played ?? 0}</p>
+            <p>Account Status: ${player.account_status || "Registered"}</p>
+            <small>Joined: ${new Date(player.created_at).toLocaleDateString()}</small>
+          </div>
+        `).join("") || "<p>No players found.</p>";
+    }
 
-renderPlayers();
+    renderPlayers();
 
-document.getElementById("playerSearch").addEventListener("input", event => {
-  renderPlayers(event.target.value);
-});
+    document.getElementById("playerSearch").addEventListener("input", event => {
+      renderPlayers(event.target.value);
+    });
 
-document.getElementById("closeAdmin").addEventListener("click", () => {
-  dashboard.remove();
-});
+    document.getElementById("closeAdmin").addEventListener("click", () => {
+      dashboard.remove();
+    });
 
   } catch (error) {
     console.error("Dashboard error:", error);
     alert("Dashboard error: " + error.message);
   }
-} 
+}
    const adminButton = document.createElement("button");
 
 adminButton.textContent = "Admin Dashboard";
