@@ -566,6 +566,38 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
   else accountMessage('You have signed out.');
 });
     async function loadAdminDashboard() {
+  try {
+    alert("Checking administrator access...");
+
+    const { data: sessionData, error: sessionError } =
+      await supabaseClient.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    if (!sessionData.session) {
+      alert("Please log in first.");
+      return;
+    }
+
+    const { data, error } =
+      await supabaseClient.functions.invoke("admin-players");
+
+    if (error) {
+      console.error("Admin function error:", error);
+      alert("Admin error: " + error.message);
+      return;
+    }
+
+    alert(
+      "Admin access successful! Players found: " +
+      (data.players?.length ?? 0)
+    );
+
+  } catch (error) {
+    console.error("Dashboard error:", error);
+    alert("Dashboard error: " + error.message);
+  }
+} {
   const { data: sessionData } = await supabaseClient.auth.getSession();
 
  if (error) {
