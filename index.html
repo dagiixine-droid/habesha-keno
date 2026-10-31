@@ -599,10 +599,50 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
   return;
 }
 
-    alert(
-      "Admin access successful! Players found: " +
-      (data.players?.length ?? 0)
-    );
+    const players = data.players ?? [];
+
+document.getElementById("adminDashboard")?.remove();
+
+const dashboard = document.createElement("div");
+dashboard.id = "adminDashboard";
+dashboard.style.cssText =
+  "position:fixed;inset:5%;background:#151515;color:white;padding:20px;border:2px solid #c9a227;border-radius:12px;z-index:10000;overflow:auto;";
+
+dashboard.innerHTML = `
+  <button id="closeAdmin">Close ✕</button>
+  <h2 style="color:#c9a227">Admin Dashboard</h2>
+  <p>Total registered players: ${players.length}</p>
+  <input id="playerSearch" placeholder="Search username..."
+    style="padding:10px;width:100%;margin-bottom:15px;">
+  <div id="playerList"></div>
+`;
+
+document.body.appendChild(dashboard);
+
+function renderPlayers(search = "") {
+  const filtered = players.filter(player =>
+    (player.username || "").toLowerCase().includes(search.toLowerCase())
+  );
+
+  document.getElementById("playerList").innerHTML =
+    filtered.map(player => `
+      <div style="padding:12px;border-bottom:1px solid #555;">
+        <strong>${player.username || "No username"}</strong>
+        <p>${player.email || "No email"}</p>
+        <small>Joined: ${new Date(player.created_at).toLocaleDateString()}</small>
+      </div>
+    `).join("") || "<p>No players found.</p>";
+}
+
+renderPlayers();
+
+document.getElementById("playerSearch").addEventListener("input", event => {
+  renderPlayers(event.target.value);
+});
+
+document.getElementById("closeAdmin").addEventListener("click", () => {
+  dashboard.remove();
+});
 
   } catch (error) {
     console.error("Dashboard error:", error);
