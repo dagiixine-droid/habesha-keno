@@ -582,11 +582,22 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
     const { data, error } =
       await supabaseClient.functions.invoke("admin-players");
 
-    if (error) {
-      console.error("Admin function error:", error);
-      alert("Admin error: " + error.message);
-      return;
+ if (error) {
+  console.error("Admin function error:", error);
+
+  let details = error.message;
+
+  if (error.context) {
+    try {
+      details += "\n" + await error.context.clone().text();
+    } catch (e) {
+      console.log("Could not read error details");
     }
+  }
+
+  alert("Admin error:\n" + details);
+  return;
+}
 
     alert(
       "Admin access successful! Players found: " +
