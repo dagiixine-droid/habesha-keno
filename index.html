@@ -521,10 +521,17 @@ document.getElementById('loginForm').addEventListener('submit',async(event)=>{
   try{
     const {data,error}=await supabaseClient.functions.invoke('username-login',{body:{username,password}});
     if(error) throw error;
-    if(!data?.email){throw new Error('The username-login function response is incomplete.');}
-    const {data:loginData,error:loginError}=await supabaseClient.auth.signInWithPassword({email:data.email,password});
-    if(loginError) throw loginError;
-    accountMessage('Login successful.');showAccountSession(loginData.session);event.target.reset();
+   const { data: sessionData, error: sessionError } =
+  await supabaseClient.auth.setSession({
+    access_token: data.access_token,
+    refresh_token: data.refresh_token
+  });
+
+if (sessionError) throw sessionError;
+
+accountMessage('Login successful.');
+showAccountSession(sessionData.session);
+event.target.reset();
   }catch(error){
     accountMessage('Username login is not active yet. We need to deploy the secure username-login function before players can sign in.',true);
   }finally{button.disabled=false;button.textContent='Login';}
