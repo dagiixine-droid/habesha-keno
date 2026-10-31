@@ -565,9 +565,10 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
   if(error)accountMessage('Could not sign out. Please try again.',true);
   else accountMessage('You have signed out.');
 });
-    async function loadAdminDashboard() {
-  try {
-    alert("Checking administrator access...");
+    adminButton.addEventListener("click", () => {
+  alert("Admin button is working!");
+  window.loadAdminDashboard();
+});
 
     const { data: sessionData, error: sessionError } =
       await supabaseClient.auth.getSession();
@@ -577,7 +578,7 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
     if (!sessionData.session) {
       alert("Please log in first.");
       return;
-    }
+    };
 
     const { data, error } =
       await supabaseClient.functions.invoke("admin-players");
