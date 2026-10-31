@@ -492,21 +492,55 @@ document.getElementById('loginTabBtn').addEventListener('click',()=>setAccountTa
 document.getElementById('registerTabBtn').addEventListener('click',()=>setAccountTab('register'));
 let supabaseClient=null;
 function accountMessage(message,isError=false){accountFeedback.textContent=message;accountFeedback.style.color=isError?'#ffb2a8':'#ffe29a';}
-function showAccountSession(session){
-  signedOutBox.hidden=!!session;
-  signedInBox.hidden=!session;
-  if(session){
-    const username=session.user.user_metadata?.username||'Player';
-    document.getElementById('accountStatus').textContent=`Signed in as ${username}. Your player profile is connected.`;
+async function showAccountSession(session) {
+  signedOutBox.hidden = !!session;
+  signedInBox.hidden = !session;
+
+  if (session) {
+    const username =
+      session.user.user_metadata?.username || "Player";
+
+    document.getElementById("accountStatus").textContent =
+      `Signed in as ${username}. Your player profile is connected.`;
+
+    await checkAdminAccess();
+  } else {
+    document.getElementById("accountStatus").textContent = "";
+
+    document.getElementById("adminButton")?.remove();
   }
 }
-if(window.supabase?.createClient){
-  supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-  supabaseClient.auth.getSession().then(({data,error})=>{
-    if(error) accountMessage('Could not check account session. Please refresh and try again.',true);
-    showAccountSession(data?.session||null);
-  });
-  supabaseClient.auth.onAuthStateChange((_event,session)=>showAccountSession(session));
+
+async function checkAdminAccess() {
+  document.getElementById("adminButton")?.remove();
+
+  try {
+    const { data, error } = await supabaseClient.functions.invoke(
+      "admin-players"
+    );
+
+    if (error || !Array.isArray(data?.players)) {
+      return;
+    }
+
+    const adminButton = document.createElement("button");
+
+    adminButton.id = "adminButton";
+    adminButton.textContent = "Admin Dashboard";
+
+    adminButton.style.cssText =
+      "position:fixed;bottom:20px;right:20px;padding:14px;background:#c9a227;color:#111;border:0;border-radius:10px;z-index:9999;cursor:pointer;";
+
+    adminButton.addEventListener("click", () => {
+      loadAdminDashboard();
+    });
+
+    document.body.appendChild(adminButton);
+
+  } catch (error) {
+    console.error("Admin access check failed:", error);
+  }
+}
 }else{
   accountMessage('Account service could not load. Check your internet connection and refresh.',true);
 }
