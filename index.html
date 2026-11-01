@@ -31,6 +31,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
 
 .account-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.account-tab{padding:11px;border:1px solid #51421f;border-radius:10px;background:#0b100f;color:#d8cfb7;font-weight:800}.account-tab.active{border-color:var(--gold);color:var(--gold);background:linear-gradient(135deg,#2b210c,#0b100f);box-shadow:0 0 12px #ffb00020}.account-card{margin-bottom:13px}.account-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.account-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.account-form label{display:grid;gap:6px;color:#d9d2bb;font-size:12px}.account-form input{width:100%;min-width:0;background:#060a09;border:1px solid #55451c;border-radius:9px;padding:11px;color:#fff;font:inherit}.account-form input:focus{outline:1px solid var(--gold);border-color:var(--gold)}.account-form button{grid-column:1/-1}.account-help{font-size:11px;color:#9eaaa0;line-height:1.5;margin:11px 0 0}.account-feedback{font-size:12px;line-height:1.5;color:#ffe29a;margin:9px 0 0;min-height:0}.account-feedback:empty{display:none}.account-status{color:#c9ffe0;font-size:13px;line-height:1.5}@media(max-width:560px){.account-form{grid-template-columns:1fr}}
 #homePanel .home-balance,#homePanel .payment-actions,#homePanel .payment-card{display:none!important}
+[data-bet], #bet { display:none !important; }
 </style>
 </head>
 <body>
@@ -380,14 +381,10 @@ document.getElementById('playBtn').onclick=()=>{
  if(phase!=='countdown'){status('The draw is already in progress. Choose numbers for the next entry window.');return}
  if(queuedEntry){status('You have already joined the next draw.');return}
  if(selected.size<1){status('Choose at least one number first.');return}
- const bet=Number(document.getElementById('bet').value);
- if(!Number.isFinite(bet)||bet<10||bet>500||bet%10!==0){status('Choose a demo bet from 10 to 500 credits, in steps of 10.');return}
- if(bet>balance){status('Not enough demo credits. Lower your demo bet.');return}
  const picks=[...selected].sort((a,b)=>a-b);
- balance-=bet;wagered+=bet;syncHomeBalance();addWalletActivity('Game entry',-bet,`Round ${roundSequence+1} virtual-credit entry`);
- queuedEntry={picks,bet};
+ queuedEntry={picks};
  document.getElementById('playBtn').textContent='✓ Joined next draw';
- status(`You joined the next demo draw with ${picks.length} number${picks.length===1?'':'s'}. Results appear after all 20 numbers are revealed.`);
+ status(`You joined the free practice draw with ${picks.length} number${picks.length===1?'':'s'}. Results appear after all 20 numbers are revealed.`);
  document.getElementById('result').classList.remove('show');
 };
 startCountdown();
@@ -397,9 +394,9 @@ const walletPanel=document.getElementById('walletPanel');
 // Keep the Wallet tab focused on balance, account, and payment options.
 document.getElementById('walletAccountSlot').appendChild(document.getElementById('accountCard'));
 document.getElementById('walletBalanceSlot').appendChild(homePanel.querySelector('.home-balance'));
-document.getElementById('walletDepositBtn').onclick=()=>openTelegramAdmin();
-document.getElementById('walletTelebirrBtn').onclick=()=>openTelegramAdmin();
-document.getElementById('walletWithdrawBtn').onclick=()=>openAdminTelegramSupport('Hello admin, I need help with my Habesha Keno virtual-credit account. I understand these demo credits have no cash value.');
+document.getElementById('walletDepositBtn').onclick=()=>alert('This is a free practice game. Deposits are not available.');
+document.getElementById('walletTelebirrBtn').onclick=()=>alert('No payment methods are connected in this practice app.');
+document.getElementById('walletWithdrawBtn').onclick=()=>alert('Practice credits have no cash value and cannot be withdrawn.');
 const navButtons=[document.getElementById('homeNav'),document.getElementById('kenoNav'),document.getElementById('walletNav'),document.getElementById('leaderNav')];
 function showTab(tab){
   homePanel.hidden=tab!=='home';
@@ -443,13 +440,16 @@ function openAdminTelegramSupport(message='Hello admin, I need help with Habesha
   if(tg && typeof tg.openTelegramLink==='function') tg.openTelegramLink(url);
   else window.open(url,'_blank','noopener,noreferrer');
 }
-document.getElementById('depositBtn').onclick=openAdminTelegramSupport;
-document.getElementById('withdrawBtn').onclick=()=>openAdminTelegramSupport('Hello admin, I need help with my Habesha Keno virtual-credit account. I understand these demo credits have no cash value.');
+document.getElementById('depositBtn').onclick=()=>alert('This is a free practice game. Deposits are not available.');
+document.getElementById('withdrawBtn').onclick=()=>alert('Practice credits have no cash value and cannot be withdrawn.');
 document.getElementById('closePaymentModal').onclick=closePaymentScreen;
 paymentBackdrop.addEventListener('click',e=>{if(e.target===paymentBackdrop)closePaymentScreen()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closePaymentScreen()});
 document.querySelectorAll('[data-demo-amount]').forEach(b=>b.onclick=()=>{paymentAmount.value=b.dataset.demoAmount});
 document.getElementById('confirmDemoPayment').onclick=()=>{
+  paymentFeedback.textContent='Deposits and withdrawals are disabled. This app is for free practice only.';
+  paymentFeedback.classList.add('show');
+  return;
   const amount=Number(paymentAmount.value);
   if(gameMode!=='demo'){
     paymentFeedback.textContent='Real Mode is only a preview. Payment features are unavailable; switch to Demo Mode to use virtual credits.';
@@ -474,6 +474,9 @@ updatePicks();syncHomeBalance();renderWalletHistory();startCountdown();setGameMo
 // database access remains protected by the project's RLS policies.
 const SUPABASE_URL='https://guynwdzhvyaakbmbmzcy.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable__E2dKaym14KVuzRHs-xSpg_2YLX8MEZ';
+if (window.supabase && typeof window.supabase.createClient === 'function') {
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+}
 const accountFeedback=document.getElementById('accountFeedback');
 const signedOutBox=document.getElementById('accountSignedOut');
 const signedInBox=document.getElementById('accountSignedIn');
@@ -540,6 +543,7 @@ async function checkAdminAccess() {
   } catch (error) {
     console.error("Admin access check failed:", error);
   }
+}
 
 document.getElementById('loginForm').addEventListener('submit',async(event)=>{
   event.preventDefault();
@@ -548,7 +552,7 @@ document.getElementById('loginForm').addEventListener('submit',async(event)=>{
   const password=document.getElementById('loginPassword').value;
   if(!/^[A-Za-z0-9_]{3,20}$/.test(username)){accountMessage('Enter a valid username (3–20 letters, numbers, or underscores).',true);return;}
   const button=document.getElementById('loginBtn');button.disabled=true;button.textContent='Checking…';
-  accountMessage('Username login needs the secure username-login server function, which we will set up next.',true);
+  accountMessage('Signing in…');
   try{
     const {data,error}=await supabaseClient.functions.invoke('username-login',{body:{username,password}});
     if(error) throw error;
@@ -564,7 +568,8 @@ accountMessage('Login successful.');
 showAccountSession(sessionData.session);
 event.target.reset();
   }catch(error){
-    accountMessage('Username login is not active yet. We need to deploy the secure username-login function before players can sign in.',true);
+    console.error('Username login failed:', error);
+    accountMessage(error?.message || 'Sign-in failed. Check your username and password.',true);
   }finally{button.disabled=false;button.textContent='Login';}
 });
 document.getElementById('registerForm').addEventListener('submit',async(event)=>{
@@ -750,28 +755,15 @@ async function adjustPracticeBalance(playerId, type) {
 }
 
 window.adjustPracticeBalance = adjustPracticeBalance;
-    if (error || !data?.players) {
-      console.log("Admin access not available.");
-      return;
-    }
-
-    const adminButton = document.createElement("button");
-
-    adminButton.textContent = "Admin Dashboard";
-    adminButton.style.cssText =
-      "position:fixed;bottom:20px;right:20px;padding:14px;background:#c9a227;color:#111;border:0;border-radius:10px;z-index:9999;cursor:pointer;";
-
-    adminButton.addEventListener("click", () => {
-      loadAdminDashboard();
-    });
-
-    document.body.appendChild(adminButton);
-
+(async () => {
+  if (!supabaseClient) return;
+  try {
+    const { data, error } = await supabaseClient.auth.getSession();
+    if (error) throw error;
+    await showAccountSession(data.session);
   } catch (error) {
-    console.error("Admin access check failed:", error);
+    console.error('Session restore failed:', error);
   }
-}
-
-showAdminButton();
+})();
 </script>
 </body></html>
