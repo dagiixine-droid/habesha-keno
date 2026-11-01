@@ -262,17 +262,17 @@ function syncHomeBalance(){saveVirtualBalance();const el=document.getElementById
 let adminPointsBalance=0;
 async function loadPlayerWallet(session){
   if(!supabaseClient || !session?.user?.id) return;
-  const {data,error}=await supabaseClient.from('playes_wallet')
-    .select('practice_balance,admin_points')
-    .eq('user_id',session.user.id).maybeSingle();
+  const {data,error}=await supabaseClient.from('practice_wallets')
+    .select('balance,admin_points')
+    .eq('auth_user_id',session.user.id).maybeSingle();
   if(error){
     console.error('Player wallet load failed:',error);
     const msg=document.getElementById('modeMessage');
-    if(msg) msg.textContent='Could not load saved practice balances. Check playes_wallet Row Level Security policies.';
+    if(msg) msg.textContent='Could not load saved practice balances. Check practice_wallets Row Level Security policies.';
     return;
   }
   if(data){
-    const demoValue=Number(data.practice_balance);
+    const demoValue=Number(data.balance);
     const adminValue=Number(data.admin_points);
     if(Number.isFinite(demoValue)&&demoValue>=0) balance=demoValue;
     adminPointsBalance=Number.isFinite(adminValue)&&adminValue>=0?adminValue:0;
@@ -680,7 +680,7 @@ const transactions = data.transactions ?? [];
         style="padding:10px;width:100%;margin-bottom:15px;">
       <div id="playerList"></div>
       <h2 style="color:#c9a227;margin-top:25px;">
-  Practice Transaction History
+  Practice Credit Transaction History
 </h2>
 
 <div id="transactionList">
@@ -710,14 +710,14 @@ const transactions = data.transactions ?? [];
             <p>${player.email || "No email"}</p>
             <p>Games Played: ${player.games_played ?? 0}</p>
             <p>Practice Balance: ${Number(player.practice_balance || 0).toFixed(2)} ETB</p>
-            <button onclick="adjustPracticeBalance('${player.id}', 'ADD')"
-  style="background:#28a745;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;">
-  + Add Practice ETB
+            <p>Admin Points: ${Number(player.admin_points || 0).toFixed(2)} practice points</p>
+            <button onclick="adjustAdminPoints('${player.id}', 'ADD')"
+  style="background:#16834a;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;">
+  + Add Practice Points
 </button>
-
-<button onclick="adjustPracticeBalance('${player.id}', 'DEDUCT')"
-  style="background:#dc3545;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;margin-left:5px;">
-  - Deduct Practice ETB
+<button onclick="adjustAdminPoints('${player.id}', 'DEDUCT')"
+  style="background:#a83232;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;margin-left:5px;">
+  - Deduct Practice Points
 </button>
             <p>Account Status: ${player.account_status || "Registered"}</p>
             <small>Joined: ${new Date(player.created_at).toLocaleDateString()}</small>
@@ -781,6 +781,34 @@ async function adjustPracticeBalance(playerId, type) {
     alert("Could not update balance: " + error.message);
   }
 }
+
+async function adjustAdminPoints(playerId, type) {
+  const amount = prompt(type === 'ADD'
+    ? 'Enter free practice points to add:'
+    : 'Enter free practice points to deduct:');
+  if (amount === null) return;
+  const numericAmount = Number(amount);
+  if (!Number.isFinite(numericAmount) || numericAmount <= 0 || numericAmount > 1000000) {
+    alert('Enter a positive amount up to 1,000,000.');
+    return;
+  }
+  try {
+    const { data, error } = await supabaseClient.rpc('adjust_admin_points', {
+      p_player_id: playerId,
+      p_type: type,
+      p_amount: numericAmount
+    });
+    if (error) throw error;
+    alert('Practice points updated. New admin-points balance: ' + Number(data).toLocaleString());
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (sessionData?.session) await loadPlayerWallet(sessionData.session);
+    await loadAdminDashboard();
+  } catch (error) {
+    console.error('Admin points adjustment failed:', error);
+    alert('Could not update practice points: ' + (error?.message || 'Unknown error'));
+  }
+}
+window.adjustAdminPoints = adjustAdminPoints;
 
 window.adjustPracticeBalance = adjustPracticeBalance;
 (async () => {
