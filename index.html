@@ -40,38 +40,6 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     <div class="brand"><div class="badge">HK</div><div><h1>Habesha Keno</h1><small id="platformLabel">Telegram Mini App • Demo</small></div></div>
   </header>
   <section class="hero"><h2>HABESHA KENO</h2><p>✦ PLAY • MATCH • CELEBRATE ✦</p></section>
-  <section class="card account-card" id="accountCard" style="margin-top:14px">
-    <div class="account-head"><div><h3>👤 Player account</h3><p class="sub" style="margin:0">Sign in or create your Habesha Keno account.</p></div><span class="soon-tag">ACCOUNT</span></div>
-    <div id="accountSignedOut">
-      <div class="account-tabs" role="tablist" aria-label="Account options">
-        <button type="button" class="account-tab active" id="loginTabBtn" role="tab" aria-selected="true" aria-controls="loginPanel">Login</button>
-        <button type="button" class="account-tab" id="registerTabBtn" role="tab" aria-selected="false" aria-controls="registerPanel">Registration</button>
-      </div>
-      <div id="loginPanel" role="tabpanel" aria-labelledby="loginTabBtn">
-        <form id="loginForm" class="account-form">
-          <label>Username<input id="loginUsername" name="username" minlength="3" maxlength="20" autocomplete="username" placeholder="Your username" required></label>
-          <label>Password<input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Your password" required></label>
-          <button class="goldbtn" type="submit" id="loginBtn">Login</button>
-        </form>
-        <p class="account-help">Username login is being connected through a secure server function. Your password is never stored in this browser as plain text.</p>
-      </div>
-      <div id="registerPanel" role="tabpanel" aria-labelledby="registerTabBtn" hidden>
-        <form id="registerForm" class="account-form">
-          <label>Username<input id="regUsername" name="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" autocomplete="username" placeholder="e.g. Abebe_12" required></label>
-          <label>Email address<input id="regEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label>
-          <label>Password<input id="regPassword" name="password" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" required></label>
-          <label>Confirm password<input id="regConfirm" name="confirm" type="password" minlength="8" autocomplete="new-password" placeholder="Enter password again" required></label>
-          <button class="goldbtn" type="submit" id="registerBtn">Create account</button>
-        </form>
-        <p class="account-help">Your email is used for account verification and recovery. Choose a username that does not reveal private information. Never reuse an important password.</p>
-      </div>
-    </div>
-    <div id="accountSignedIn" hidden>
-      <p class="account-status" id="accountStatus" aria-live="polite"></p>
-      <button class="pill" type="button" id="signOutBtn">Sign out</button>
-    </div>
-    <p class="account-feedback" id="accountFeedback" role="status" aria-live="polite"></p>
-  </section>
   <section id="homePanel" class="home-panel">
     <section class="card" aria-label="Choose game mode">
       <h3 style="margin-bottom:10px">Choose your mode</h3>
@@ -113,7 +81,40 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
   <section id="walletPanel" hidden>
     <div class="stack">
       <div id="walletBalanceSlot"></div>
-      <section id="walletAccountSlot"></section>
+      <section id="walletAccountSlot">
+  <section class="card account-card" id="accountCard" style="margin-top:14px">
+    <div class="account-head"><div><h3>👤 Player account</h3><p class="sub" style="margin:0">Sign in or create your Habesha Keno account.</p></div><span class="soon-tag">ACCOUNT</span></div>
+    <div id="accountSignedOut">
+      <div class="account-tabs" role="tablist" aria-label="Account options">
+        <button type="button" class="account-tab active" id="loginTabBtn" role="tab" aria-selected="true" aria-controls="loginPanel">Login</button>
+        <button type="button" class="account-tab" id="registerTabBtn" role="tab" aria-selected="false" aria-controls="registerPanel">Registration</button>
+      </div>
+      <div id="loginPanel" role="tabpanel" aria-labelledby="loginTabBtn">
+        <form id="loginForm" class="account-form">
+          <label>Username<input id="loginUsername" name="username" minlength="3" maxlength="20" autocomplete="username" placeholder="Your username" required></label>
+          <label>Password<input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Your password" required></label>
+          <button class="goldbtn" type="submit" id="loginBtn">Login</button>
+        </form>
+        <p class="account-help">Username login is being connected through a secure server function. Your password is never stored in this browser as plain text.</p>
+      </div>
+      <div id="registerPanel" role="tabpanel" aria-labelledby="registerTabBtn" hidden>
+        <form id="registerForm" class="account-form">
+          <label>Username<input id="regUsername" name="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" autocomplete="username" placeholder="e.g. Abebe_12" required></label>
+          <label>Email address<input id="regEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label>
+          <label>Password<input id="regPassword" name="password" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" required></label>
+          <label>Confirm password<input id="regConfirm" name="confirm" type="password" minlength="8" autocomplete="new-password" placeholder="Enter password again" required></label>
+          <button class="goldbtn" type="submit" id="registerBtn">Create account</button>
+        </form>
+        <p class="account-help">Your email is used for account verification and recovery. Choose a username that does not reveal private information. Never reuse an important password.</p>
+      </div>
+    </div>
+    <div id="accountSignedIn" hidden>
+      <p class="account-status" id="accountStatus" aria-live="polite"></p>
+      <button class="pill" type="button" id="signOutBtn">Sign out</button>
+    </div>
+    <p class="account-feedback" id="accountFeedback" role="status" aria-live="polite"></p>
+  </section>
+      </section>
       <section class="card payment-card" id="walletPaymentCard">
         <div class="payment-heading"><div><h3>Payment options</h3><p class="sub">Available payment contact.</p></div></div>
         <div class="payment-methods"><button class="method" type="button" id="walletTelebirrBtn"><span class="method-mark telebirr">T</span><span><strong>Telebirr</strong><small>Contact admin on Telegram</small></span><span class="method-arrow">›</span></button></div>
@@ -391,8 +392,7 @@ startCountdown();
 const homePanel=document.getElementById('homePanel');
 const kenoPanel=document.getElementById('kenoPanel');
 const walletPanel=document.getElementById('walletPanel');
-// Keep the Wallet tab focused on balance, account, and payment options.
-document.getElementById('walletAccountSlot').appendChild(document.getElementById('accountCard'));
+// The account form is placed directly inside the Wallet tab.
 document.getElementById('walletBalanceSlot').appendChild(homePanel.querySelector('.home-balance'));
 document.getElementById('walletDepositBtn').onclick=()=>alert('This is a free practice game. Deposits are not available.');
 document.getElementById('walletTelebirrBtn').onclick=()=>alert('No payment methods are connected in this practice app.');
