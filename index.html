@@ -534,10 +534,16 @@ async function showAccountSession(session) {
       `Signed in as ${username}. Your player profile is connected.`;
 
     await loadPlayerWallet(session);
+    // Signed-in players see only the administrator-assigned practice points.
+    setGameMode('real');
+    const modeSwitch = document.querySelector('.mode-switch');
+    if (modeSwitch) modeSwitch.hidden = true;
     await checkAdminAccess();
   } else {
     document.getElementById("accountStatus").textContent = "";
-
+    const modeSwitch = document.querySelector('.mode-switch');
+    if (modeSwitch) modeSwitch.hidden = false;
+    setGameMode('demo');
     document.getElementById("adminButton")?.remove();
   }
 }
