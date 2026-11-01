@@ -474,6 +474,7 @@ updatePicks();syncHomeBalance();renderWalletHistory();startCountdown();setGameMo
 // database access remains protected by the project's RLS policies.
 const SUPABASE_URL='https://guynwdzhvyaakbmbmzcy.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable__E2dKaym14KVuzRHs-xSpg_2YLX8MEZ';
+let supabaseClient = null;
 if (window.supabase && typeof window.supabase.createClient === 'function') {
   supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 }
@@ -493,7 +494,6 @@ function setAccountTab(tab){
 }
 document.getElementById('loginTabBtn').addEventListener('click',()=>setAccountTab('login'));
 document.getElementById('registerTabBtn').addEventListener('click',()=>setAccountTab('register'));
-let supabaseClient=null;
 function accountMessage(message,isError=false){accountFeedback.textContent=message;accountFeedback.style.color=isError?'#ffb2a8':'#ffe29a';}
 async function showAccountSession(session) {
   signedOutBox.hidden = !!session;
