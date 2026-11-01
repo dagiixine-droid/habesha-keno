@@ -59,7 +59,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
         <li><span class="step-number">3</span><div><strong>Choose demo credits</strong><p>Set a virtual-credit amount between 10 and 500, then check your selection.</p></div></li>
         <li><span class="step-number">4</span><div><strong>Draw and compare</strong><p>Tap <b>Draw numbers</b>. The game draws 20 numbers and shows how many match yours.</p></div></li>
       </ol>
-      <div class="how-to-note"Demo mode only: credits have no cash value, and this prototype does not pay winnings or support real-money deposits or withdrawals.</div>
+      <div class="how-to-note">Practice mode only: credits have no cash value, and this prototype does not pay winnings or support real-money deposits or withdrawals.</div>
       <button class="goldbtn how-to-start" id="startKenoBtn" type="button">Start playing in Keno →</button>
     </section>
     <section class="card payment-card">
@@ -124,14 +124,6 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     </div>
   </section>
   <section id="kenoPanel" hidden>
-  <section class="card" aria-label="Choose game mode" style="margin-bottom:14px">
-    <h3 style="margin-bottom:10px">Choose your mode</h3>
-    <div class="mode-switch" role="group" aria-label="Game mode">
-      <button type="button" class="mode-btn active" id="demoModeBtn" aria-pressed="true">🎮 Demo Mode</button>
-      <button type="button" class="mode-btn real" id="realModeBtn" aria-pressed="false">✦ Admin Points Mode</button>
-    </div>
-    <div class="mode-message" id="modeMessage" style="margin-top:10px" aria-live="polite">Demo Mode is active. Play using virtual credits only.</div>
-  </section>
   <div class="notice" id="kenoModeNotice"><strong>DEMO ONLY:</strong> This prototype uses virtual credits with no cash value. Deposits, withdrawals, real-money betting, and cash prizes are not enabled.</div>
   <section class="countdown-card" aria-live="polite">
     <div><div class="countdown-label">⏱ NEXT DRAW STARTS IN</div><div class="countdown-note" id="timerNote">Choose numbers and join during the countdown</div></div>
@@ -242,10 +234,10 @@ let gameMode='demo';
 function setGameMode(mode){
   gameMode=mode;
   const demo=mode==='demo';
-  document.getElementById('demoModeBtn').classList.toggle('active',demo);
-  document.getElementById('realModeBtn').classList.toggle('active',!demo);
-  document.getElementById('demoModeBtn').setAttribute('aria-pressed',String(demo));
-  document.getElementById('realModeBtn').setAttribute('aria-pressed',String(!demo));
+  const demoBtn=document.getElementById('demoModeBtn');
+  const realBtn=document.getElementById('realModeBtn');
+  if(demoBtn){demoBtn.classList.toggle('active',demo);demoBtn.setAttribute('aria-pressed',String(demo));}
+  if(realBtn){realBtn.classList.toggle('active',!demo);realBtn.setAttribute('aria-pressed',String(!demo));}
   document.getElementById('modeBadge').textContent=demo?'DEMO MODE':'ADMIN POINTS MODE';
   const msg=document.getElementById('modeMessage');
   msg.classList.toggle('real-preview',!demo);
@@ -442,8 +434,7 @@ function showTab(tab){
   else if(tab==='leader'){homePanel.hidden=true;kenoPanel.hidden=true;renderLeaderboard();renderRecentGames();}
   window.scrollTo({top:0,behavior:'smooth'});
 }
-document.getElementById('demoModeBtn').onclick=()=>setGameMode('demo');
-document.getElementById('realModeBtn').onclick=()=>setGameMode('real');
+// Mode is controlled by authentication; the Keno tab has no mode selector.
 document.getElementById('startKenoBtn').onclick=()=>showTab('keno');
 document.getElementById('homeNav').onclick=()=>showTab('home');
 document.getElementById('kenoNav').onclick=()=>showTab('keno');
