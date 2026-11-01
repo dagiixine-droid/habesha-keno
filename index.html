@@ -207,6 +207,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
   <div class="foot">Habesha Keno • Local prototype • Virtual balance and activity are saved in this browser only</div>
 </div>
 <script>
+var supabaseClient = null; // var is hoisted to avoid a temporal-dead-zone error
 const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 if (tg) {
   tg.ready();
@@ -474,7 +475,6 @@ updatePicks();syncHomeBalance();renderWalletHistory();startCountdown();setGameMo
 // database access remains protected by the project's RLS policies.
 const SUPABASE_URL='https://guynwdzhvyaakbmbmzcy.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable__E2dKaym14KVuzRHs-xSpg_2YLX8MEZ';
-let supabaseClient = null;
 if (window.supabase && typeof window.supabase.createClient === 'function') {
   supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 }
