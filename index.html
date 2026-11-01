@@ -207,7 +207,12 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
   <div class="foot">Habesha Keno • Local prototype • Virtual balance and activity are saved in this browser only</div>
 </div>
 <script>
-var supabaseClient = null; // var is hoisted to avoid a temporal-dead-zone error
+// Initialize Supabase before any account or admin code can reference it.
+const SUPABASE_URL = 'https://guynwdzhvyaakbmbmzcy.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable__E2dKaym14KVuzRHs-xSpg_2YLX8MEZ';
+var supabaseClient = (window.supabase && typeof window.supabase.createClient === 'function')
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+  : null;
 const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 if (tg) {
   tg.ready();
@@ -471,13 +476,7 @@ document.querySelectorAll('[data-method]').forEach(b=>b.onclick=()=>{if(b.datase
 document.getElementById('refreshBalance').onclick=()=>{syncHomeBalance();document.getElementById('refreshBalance').textContent='✓ Updated';setTimeout(()=>document.getElementById('refreshBalance').textContent='↻ Refresh',1200);};
 updatePicks();syncHomeBalance();renderWalletHistory();startCountdown();setGameMode('demo');
 
-// Supabase account registration. The publishable key is intended for browser use;
-// database access remains protected by the project's RLS policies.
-const SUPABASE_URL='https://guynwdzhvyaakbmbmzcy.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY='sb_publishable__E2dKaym14KVuzRHs-xSpg_2YLX8MEZ';
-if (window.supabase && typeof window.supabase.createClient === 'function') {
-  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-}
+// Supabase client was initialized at the start of this script.
 const accountFeedback=document.getElementById('accountFeedback');
 const signedOutBox=document.getElementById('accountSignedOut');
 const signedInBox=document.getElementById('accountSignedIn');
