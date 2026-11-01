@@ -128,7 +128,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     <h3 style="margin-bottom:10px">Choose your mode</h3>
     <div class="mode-switch" role="group" aria-label="Game mode">
       <button type="button" class="mode-btn active" id="demoModeBtn" aria-pressed="true">🎮 Demo Mode</button>
-      <button type="button" class="mode-btn real" id="realModeBtn" aria-pressed="false">✦WALLET</button>
+      <button type="button" class="mode-btn real" id="realModeBtn" aria-pressed="false">✦ Admin Points Mode</button>
     </div>
     <div class="mode-message" id="modeMessage" style="margin-top:10px" aria-live="polite">Demo Mode is active. Play using virtual credits only.</div>
   </section>
@@ -283,7 +283,7 @@ function renderModeBalance(){
   const amount=document.getElementById('homeBalance');
   const caption=document.querySelector('.balance-amount small');
   if(amount) amount.textContent=fmt(gameMode==='demo'?balance:adminPointsBalance);
-  if(caption) caption.textContent=gameMode==='demo'?'practice credits':'ETB';
+  if(caption) caption.textContent=gameMode==='demo'?'practice credits':'admin-assigned practice points';
 }
 
 const WALLET_HISTORY_KEY='habesha_keno_virtual_wallet_history_v1';
@@ -525,6 +525,12 @@ function accountMessage(message,isError=false){accountFeedback.textContent=messa
 async function showAccountSession(session) {
   signedOutBox.hidden = !!session;
   signedInBox.hidden = !session;
+
+  // Keep the Home tab clean after login: hide demo-mode and wallet/payment actions.
+  const homePaymentActions = document.querySelector('#homePanel .payment-actions');
+  const homePaymentCard = document.querySelector('#homePanel .payment-card');
+  if (homePaymentActions) homePaymentActions.hidden = !!session;
+  if (homePaymentCard) homePaymentCard.hidden = !!session;
 
   if (session) {
     const username =
