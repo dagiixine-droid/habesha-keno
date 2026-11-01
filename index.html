@@ -45,7 +45,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
       <h3 style="margin-bottom:10px">Choose your mode</h3>
       <div class="mode-switch" role="group" aria-label="Game mode">
         <button type="button" class="mode-btn active" id="demoModeBtn" aria-pressed="true">🎮 Demo Mode</button>
-        <button type="button" class="mode-btn real" id="realModeBtn" aria-pressed="false">✦ Real Mode</button>
+        <button type="button" class="mode-btn real" id="realModeBtn" aria-pressed="false">✦ Admin Points Mode</button>
       </div>
       <div class="mode-message" id="modeMessage" style="margin-top:10px" aria-live="polite">Demo Mode is active. Play using virtual credits only.</div>
     </section>
@@ -246,18 +246,46 @@ function setGameMode(mode){
   document.getElementById('realModeBtn').classList.toggle('active',!demo);
   document.getElementById('demoModeBtn').setAttribute('aria-pressed',String(demo));
   document.getElementById('realModeBtn').setAttribute('aria-pressed',String(!demo));
-  document.getElementById('modeBadge').textContent=demo?'DEMO MODE':'REAL MODE PREVIEW';
+  document.getElementById('modeBadge').textContent=demo?'DEMO MODE':'ADMIN POINTS MODE';
   const msg=document.getElementById('modeMessage');
   msg.classList.toggle('real-preview',!demo);
-  msg.textContent=demo?'Demo Mode is active. Play using virtual credits only.':'Real Mode is a preview only and is not active. Real-money play, deposits, withdrawals, and cash prizes are not available.';
-  document.getElementById('kenoModeNotice').innerHTML=demo?'<strong>DEMO ONLY:</strong> This prototype uses virtual credits with no cash value. Deposits, withdrawals, real-money betting, and cash prizes are not enabled.':'<strong>REAL MODE PREVIEW:</strong> Real-money play is not enabled. Switch back to Demo Mode to play with virtual credits.';
+  msg.textContent=demo?'Demo Mode is active. Use your free practice balance.':'Admin Points Mode is selected. These are non-redeemable practice points assigned by an administrator.';
+  document.getElementById('kenoModeNotice').innerHTML=demo?'<strong>DEMO MODE:</strong> Free practice credits only; they have no cash value.':'<strong>ADMIN POINTS MODE:</strong> Administrator-assigned practice points only. They cannot be redeemed or withdrawn.';
   document.getElementById('playBtn').disabled=!demo;
-  document.getElementById('playBtn').textContent=demo?(queuedEntry?'✓ Joined next draw':'▶ Join next draw'):'Real Mode unavailable';
+  document.getElementById('playBtn').textContent=demo?(queuedEntry?'✓ Joined next draw':'▶ Join next draw'):'Admin Points Mode — display only';
   document.querySelectorAll('#numberGrid .num, #clearBtn, #randomBtn, [data-bet], #bet').forEach(el=>el.disabled=!demo);
+  renderModeBalance();
 }
 const fmt=n=>Number(n).toLocaleString('en-US');
 function saveVirtualBalance(){try{localStorage.setItem(WALLET_BALANCE_KEY,String(balance));}catch(_){}}
 function syncHomeBalance(){saveVirtualBalance();const el=document.getElementById('homeBalance');if(el)el.textContent=fmt(balance)}
+let adminPointsBalance=0;
+async function loadPlayerWallet(session){
+  if(!supabaseClient || !session?.user?.id) return;
+  const {data,error}=await supabaseClient.from('playes_wallet')
+    .select('practice_balance,admin_points')
+    .eq('user_id',session.user.id).maybeSingle();
+  if(error){
+    console.error('Player wallet load failed:',error);
+    const msg=document.getElementById('modeMessage');
+    if(msg) msg.textContent='Could not load saved practice balances. Check playes_wallet Row Level Security policies.';
+    return;
+  }
+  if(data){
+    const demoValue=Number(data.practice_balance);
+    const adminValue=Number(data.admin_points);
+    if(Number.isFinite(demoValue)&&demoValue>=0) balance=demoValue;
+    adminPointsBalance=Number.isFinite(adminValue)&&adminValue>=0?adminValue:0;
+    renderModeBalance();
+  } else { adminPointsBalance=0; renderModeBalance(); }
+}
+function renderModeBalance(){
+  const amount=document.getElementById('homeBalance');
+  const caption=document.querySelector('.balance-amount small');
+  if(amount) amount.textContent=fmt(gameMode==='demo'?balance:adminPointsBalance);
+  if(caption) caption.textContent=gameMode==='demo'?'practice credits':'admin-assigned practice points';
+}
+
 const WALLET_HISTORY_KEY='habesha_keno_virtual_wallet_history_v1';
 let walletHistory=[];
 try{walletHistory=JSON.parse(localStorage.getItem(WALLET_HISTORY_KEY)||'[]');if(!Array.isArray(walletHistory))walletHistory=[];}catch(_){walletHistory=[];}
@@ -473,7 +501,7 @@ document.getElementById('confirmDemoPayment').onclick=()=>{
   paymentFeedback.classList.add('show');
 };
 document.querySelectorAll('[data-method]').forEach(b=>b.onclick=()=>{if(b.dataset.method==='Telebirr')openPaymentScreen('deposit');else alert(b.dataset.method+' is a demo preview only. No real payments are connected.');});
-document.getElementById('refreshBalance').onclick=()=>{syncHomeBalance();document.getElementById('refreshBalance').textContent='✓ Updated';setTimeout(()=>document.getElementById('refreshBalance').textContent='↻ Refresh',1200);};
+document.getElementById('refreshBalance').onclick=async()=>{const result=await supabaseClient.auth.getSession();if(result.data?.session)await loadPlayerWallet(result.data.session);syncHomeBalance();renderModeBalance();document.getElementById('refreshBalance').textContent='✓ Updated';setTimeout(()=>document.getElementById('refreshBalance').textContent='↻ Refresh',1200);};
 updatePicks();syncHomeBalance();renderWalletHistory();startCountdown();setGameMode('demo');
 
 // Supabase client was initialized at the start of this script.
@@ -505,6 +533,7 @@ async function showAccountSession(session) {
     document.getElementById("accountStatus").textContent =
       `Signed in as ${username}. Your player profile is connected.`;
 
+    await loadPlayerWallet(session);
     await checkAdminAccess();
   } else {
     document.getElementById("accountStatus").textContent = "";
