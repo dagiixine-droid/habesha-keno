@@ -762,7 +762,10 @@ function renderLeaderboard() {
   }
 }
 
-document.getElementById('leaderboardToggle').addEventListener('click', () => {
+document.getElementById('recentGamesToggle')?.addEventListener('click',()=>{
+  showAllRecentGames = !showAllRecentGames;
+  renderRecentGames();
+});
   showAllLeaderboard = !showAllLeaderboard;
   renderLeaderboard();
 });
