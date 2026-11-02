@@ -31,7 +31,6 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
 
 .account-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.account-tab{padding:11px;border:1px solid #51421f;border-radius:10px;background:#0b100f;color:#d8cfb7;font-weight:800}.account-tab.active{border-color:var(--gold);color:var(--gold);background:linear-gradient(135deg,#2b210c,#0b100f);box-shadow:0 0 12px #ffb00020}.account-card{margin-bottom:13px}.account-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.account-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.account-form label{display:grid;gap:6px;color:#d9d2bb;font-size:12px}.account-form input{width:100%;min-width:0;background:#060a09;border:1px solid #55451c;border-radius:9px;padding:11px;color:#fff;font:inherit}.account-form input:focus{outline:1px solid var(--gold);border-color:var(--gold)}.account-form button{grid-column:1/-1}.account-help{font-size:11px;color:#9eaaa0;line-height:1.5;margin:11px 0 0}.account-feedback{font-size:12px;line-height:1.5;color:#ffe29a;margin:9px 0 0;min-height:0}.account-feedback:empty{display:none}.account-status{color:#c9ffe0;font-size:13px;line-height:1.5}@media(max-width:560px){.account-form{grid-template-columns:1fr}}
 #homePanel .home-balance,#homePanel .payment-actions,#homePanel .payment-card{display:none!important}
-[data-bet], #bet { display:none !important; }
 
 /* Recent draw and leaderboard visual cards */
 #recentGamesBody tr{background:linear-gradient(100deg,#10251b,#101714);border-top:1px solid #286044!important}
@@ -50,6 +49,19 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
 #leaderboardBody td:last-child{font-weight:950;color:#a8ffd0!important;text-align:right}
 #recentGamesBody tr:hover,#leaderboardBody tr:hover{filter:brightness(1.18)}
 
+
+.stake-bal{float:right;color:#ffdf83;font-size:12px;font-weight:800}
+.stake-note{font-size:11px;color:#9eaa9f;line-height:1.45;margin-top:6px}
+.quick button.on{border-color:var(--gold);color:#ffdf83;background:#2a210b}
+.paytable{margin-top:12px;border:1px solid #4d401e;border-radius:12px;background:#0b1110;overflow:hidden}
+.paytable-head{display:flex;justify-content:space-between;padding:8px 10px;font-size:11px;color:#d9c47c;letter-spacing:.6px;font-weight:800;background:#17170e}
+.paytable-row{display:flex;justify-content:space-between;padding:7px 10px;font-size:12px;border-top:1px solid #ffffff12;color:#e9e5d5}
+.paytable-row b{color:#ffdf83}
+.paytable-row.hit{background:#10372a;color:#b8f7d2}
+.paytable-empty{padding:10px;font-size:11px;color:#9eaa9f}
+.topup-btn{display:none;width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid #315e51;background:#10372a;color:#b8f7d2;font-weight:800}
+.topup-btn.show{display:block}
+.win-line{color:#19dc83;font-weight:900}.lose-line{color:#ff8a8a;font-weight:800}
 </style>
 </head>
 <body>
@@ -74,7 +86,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
       <ol class="how-to-list">
         <li><span class="step-number">1</span><div><strong>Open Keno</strong><p>Tap <b>Keno</b> in the bottom navigation.</p></div></li>
         <li><span class="step-number">2</span><div><strong>Pick your numbers</strong><p>Select 1–10 numbers from the grid numbered 1 to 80, or use <b>Random picks</b>.</p></div></li>
-        <li><span class="step-number">3</span><div><strong>Choose demo credits</strong><p>Set a virtual-credit amount between 10 and 500, then check your selection.</p></div></li>
+        <li><span class="step-number">3</span><div><strong>Set your stake</strong><p>Choose a virtual-credit stake between 10 and 500. Matching more of your numbers pays a bigger multiplier.</p></div></li>
         <li><span class="step-number">4</span><div><strong>Draw and compare</strong><p>Tap <b>Draw numbers</b>. The game draws 20 numbers and shows how many match yours.</p></div></li>
       </ol>
       <div class="how-to-note">Practice mode: credits have no cash value, and this prototype does not pay winnings or support real-money deposits or withdrawals.</div>
@@ -141,7 +153,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     </div>
   </section>
   <section id="kenoPanel" hidden>
-  <div class="notice" id="kenoModeNotice"><strong>DEMO ONLY:</strong> This prototype uses virtual credits with no cash value. Deposits, withdrawals, real-money betting, and cash prizes are not enabled.</div>
+  <div class="notice" id="kenoModeNotice"><strong>DEMO ONLY:</strong> Stakes and winnings use virtual credits with no cash value. Deposits, withdrawals, real-money betting, and cash prizes are not enabled.</div>
   <section class="countdown-card" aria-live="polite">
     <div><div class="countdown-label">⏱ NEXT DRAW STARTS IN</div><div class="countdown-note" id="timerNote">Choose numbers and join during the countdown</div></div>
     <div class="countdown-time" id="countdown">01:00</div>
@@ -160,12 +172,15 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     </section>
     <aside class="stack">
       <section class="card">
-        <h3>🎟️ Bet</h3>
-        <div class="field"><label for="bet">Bet amount (credits)</label><input id="bet" type="number" min="10" max="500" step="10" value="50"></div>
-        <div class="quick"><button data-bet="10">10</button><button data-bet="50">50</button><button data-bet="100">100</button><button data-bet="250">250</button></div>
+        <h3>🎟️ Stake <span class="stake-bal" id="stakeBalance">Credits: 0</span></h3>
+        <div class="field"><label for="bet">Stake amount (credits)</label><input id="bet" type="number" min="10" max="500" step="10" value="50" inputmode="numeric"></div>
+        <div class="quick"><button type="button" data-bet="10">10</button><button type="button" data-bet="50">50</button><button type="button" data-bet="100">100</button><button type="button" data-bet="250">250</button><button type="button" data-bet="500">500</button></div>
+        <div class="stake-note" id="stakeNote">Min 10 • Max 500 credits. Your stake is taken when you join and paid back with winnings after the draw.</div>
         <div class="stat" style="margin-top:12px"><span>Numbers picked</span><strong id="pickCount">0</strong></div>
-        <div class="stat"><span>Demo draw</span><strong>20 numbers</strong></div>
-        <div class="stat"><span>Possible payout</span><strong>Practice only</strong></div>
+        <div class="stat"><span>Your stake</span><strong id="stakeShown">50</strong></div>
+        <div class="stat"><span>Max possible win</span><strong id="maxWin">—</strong></div>
+        <div class="paytable" id="paytable"></div>
+        <button type="button" class="topup-btn" id="topupBtn">+ Get 1,000 free practice credits</button>
         <button class="greenbtn" id="playBtn" style="margin-top:14px">▶ Join next draw</button>
       </section>
       <section class="card">
@@ -176,7 +191,9 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
       <section class="card">
         <h3>📊 Session stats</h3>
         <div class="stat"><span>Rounds played</span><strong id="rounds">0</strong></div>
-        <div class="stat"><span>Practice points earned</span><strong id="wagered">0</strong></div>
+        <div class="stat"><span>Total staked</span><strong id="wagered">0</strong></div>
+        <div class="stat"><span>Total won</span><strong id="wonTotal">0</strong></div>
+        <div class="stat"><span>Net result</span><strong id="netTotal">0</strong></div>
         <div class="stat"><span>Total matches</span><strong id="matches">0</strong></div>
       </section>
     </aside>
@@ -281,7 +298,7 @@ function setGameMode(mode) {
 
   if (notice) {
     notice.textContent = demo
-      ? 'DEMO MODE: Free practice credits only; they have no cash value.'
+      ? 'DEMO MODE: Stake virtual practice credits; they have no cash value.'
       : 'ADMIN POINTS MODE: Administrator-assigned practice points only. They cannot be redeemed or withdrawn.';
   }
 
@@ -289,7 +306,7 @@ function setGameMode(mode) {
   // Admin-assigned points are displayed separately and are never spent to join a draw.
   if (playBtn) {
     playBtn.disabled = false;
-    playBtn.textContent = queuedEntry ? '✓ Joined next draw' : '▶ Join next draw';
+    playBtn.textContent = queuedEntry ? '✕ Cancel entry (refund stake)' : '▶ Join next draw';
   }
 
   document.querySelectorAll('#numberGrid .num, #clearBtn, #randomBtn').forEach(el => {
@@ -328,8 +345,63 @@ function renderModeBalance(){
   const caption=document.querySelector('.balance-amount small');
   if(amount) amount.textContent=fmt(gameMode==='demo'?balance:adminPointsBalance);
   if(caption) caption.textContent=gameMode==='demo'?'practice credits':'admin-assigned practice points';
+  if(typeof updateStakeUI==='function') updateStakeUI();
 }
 
+const MIN_STAKE=10, MAX_STAKE=500;
+let totalWon=0;
+// Payout multipliers by numbers picked -> matches (multiplied by the stake). Virtual credits only.
+const PAYTABLE={
+  1:{1:3},
+  2:{2:9},
+  3:{2:2,3:25},
+  4:{2:1,3:5,4:60},
+  5:{3:2,4:15,5:200},
+  6:{3:1,4:5,5:60,6:500},
+  7:{4:2,5:20,6:100,7:1000},
+  8:{5:10,6:50,7:300,8:1500},
+  9:{5:5,6:25,7:100,8:600,9:2500},
+  10:{5:2,6:15,7:50,8:250,9:1000,10:5000}
+};
+function payoutMultiplier(picks,hits){return (PAYTABLE[picks]&&PAYTABLE[picks][hits])||0}
+function readStake(){return Math.floor(Number(document.getElementById('bet').value))}
+function setStakeLocked(lock){
+  const bet=document.getElementById('bet');if(bet)bet.disabled=lock;
+  document.querySelectorAll('[data-bet]').forEach(b=>b.disabled=lock);
+}
+function updateStakeUI(){
+  const stake=queuedEntry?queuedEntry.stake:readStake();
+  const picks=queuedEntry?queuedEntry.picks.length:selected.size;
+  const valid=Number.isFinite(stake)&&stake>0;
+  const set=(id,t)=>{const el=document.getElementById(id);if(el)el.textContent=t};
+  set('stakeBalance','Credits: '+fmt(balance));
+  set('stakeShown',valid?fmt(stake):'—');
+  const row=PAYTABLE[picks];
+  const top=row?Math.max(...Object.values(row)):0;
+  set('maxWin',row&&valid?fmt(top*stake)+' credits':'—');
+  set('wonTotal',fmt(totalWon));
+  const net=totalWon-wagered;const netEl=document.getElementById('netTotal');
+  if(netEl){netEl.textContent=(net>0?'+':'')+fmt(net);netEl.style.color=net>0?'#19dc83':net<0?'#ff8a8a':'';}
+  document.querySelectorAll('[data-bet]').forEach(b=>b.classList.toggle('on',valid&&Number(b.dataset.bet)===stake));
+  const pt=document.getElementById('paytable');
+  if(pt){
+    if(!row){pt.innerHTML='<div class="paytable-empty">Pick 1–10 numbers to see the payouts.</div>';}
+    else{
+      const lastHits=Object.keys(row).map(Number).sort((a,b)=>b-a);
+      pt.innerHTML='<div class="paytable-head"><span>MATCHES</span><span>PAYS</span></div>'+
+        lastHits.map(h=>`<div class="paytable-row"><span>${h} of ${picks}</span><b>${row[h]}x${valid?' = '+fmt(row[h]*stake):''}</b></div>`).join('');
+    }
+  }
+  const low=balance<MIN_STAKE&&!queuedEntry;
+  const tb=document.getElementById('topupBtn');if(tb)tb.classList.toggle('show',low);
+  const note=document.getElementById('stakeNote');
+  if(note){
+    if(queuedEntry)note.textContent=`Stake of ${fmt(queuedEntry.stake)} credits is locked in for the next draw. You can cancel for a refund until it starts.`;
+    else if(valid&&stake>balance)note.textContent='Stake is higher than your practice credit balance.';
+    else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} credits.`;
+    else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} credits. Your stake is taken when you join and paid back with winnings after the draw.`;
+  }
+}
 const WALLET_HISTORY_KEY='habesha_keno_virtual_wallet_history_v1';
 let walletHistory=[];
 try{walletHistory=JSON.parse(localStorage.getItem(WALLET_HISTORY_KEY)||'[]');if(!Array.isArray(walletHistory))walletHistory=[];}catch(_){walletHistory=[];}
@@ -407,16 +479,21 @@ function finishDraw(){
   if(queuedEntry){
     const entry=queuedEntry;queuedEntry=null;
     const hits=entry.picks.filter(n=>drawNumbers.includes(n)).sort((a,b)=>a-b);
+    const mult=payoutMultiplier(entry.picks.length,hits.length);
+    const payout=entry.stake*mult;
+    if(payout>0){balance+=payout;addWalletActivity('Keno win',payout,`${hits.length} of ${entry.picks.length} matched • ${mult}x on a ${fmt(entry.stake)} stake`);}
+    else{addWalletActivity('Keno loss',0,`${hits.length} of ${entry.picks.length} matched • stake ${fmt(entry.stake)} lost`);}
+    saveVirtualBalance();renderModeBalance();
     lastDraw=new Set(drawNumbers);lastHits=new Set(hits);
     status('Round complete. Your result is shown below after all 20 numbers were drawn.');
     const r=document.getElementById('result');
-    r.innerHTML=`<strong>Demo round result</strong><br>Your numbers: <strong>${entry.picks.join(', ')}</strong><br>Draw numbers: <strong>${drawNumbers.join(', ')}</strong><br>Matched numbers: <strong>${hits.length}</strong><br>${hits.length?`Your matches: ${hits.join(', ')}`:'No matches this round.'}<br>Free practice entry — no points were staked.<br><strong>No winnings are paid in this prototype.</strong>`;
+    r.innerHTML=`<strong>Demo round result</strong><br>Your numbers: <strong>${entry.picks.join(', ')}</strong><br>Draw numbers: <strong>${drawNumbers.join(', ')}</strong><br>Matched numbers: <strong>${hits.length}</strong><br>${hits.length?`Your matches: ${hits.join(', ')}`:'No matches this round.'}<br>Stake: <strong>${fmt(entry.stake)}</strong> credits<br>${payout>0?`<span class="win-line">🎉 You won ${fmt(payout)} credits (${mult}x)</span>`:`<span class="lose-line">No win this round — stake lost</span>`}<br><small>Virtual credits only — no cash value.</small>`;
     r.classList.add('show');
-    totalMatches+=hits.length;document.getElementById('rounds').textContent=rounds;document.getElementById('wagered').textContent=fmt(wagered);document.getElementById('matches').textContent=totalMatches;
+    totalMatches+=hits.length;totalWon+=payout;document.getElementById('rounds').textContent=rounds;document.getElementById('wagered').textContent=fmt(wagered);updateStakeUI();document.getElementById('matches').textContent=totalMatches;
   }else{
     status('Draw complete. You did not join this round, so no personal result was recorded.');
   }
-  document.getElementById('playBtn').textContent='▶ Join next draw';
+  document.getElementById('playBtn').textContent='▶ Join next draw';setStakeLocked(false);updateStakeUI();
   phase='countdown';phaseDeadline=Date.now()+60000;
   document.getElementById('scheduledStatus').textContent='Next 60-second entry window is open. Choose numbers and join the next draw.';
 }
@@ -466,22 +543,41 @@ function startCountdown(){
   syncScheduledDraw();timerInterval=setInterval(syncScheduledDraw,200);
 }
 function toggle(n,b){if(selected.has(n)){selected.delete(n);b.classList.remove('selected')}else{if(selected.size>=10){status('You can select up to 10 numbers.');return}selected.add(n);b.classList.add('selected')}updatePicks();document.getElementById('result').classList.remove('show')}
-function updatePicks(){document.getElementById('picked').textContent=`${selected.size} / 10 selected`;document.getElementById('pickCount').textContent=selected.size;document.getElementById('selectedList').textContent=[...selected].sort((a,b)=>a-b).join(', ')||'—'}
+function updatePicks(){document.getElementById('picked').textContent=`${selected.size} / 10 selected`;document.getElementById('pickCount').textContent=selected.size;document.getElementById('selectedList').textContent=[...selected].sort((a,b)=>a-b).join(', ')||'—';updateStakeUI()}
 function status(s){document.getElementById('drawStatus').textContent=s}
 document.getElementById('clearBtn').onclick=()=>{selected.clear();document.querySelectorAll('.num').forEach(b=>b.classList.remove('selected'));updatePicks();document.getElementById('result').classList.remove('show')};
 document.getElementById('randomBtn').onclick=()=>{selected.clear();while(selected.size<10)selected.add(1+Math.floor(Math.random()*80));document.querySelectorAll('.num').forEach((b,i)=>b.classList.toggle('selected',selected.has(i+1)));updatePicks()};
-document.querySelectorAll('[data-bet]').forEach(b=>b.onclick=()=>document.getElementById('bet').value=b.dataset.bet);
+document.querySelectorAll('[data-bet]').forEach(b=>b.onclick=()=>{if(queuedEntry)return;document.getElementById('bet').value=b.dataset.bet;updateStakeUI();});
+document.getElementById('bet').addEventListener('input',updateStakeUI);
+document.getElementById('bet').addEventListener('change',()=>{const v=readStake();document.getElementById('bet').value=v||MIN_STAKE;updateStakeUI();});
+document.getElementById('topupBtn').onclick=()=>{balance+=1000;saveVirtualBalance();addWalletActivity('Free practice credits',1000,'Practice top-up (no cash value)');renderModeBalance();updateStakeUI();status('1,000 free practice credits added.');};
 document.getElementById('playBtn').onclick=()=>{
- // Joining is available in either account display mode; it is a free practice draw.
+ // Cancel an existing entry (refund) while the entry window is still open.
+ if(queuedEntry){
+  if(phase!=='countdown'){status('The draw has started — your stake can no longer be cancelled.');return}
+  balance+=queuedEntry.stake;wagered-=queuedEntry.stake;
+  addWalletActivity('Keno stake refund',queuedEntry.stake,'Entry cancelled before the draw');
+  queuedEntry=null;saveVirtualBalance();renderModeBalance();setStakeLocked(false);
+  document.getElementById('playBtn').textContent='▶ Join next draw';
+  document.getElementById('wagered').textContent=fmt(wagered);updateStakeUI();
+  status('Entry cancelled and your stake was refunded.');return;
+ }
  if(phase!=='countdown'){status('The draw is already in progress. Choose numbers for the next entry window.');return}
- if(queuedEntry){status('You have already joined the next draw.');return}
  if(selected.size<1){status('Choose at least one number first.');return}
+ const stake=readStake();
+ if(!Number.isFinite(stake)||stake<MIN_STAKE||stake>MAX_STAKE||stake%10!==0){status(`Enter a stake between ${MIN_STAKE} and ${MAX_STAKE} credits, in steps of 10.`);return}
+ if(stake>balance){status(`Not enough practice credits. Your balance is ${fmt(balance)}.`);return}
  const picks=[...selected].sort((a,b)=>a-b);
- queuedEntry={picks};
- document.getElementById('playBtn').textContent='✓ Joined next draw';
- status(`You joined the free practice draw with ${picks.length} number${picks.length===1?'':'s'}. Results appear after all 20 numbers are revealed.`);
+ balance-=stake;wagered+=stake;
+ queuedEntry={picks,stake};
+ addWalletActivity('Keno stake',-stake,`${picks.length} number${picks.length===1?'':'s'} picked`);
+ saveVirtualBalance();renderModeBalance();setStakeLocked(true);
+ document.getElementById('playBtn').textContent='✕ Cancel entry (refund stake)';
+ document.getElementById('wagered').textContent=fmt(wagered);updateStakeUI();
+ status(`You joined with ${picks.length} number${picks.length===1?'':'s'} and staked ${fmt(stake)} credits. Results appear after all 20 numbers are revealed.`);
  document.getElementById('result').classList.remove('show');
 };
+updateStakeUI();
 startCountdown();
 const homePanel=document.getElementById('homePanel');
 const kenoPanel=document.getElementById('kenoPanel');
