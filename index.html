@@ -269,17 +269,15 @@ function setGameMode(mode) {
       : 'ADMIN POINTS MODE: Administrator-assigned practice points only. They cannot be redeemed or withdrawn.';
   }
 
+  // Both signed-out demo mode and signed-in admin-points mode allow FREE practice play.
+  // Admin-assigned points are displayed separately and are never spent to join a draw.
   if (playBtn) {
-    playBtn.disabled = !demo;
-    playBtn.textContent = demo
-      ? (queuedEntry ? '✓ Joined next draw' : '▶ Join next draw')
-      : 'Admin Points Mode — display only';
+    playBtn.disabled = false;
+    playBtn.textContent = queuedEntry ? '✓ Joined next draw' : '▶ Join next draw';
   }
 
-  document.querySelectorAll(
-    '#numberGrid .num, #clearBtn, #randomBtn, [data-bet], #bet'
-  ).forEach(el => {
-    el.disabled = !demo;
+  document.querySelectorAll('#numberGrid .num, #clearBtn, #randomBtn').forEach(el => {
+    el.disabled = false;
   });
 
   renderModeBalance();
@@ -440,7 +438,7 @@ document.getElementById('clearBtn').onclick=()=>{selected.clear();document.query
 document.getElementById('randomBtn').onclick=()=>{selected.clear();while(selected.size<10)selected.add(1+Math.floor(Math.random()*80));document.querySelectorAll('.num').forEach((b,i)=>b.classList.toggle('selected',selected.has(i+1)));updatePicks()};
 document.querySelectorAll('[data-bet]').forEach(b=>b.onclick=()=>document.getElementById('bet').value=b.dataset.bet);
 document.getElementById('playBtn').onclick=()=>{
- if(gameMode!=='demo')return;
+ // Joining is available in either account display mode; it is a free practice draw.
  if(phase!=='countdown'){status('The draw is already in progress. Choose numbers for the next entry window.');return}
  if(queuedEntry){status('You have already joined the next draw.');return}
  if(selected.size<1){status('Choose at least one number first.');return}
