@@ -585,6 +585,10 @@ async function showAccountSession(session) {
   signedOutBox.hidden = !!session;
   signedInBox.hidden = !session;
 
+  // Do not show the available-balance card in Wallet before the player signs in.
+  const walletBalanceSlot = document.getElementById('walletBalanceSlot');
+  if (walletBalanceSlot) walletBalanceSlot.hidden = !session;
+
   // Keep the Home tab clean after login: hide demo-mode and wallet/payment actions.
   const homePaymentActions = document.querySelector('#homePanel .payment-actions');
   const homePaymentCard = document.querySelector('#homePanel .payment-card');
