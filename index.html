@@ -62,6 +62,14 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
 .topup-btn{display:none;width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid #315e51;background:#10372a;color:#b8f7d2;font-weight:800}
 .topup-btn.show{display:block}
 .win-line{color:#19dc83;font-weight:900}.lose-line{color:#ff8a8a;font-weight:800}
+.entries{margin-top:12px;border:1px solid #315e51;border-radius:12px;background:#0a1511;overflow:hidden}
+.entries-head{display:flex;justify-content:space-between;padding:8px 10px;font-size:11px;color:#b8f7d2;letter-spacing:.6px;font-weight:800;background:#10372a}
+.entries>.entry-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-top:1px solid #ffffff12}
+.entries{max-height:240px;overflow-y:auto}
+.entry-info{min-width:0}.entry-info strong{display:block;font-size:12px;color:#ffdf83}.entry-info small{display:block;font-size:10px;color:#9eaa9f;margin-top:2px;overflow-wrap:anywhere}
+.entry-x{flex-shrink:0;width:30px;height:30px;border-radius:8px;border:1px solid #6b3a3a;background:#2a1313;color:#ff9a9a;font-weight:900}
+.result-list{max-height:220px;overflow-y:auto;margin-top:8px;border-top:1px solid #ffffff18}
+.result-row{padding:7px 0;border-bottom:1px solid #ffffff10;font-size:12px}
 </style>
 </head>
 <body>
@@ -179,6 +187,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
         <div class="stat" style="margin-top:12px"><span>Numbers picked</span><strong id="pickCount">0</strong></div>
         <div class="stat"><span>Your stake</span><strong id="stakeShown">50</strong></div>
         <div class="stat"><span>Max possible win</span><strong id="maxWin">—</strong></div>
+        <div class="entries" id="entriesList" hidden></div>
         <div class="paytable" id="paytable"></div>
         <button type="button" class="topup-btn" id="topupBtn">+ Get 1,000 free practice credits</button>
         <button class="greenbtn" id="playBtn" style="margin-top:14px">▶ Join next draw</button>
@@ -248,7 +257,7 @@ let balance=1000;
 try{const savedBalance=localStorage.getItem(WALLET_BALANCE_KEY);if(savedBalance!==null&&Number.isFinite(Number(savedBalance))&&Number(savedBalance)>=0)balance=Number(savedBalance);}catch(_){}
 let rounds=0, wagered=0, totalMatches=0;
 let timerRemaining=60, timerInterval=null, revealInterval=null, lastDraw=new Set(), lastHits=new Set();
-let scheduledDrawNumbers=[], phase='countdown', phaseDeadline=Date.now()+60000, revealCount=0, queuedEntry=null, roundSequence=0;
+let scheduledDrawNumbers=[], phase='countdown', phaseDeadline=Date.now()+60000, revealCount=0, queuedEntries=[], entrySeq=0, roundSequence=0;
 const demoNames=["abebe_k94", "Tigist.Hailu21", "dawit#1987", "selam_girma$", "Biniam-2003", "meron.tesfaye_7", "yonas@addis", "liya_h_2000", "samuel.bekele99", "Eden*Tadesse", "fikru_abay88", "mulu.negash#5", "tsegaye-1991", "almaz_wolde$12", "henok_gebre_04", "bethlehem.m@1", "natnael-tekle77", "ruth_alemu_2002", "tewodros#king", "aster.mamo_89", "girma_wondimu!", "hiwot.desta22", "mekonnen_abebe#", "sara_yilma_96", "getachew.lulu$", "rahel-tsegaye01", "amanuel_zeleke7", "mahlet.assefa_x", "yared#music", "selamawit_g.15", "bereket-tilahun", "tsion_mulat_93", "eyob.kassa@23", "netsanet_bire_8", "haile#gebreselassie", "marta.worku_00", "mulugeta-1975", "birhane_kiros$", "zerihun.taye44", "helen_assegid_*", "kaleab_demissie_6", "kidist.berhe#10", "lemma_megersa!", "tadesse-bekele_3", "genet_zewde_1998", "solomon.tefera$", "yohannes_ayele@7", "saron_tilahun_05", "abel#weeknd_et", "feven.getu_2001", "teddy_afro_fan#", "bezawit_alem_19", "nahom-assefa_90", "zelalem.fikadu$", "mekdes_haile_33", "ermias_negussie!", "dagim_tamene_11", "elias.worku#2", "hanna_belay_97", "mikias-desalegn", "blen_mesfin_2004", "robel.kebede@5", "tizita_melaku$", "surafel_ayalew_8", "wondwosen#abera", "lidya_gashaw_14", "fitsum-berhane_6", "senait.mekuria!", "million_belete_99", "bruktawit_h_07", "daniel.tsegaye*", "meskerem_ayana_3", "tamrat_desta#88", "alemayehu_shiferaw", "berhanu.nigatu_4", "chaltu_bekele$", "dereje-gudeta_72", "eshetu_amare@9", "fasil_demoz_2000", "gebre.mariam#1", "habtamu_wale_55", "ibsa_roba_1995", "jemal.ahmed$", "kassahun-tadele", "lensa_dinsa_24", "mohammed_kedir@8", "nardos.tesfu_17", "obsa#oromo_pride", "rediet_abera_2001", "seble.wondimu*", "tariku_olana_13", "urgessa-fayisa", "workneh_alemu$4", "yeshi_mengistu_21", "zewdu.hailemichael", "addis_boy#251", "habesha_girl_92", "et_gamer_2005!", "lalibela.lover@", "ethio_coder_x7", "ras_dashen_climber", "sheger_fm_fan#1", "injera_lover_$", "buna.time_2024", "tej_master_et", "gojo_boy#09", "kitfo_king_88", "doro_wot.chef@", "shiro_queen_14", "tibs_hunter_99", "dire_dawa_kid!", "harar.hyena_07", "bahir.dar_lake$", "gonder_castle_12", "mekele_pride#6", "hawassa_girl_03", "jimma_coffee_boy", "adama_runner_5k", "arba.minch_fish", "sodo_soul@251", "habesha_vibes*", "ethiopia_1st_#", "tigray_star_21", "amhara.pride_44", "oromo_rise_$", "sidama_boy_01", "gurage_trader_7", "afar_nomad#10", "somali_et_88", "wolayta_king_9", "gamo_highland!", "hadiya_girl_22", "kambata_boy@5", "addis.nights_*", "bole_boy_251", "piassa_kid_#4", "merkato.hustler", "kazanchis_fan_2", "megenagna_man$", "lideta_girl_17", "abyssinia_lion", "lion.of.judah#1", "menelik_II_fan", "tewodros_heir_$", "haile.selassie_x", "adwa_victory_96", "yekatit_12_#", "meskel_square_27", "timkat_blessing!", "genna_2017_@", "enkutatash_new*", "fasika_feast_55", "buhe_boy_19", "ashenda_girl_$", "irreecha_spirit", "fichee_chambalala", "gadaa_legacy#", "selam.et_peace", "tena_yistilign_1", "ameseginalehu_$", "kenya_runner_et", "abebe.bikila_fan", "kenenisa_b_#5", "tirunesh_d_10k", "derartu_t_gold!", "haile_g_marathon", "meseret_d_1500", "genzebe_dibaba$", "almaz_ayana_27", "gelete_burka@", "addis_dev_404", "et_coder_#101", "py_habesha_3.14", "data.girl_addis", "tech_tigist_*", "web.wizard_ET", "app_dawit_2025", "code.selam_<3", "ai_ethiopia_$1", "cyber_hana_#0", "coffee_origin_ET", "kaffa_bean_$", "yirgacheffe_fan", "sidamo.roast_9", "buna_ceremony_#", "jebena_master_1", "nyala_mountain_x", "walia.ibex_14", "gelada_baboon!", "simien_trek_@6", "omo_valley_2", "danakil_hot_*", "erta.ale_fire$", "blue_nile_flow", "tis_abay_falls#", "lake_tana_07", "axum_stela_001", "harar.jugol_99", "konso_culture_!", "ethio_forever_251"];
 const demoScores=demoNames.map((_,i)=>Math.max(0,1200-i*4+(i*37)%83));
 const recentDemoGames=[];
@@ -298,7 +307,7 @@ function setGameMode(mode) {
   // Admin-assigned points are displayed separately and are never spent to join a draw.
   if (playBtn) {
     playBtn.disabled = false;
-    playBtn.textContent = queuedEntry ? '✕ Cancel entry' : '▶ Join next draw';
+    playBtn.textContent = joinLabel();
   }
 
   document.querySelectorAll('#numberGrid .num, #clearBtn, #randomBtn').forEach(el => {
@@ -358,18 +367,45 @@ const PAYTABLE={
 function payoutMultiplier(picks,hits){return (PAYTABLE[picks]&&PAYTABLE[picks][hits])||0}
 function activeBalance(){return gameMode==='demo'?balance:adminPointsBalance}
 function addToBalance(mode,delta){if(mode==='demo'){balance=Math.max(0,balance+delta);saveVirtualBalance();}else{adminPointsBalance=Math.max(0,adminPointsBalance+delta);}renderModeBalance();}
-function pendingStake(){return queuedEntry?queuedEntry.stake:0}
-function readStake(){return Math.floor(Number(document.getElementById('bet').value))}
-function setStakeLocked(lock){
-  const bet=document.getElementById('bet');if(bet)bet.disabled=lock;
-  document.querySelectorAll('[data-bet]').forEach(b=>b.disabled=lock);
+function pendingStake(mode){return queuedEntries.filter(e=>!mode||e.mode===mode).reduce((t,e)=>t+e.stake,0)}
+function availableBalance(){return Math.max(0,activeBalance()-pendingStake(gameMode))}
+function joinLabel(){const n=queuedEntries.length;return n?`▶ Add another entry (${n} joined)`:'▶ Join next draw'}
+function renderEntries(){
+  const host=document.getElementById('entriesList');if(!host)return;
+  host.innerHTML='';
+  if(!queuedEntries.length){host.hidden=true;return}
+  host.hidden=false;
+  const head=document.createElement('div');head.className='entries-head';
+  head.innerHTML=`<span>YOUR ENTRIES (${queuedEntries.length})</span><span>${fmt(pendingStake())} pending</span>`;
+  host.appendChild(head);
+  queuedEntries.forEach((e,i)=>{
+    const row=document.createElement('div');row.className='entry-row';
+    const info=document.createElement('div');info.className='entry-info';
+    const t=document.createElement('strong');t.textContent=`#${i+1} • ${fmt(e.stake)} credits`;
+    const d=document.createElement('small');d.textContent=e.picks.join(', ');
+    info.append(t,d);row.appendChild(info);
+    if(phase==='countdown'){
+      const x=document.createElement('button');x.type='button';x.className='entry-x';x.textContent='✕';x.setAttribute('aria-label','Cancel entry '+(i+1));
+      x.onclick=()=>cancelEntry(e.id);row.appendChild(x);
+    }
+    host.appendChild(row);
+  });
 }
+function cancelEntry(id){
+  if(phase!=='countdown'){status('The draw has started — entries can no longer be cancelled.');return}
+  queuedEntries=queuedEntries.filter(e=>e.id!==id);
+  document.getElementById('playBtn').textContent=joinLabel();
+  updateStakeUI();status('Entry cancelled. Your balance was not changed.');
+}
+function readStake(){return Math.floor(Number(document.getElementById('bet').value))}
+function setStakeLocked(lock){/* stake stays editable so players can add several entries */}
 function updateStakeUI(){
-  const stake=queuedEntry?queuedEntry.stake:readStake();
-  const picks=queuedEntry?queuedEntry.picks.length:selected.size;
+  const stake=readStake();
+  const picks=selected.size;
   const valid=Number.isFinite(stake)&&stake>0;
   const set=(id,t)=>{const el=document.getElementById(id);if(el)el.textContent=t};
-  set('stakeBalance','Balance: '+fmt(activeBalance())+(queuedEntry?' • pending '+fmt(queuedEntry.stake):''));
+  set('stakeBalance','Available: '+fmt(availableBalance()));
+  renderEntries();
   set('stakeShown',valid?fmt(stake):'—');
   const row=PAYTABLE[picks];
   const top=row?Math.max(...Object.values(row)):0;
@@ -384,14 +420,13 @@ function updateStakeUI(){
         lastHits.map(h=>`<div class="paytable-row"><span>${h} of ${picks}</span><b>${row[h]}x${valid?' = '+fmt(row[h]*stake):''}</b></div>`).join('');
     }
   }
-  const low=gameMode==='demo'&&balance<MIN_STAKE&&!queuedEntry;
+  const low=gameMode==='demo'&&balance<MIN_STAKE&&!queuedEntries.length;
   const tb=document.getElementById('topupBtn');if(tb)tb.classList.toggle('show',low);
   const note=document.getElementById('stakeNote');
   if(note){
-    if(queuedEntry)note.textContent=`Stake of ${fmt(queuedEntry.stake)} credits is pending. Your balance updates after the draw; you can cancel until it starts.`;
-    else if(valid&&stake>activeBalance())note.textContent='Stake is higher than your balance.';
+    if(valid&&stake>availableBalance())note.textContent=queuedEntries.length?`Not enough available credits (${fmt(pendingStake(gameMode))} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:'Stake is higher than your balance.';
     else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} credits.`;
-    else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} credits. Your balance changes after the draw: a win adds your profit, a loss removes your stake.`;
+    else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} credits per entry. Join as many entries as your balance allows (about ${Math.floor(availableBalance()/Math.max(MIN_STAKE,valid?stake:MIN_STAKE))} more at this stake). Your balance changes after the draw.`;
   }
 }
 const WALLET_HISTORY_KEY='habesha_keno_virtual_wallet_history_v1';
@@ -468,26 +503,33 @@ function finishDraw(){
   renderRecentGames();
   renderLeaderboard();
   document.getElementById('scheduledStatus').textContent='Draw complete — all 20 numbers have been revealed.';
-  if(queuedEntry){
-    const entry=queuedEntry;queuedEntry=null;
-    const hits=entry.picks.filter(n=>drawNumbers.includes(n)).sort((a,b)=>a-b);
-    const mult=payoutMultiplier(entry.picks.length,hits.length);
-    const payout=entry.stake*mult;
-    const net=payout-entry.stake;
-    // Balance changes only now: a win adds the profit, a loss removes the stake.
-    addToBalance(entry.mode,net);
-    if(payout>0){addWalletActivity(net>=0?'Keno win':'Keno partial return',net,`${hits.length} of ${entry.picks.length} matched • ${mult}x on a ${fmt(entry.stake)} stake`);}
-    else{addWalletActivity('Keno loss',-entry.stake,`${hits.length} of ${entry.picks.length} matched • stake ${fmt(entry.stake)} lost`);}
-    lastDraw=new Set(drawNumbers);lastHits=new Set(hits);
-    status('Round complete. Your result is shown below after all 20 numbers were drawn.');
+  if(queuedEntries.length){
+    const entries=queuedEntries;queuedEntries=[];
+    const netByMode={demo:0,real:0};
+    let totalStake=0,totalPayout=0,wins=0,bestHits=0;const rowsHtml=[];
+    entries.forEach((entry,i)=>{
+      const hits=entry.picks.filter(n=>drawNumbers.includes(n)).sort((a,b)=>a-b);
+      const mult=payoutMultiplier(entry.picks.length,hits.length);
+      const payout=entry.stake*mult;
+      netByMode[entry.mode]=(netByMode[entry.mode]||0)+(payout-entry.stake);
+      totalStake+=entry.stake;totalPayout+=payout;if(payout>entry.stake)wins++;bestHits=Math.max(bestHits,hits.length);
+      const diff=payout-entry.stake;
+      rowsHtml.push(`<div class="result-row"><strong>#${i+1}</strong> • ${entry.picks.join(', ')}<br>${hits.length} matched${hits.length?` (${hits.join(', ')})`:''} • stake ${fmt(entry.stake)} • ${diff>0?`<span class="win-line">+${fmt(diff)}</span>`:diff===0&&payout>0?'<span>returned</span>':`<span class="lose-line">${fmt(diff)}</span>`}</div>`);
+    });
+    const net=totalPayout-totalStake;
+    // Balance changes only now, once for the whole draw: profit is added and lost stakes are removed.
+    Object.keys(netByMode).forEach(m=>{if(netByMode[m])addToBalance(m,netByMode[m]);});
+    addWalletActivity(net>0?'Keno win':net<0?'Keno loss':'Keno draw result',net,`${entries.length} entr${entries.length===1?'y':'ies'} • staked ${fmt(totalStake)} • returned ${fmt(totalPayout)}`);
+    lastDraw=new Set(drawNumbers);lastHits=new Set();
+    status(`Round complete. ${entries.length} entr${entries.length===1?'y was':'ies were'} settled after all 20 numbers were drawn.`);
     const r=document.getElementById('result');
-    r.innerHTML=`<strong>Demo round result</strong><br>Your numbers: <strong>${entry.picks.join(', ')}</strong><br>Draw numbers: <strong>${drawNumbers.join(', ')}</strong><br>Matched numbers: <strong>${hits.length}</strong><br>${hits.length?`Your matches: ${hits.join(', ')}`:'No matches this round.'}<br>Stake: <strong>${fmt(entry.stake)}</strong> credits<br>${payout>0?(net>=0?`<span class="win-line">🎉 You won ${fmt(payout)} credits (${mult}x) — balance ${net>0?'+':''}${fmt(net)}</span>`:`<span class="lose-line">Partial return ${fmt(payout)} (${mult}x) — balance ${fmt(net)}</span>`):`<span class="lose-line">Lose — balance −${fmt(entry.stake)}</span>`}<br>New balance: <strong>${fmt(activeBalance())}</strong><br><small>Virtual credits only — no cash value.</small>`;
+    r.innerHTML=`<strong>Round result</strong><br>Draw numbers: <strong>${drawNumbers.join(', ')}</strong><br>Entries: <strong>${entries.length}</strong> • Winning entries: <strong>${wins}</strong><br>Total staked: <strong>${fmt(totalStake)}</strong> • Returned: <strong>${fmt(totalPayout)}</strong><br>${net>0?`<span class="win-line">🎉 Balance +${fmt(net)}</span>`:net<0?`<span class="lose-line">Balance −${fmt(-net)}</span>`:'<span>Balance unchanged</span>'}<br>New balance: <strong>${fmt(activeBalance())}</strong><div class="result-list">${rowsHtml.join('')}</div>`;
     r.classList.add('show');
-    totalMatches+=hits.length;totalWon+=payout;wagered+=entry.stake;updateStakeUI();
+    totalMatches+=bestHits;totalWon+=totalPayout;wagered+=totalStake;
   }else{
     status('Draw complete. You did not join this round, so no personal result was recorded.');
   }
-  document.getElementById('playBtn').textContent='▶ Join next draw';setStakeLocked(false);updateStakeUI();
+  document.getElementById('playBtn').textContent=joinLabel();updateStakeUI();
   phase='countdown';phaseDeadline=Date.now()+60000;
   document.getElementById('scheduledStatus').textContent='Next 60-second entry window is open. Choose numbers and join the next draw.';
 }
@@ -519,10 +561,11 @@ function beginDraw(){
   revealCount=0;
   document.getElementById('drawBalls').innerHTML='';
   document.getElementById('scheduledStatus').textContent='Draw starting — 20 numbers will appear one per second.';
-  if(queuedEntry){
-    // The virtual-credit amount is reserved when the player joins; the entry is settled after all 20 numbers appear.
+  if(queuedEntries.length){
+    // Every entry's stake stays reserved; all entries are settled after all 20 numbers appear.
     rounds++;
   }
+  renderEntries();
   revealOneNumber();
   if(revealCount<20){revealInterval=setInterval(()=>{revealOneNumber();if(revealCount>=20&&revealInterval){clearInterval(revealInterval);revealInterval=null}},1000)}
 }
@@ -541,30 +584,21 @@ function updatePicks(){document.getElementById('picked').textContent=`${selected
 function status(s){document.getElementById('drawStatus').textContent=s}
 document.getElementById('clearBtn').onclick=()=>{selected.clear();document.querySelectorAll('.num').forEach(b=>b.classList.remove('selected'));updatePicks();document.getElementById('result').classList.remove('show')};
 document.getElementById('randomBtn').onclick=()=>{selected.clear();while(selected.size<10)selected.add(1+Math.floor(Math.random()*80));document.querySelectorAll('.num').forEach((b,i)=>b.classList.toggle('selected',selected.has(i+1)));updatePicks()};
-document.querySelectorAll('[data-bet]').forEach(b=>b.onclick=()=>{if(queuedEntry)return;document.getElementById('bet').value=b.dataset.bet;updateStakeUI();});
+document.querySelectorAll('[data-bet]').forEach(b=>b.onclick=()=>{document.getElementById('bet').value=b.dataset.bet;updateStakeUI();});
 document.getElementById('bet').addEventListener('input',updateStakeUI);
 document.getElementById('bet').addEventListener('change',()=>{const v=readStake();document.getElementById('bet').value=v||MIN_STAKE;updateStakeUI();});
 document.getElementById('topupBtn').onclick=()=>{balance+=1000;saveVirtualBalance();addWalletActivity('Free practice credits',1000,'Practice top-up (no cash value)');renderModeBalance();updateStakeUI();status('1,000 free practice credits added.');};
 document.getElementById('playBtn').onclick=()=>{
- // Cancel an existing entry while the entry window is still open (balance was never changed).
- if(queuedEntry){
-  if(phase!=='countdown'){status('The draw has started — your stake can no longer be cancelled.');return}
-  queuedEntry=null;setStakeLocked(false);
-  document.getElementById('playBtn').textContent='▶ Join next draw';
-  updateStakeUI();
-  status('Entry cancelled. Your balance was not changed.');return;
- }
  if(phase!=='countdown'){status('The draw is already in progress. Choose numbers for the next entry window.');return}
  if(selected.size<1){status('Choose at least one number first.');return}
  const stake=readStake();
  if(!Number.isFinite(stake)||stake<MIN_STAKE||stake>MAX_STAKE||stake%10!==0){status(`Enter a stake between ${MIN_STAKE} and ${MAX_STAKE} credits, in steps of 10.`);return}
- if(stake>activeBalance()){status(`Not enough credits. Your balance is ${fmt(activeBalance())}.`);return}
+ if(stake>availableBalance()){status(`Not enough available credits. Available: ${fmt(availableBalance())} (${fmt(pendingStake(gameMode))} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`);return}
  const picks=[...selected].sort((a,b)=>a-b);
- queuedEntry={picks,stake,mode:gameMode};
- setStakeLocked(true);
- document.getElementById('playBtn').textContent='✕ Cancel entry';
+ queuedEntries.push({id:++entrySeq,picks,stake,mode:gameMode});
+ document.getElementById('playBtn').textContent=joinLabel();
  updateStakeUI();
- status(`You joined with ${picks.length} number${picks.length===1?'':'s'} and staked ${fmt(stake)} credits. Your balance updates after all 20 numbers are revealed.`);
+ status(`Entry #${queuedEntries.length} added: ${picks.length} number${picks.length===1?'':'s'}, ${fmt(stake)} credits. You can add more entries with different numbers while you have available credits.`);
  document.getElementById('result').classList.remove('show');
 };
 updateStakeUI();
