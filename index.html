@@ -188,6 +188,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
         <h3>🎟️ Stake <span class="stake-bal" id="stakeBalance">Balance: 0</span></h3>
         <div class="field"><label for="bet">Stake amount (practice points)</label><input id="bet" type="number" min="10" max="500" step="10" value="50" inputmode="numeric"></div>
         <div class="quick"><button type="button" data-bet="10">10</button><button type="button" data-bet="50">50</button><button type="button" data-bet="100">100</button><button type="button" data-bet="250">250</button><button type="button" data-bet="500">500</button></div>
+        <div class="stake-note" id="syncStatus" hidden style="font-weight:700"></div>
         <div class="stake-note" id="stakeNote">Min 10 • Max 500 credits. Your balance changes after the draw: a win adds your profit, a loss removes your stake.</div>
         <div class="stat" style="margin-top:12px"><span>Numbers picked</span><strong id="pickCount">0</strong></div>
         <div class="stat"><span>Your stake</span><strong id="stakeShown">50</strong></div>
@@ -367,7 +368,7 @@ async function loadPlayerWallet(session,skipFlush){
   }
   if(data){
     const demoValue=Number(data.balance);
-    if(Number.isFinite(demoValue)&&demoValue>=0) balance=Math.max(0,demoValue+pendingTotal(session.user.id));
+    if(Number.isFinite(demoValue)&&demoValue>=0) balance=Math.max(0,demoValue+pendingTotal(session.user.id));if(!pendingTotal(session.user.id))setTimeout(()=>setSync(true,'✓ Balance saved online — the admin sees this amount.'),0);
     adminPointsBalance=0;
     renderModeBalance();
   } else { balance=0; adminPointsBalance=0; renderModeBalance(); }
@@ -422,7 +423,7 @@ async function flushSettlements(){
       if(error){
         const msg=String(error.message||'');
         const network=!error.code&&/fetch|network|load failed|timeout/i.test(msg);
-        if(network)break;                       // offline: keep it and retry later
+        if(network){setSync(false,'⚠ Offline — your result will be saved online when you reconnect.');break;}                       // offline: keep it and retry later
         if(error.code==='PGRST202'||error.code==='42883'){
           // settle_practice_round() is not installed: fall back to updating the wallet row directly.
           console.warn('settle_practice_round() is not installed - falling back to a direct wallet update.');
@@ -431,12 +432,14 @@ async function flushSettlements(){
           flushBalanceDelta();break;
         }
         console.error('Round could not be saved and was discarded:',error);
+        setSync(false,'⚠ A round could not be saved online ('+msg+'). Your balance was reset to the saved amount.');
         savePending(loadPending().filter(x=>!(x.user===item.user&&x.round===item.round)));dropped=true;continue;
       }
       savePending(loadPending().filter(x=>!(x.user===item.user&&x.round===item.round)));
       savedAny=true;lastServerBalance=Number(data);
     }
   }finally{flushingSettlements=false;}
+  if(savedAny&&!pendingTotal(walletUserId))setSync(true,'✓ Balance saved online — the admin sees this amount.');
   if(lastServerBalance!==null&&Number.isFinite(lastServerBalance)){
     // The server is the source of truth; add any results that are still waiting to be sent.
     balance=Math.max(0,lastServerBalance+pendingTotal(walletUserId));saveVirtualBalance();renderModeBalance();
@@ -450,6 +453,12 @@ function pendingTotal(uid){return pendingDelta(uid)+pendingNetForUser(uid)}
 function pendingDelta(uid){try{const o=JSON.parse(localStorage.getItem(PENDING_DELTA_KEY)||'{}');return Number(o[uid])||0}catch(_){return 0}}
 function setPendingDelta(uid,v){try{const o=JSON.parse(localStorage.getItem(PENDING_DELTA_KEY)||'{}');if(v)o[uid]=v;else delete o[uid];localStorage.setItem(PENDING_DELTA_KEY,JSON.stringify(o))}catch(_){}}
 let flushingDelta=false;
+// Shows signed-in players whether their balance is saved online (the balance the admin sees).
+function setSync(ok,msg){
+  const el=document.getElementById('syncStatus');if(!el)return;
+  if(!walletUserId){el.hidden=true;return}
+  el.hidden=false;el.textContent=msg;el.style.color=ok?'#19dc83':'#ffb86b';
+}
 // Wins and losses are sent to the server as CHANGES (+/-), applied on top of the current server balance,
 // so points an admin added or deducted in the meantime are never overwritten. Unsent changes are kept and retried.
 async function flushBalanceDelta(){
@@ -465,10 +474,10 @@ async function flushBalanceDelta(){
       const next=Math.max(0,Number(row.balance)+delta);
       const {data:upd,error:e2}=await supabaseClient.from('practice_wallets').update({balance:next}).eq('auth_user_id',uid).eq('balance',row.balance).select('balance');
       if(e2)throw e2;
-      if(upd&&upd.length){setPendingDelta(uid,pendingDelta(uid)-delta);balance=Math.max(0,next+pendingTotal(uid));saveVirtualBalance();renderModeBalance();}
+      if(upd&&upd.length){setPendingDelta(uid,pendingDelta(uid)-delta);balance=Math.max(0,next+pendingTotal(uid));saveVirtualBalance();renderModeBalance();if(!pendingTotal(uid))setSync(true,'✓ Balance saved online — the admin sees this amount.');}
       // otherwise the balance changed meanwhile (for example by the admin): loop again with the fresh value
     }
-  }catch(err){console.error('Could not save practice points:',err);}
+  }catch(err){console.error('Could not save practice points:',err);setSync(false,'⚠ Your balance is NOT saved online yet ('+(err?.message||'permission denied')+'). The admin will see the old amount until it saves. Run the SQL setup file, or allow players to update their own practice_wallets row.');}
   finally{flushingDelta=false;}
 }
 async function persistBalance(){saveVirtualBalance();return flushBalanceDelta();}
@@ -521,7 +530,7 @@ function updateStakeUI(){
   const picks=selected.size;
   const valid=Number.isFinite(stake)&&stake>0;
   const set=(id,t)=>{const el=document.getElementById(id);if(el)el.textContent=t};
-  set('stakeBalance','Balance: '+fmt(availableBalance()));
+  set('stakeBalance','Balance: '+fmt(balance));
   renderEntries();
   set('stakeShown',valid?fmt(stake):'—');
   const row=PAYTABLE[picks];
@@ -543,7 +552,7 @@ function updateStakeUI(){
   if(note){
     if(valid&&stake>availableBalance())note.textContent=queuedEntries.length?`Not enough available points (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:(balance<MIN_STAKE?'You do not have enough practice points to stake.':'Stake is higher than your practice points balance.');
     else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} credits.`;
-    else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} credits per entry. Join as many entries as your balance allows (about ${Math.floor(availableBalance()/Math.max(MIN_STAKE,valid?stake:MIN_STAKE))} more at this stake). Your balance changes after the draw.`;
+    else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} credits per entry. Available to stake: ${fmt(availableBalance())}${pendingStake()?` (${fmt(pendingStake())} staked this round)`:''}. Your balance changes after the draw.`;
   }
 }
 const WALLET_HISTORY_KEY='habesha_keno_virtual_wallet_history_v1';
@@ -914,7 +923,7 @@ document.getElementById('loginTabBtn').addEventListener('click',()=>setAccountTa
 document.getElementById('registerTabBtn').addEventListener('click',()=>setAccountTab('register'));
 function accountMessage(message,isError=false){accountFeedback.textContent=message;accountFeedback.style.color=isError?'#ffb2a8':'#ffe29a';}
 async function showAccountSession(session) {
-  if(!session){walletUserId=null;adminPointsBalance=0;if(typeof renderModeBalance==='function')renderModeBalance();}
+  if(!session){walletUserId=null;adminPointsBalance=0;setSync(true,'');if(typeof renderModeBalance==='function')renderModeBalance();}
   signedOutBox.hidden = !!session;
   signedInBox.hidden = !session;
 
