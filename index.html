@@ -205,7 +205,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     <section class="card" style="margin-bottom:14px">
       <h3>🏆 Recent games result</h3>
       <p class="sub">Practice draw history is saved on this device and restored when you reopen the app. Rankings are practice-only.</p>
-      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:440px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">20 drawn numbers</th><th style="padding:10px 6px">Sample winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="3" style="padding:12px 6px;color:#9aaba5">No completed practice games yet. Results will be saved on this device.</td></tr></tbody></table></div>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:280px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">Sample winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="2" style="padding:12px 6px;color:#9aaba5">No completed practice games yet. Results will be saved on this device.</td></tr></tbody></table></div>
     </section>
     <section class="card">
       <h3>🥇 Top 12 leaderboard</h3>
@@ -641,11 +641,8 @@ function renderRecentGames(){
   body.innerHTML='';
   recentDemoGames.forEach(game=>{
     const tr=document.createElement('tr');
-    const roundCell=document.createElement('td');roundCell.textContent=`#${game.round}`;tr.appendChild(roundCell);
-    const numbersCell=document.createElement('td');const numberWrap=document.createElement('div');numberWrap.className='draw-number-list';
-    game.numbers.forEach(number=>{const chip=document.createElement('span');chip.className='draw-number-chip';chip.textContent=number;numberWrap.appendChild(chip)});
-    numbersCell.appendChild(numberWrap);tr.appendChild(numbersCell);
-    const winnerCell=document.createElement('td');winnerCell.textContent=game.winner;tr.appendChild(winnerCell);
+    const roundCell=document.createElement('td');roundCell.textContent=`Game #${game.round}`;tr.appendChild(roundCell);
+    const winnerCell=document.createElement('td');winnerCell.textContent=game.winner || 'Sample winner';tr.appendChild(winnerCell);
     body.appendChild(tr);
   });
 }
