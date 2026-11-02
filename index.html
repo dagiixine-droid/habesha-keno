@@ -114,7 +114,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
   </section>
   <section id="walletPanel" hidden>
     <div class="stack">
-      <div id="walletBalanceSlot"></div>
+      <div id="walletBalanceSlot" hidden></div>
       <section id="walletAccountSlot">
   <section class="card account-card" id="accountCard" style="margin-top:14px">
     <div class="account-head"><div><h3>👤 Player account</h3><p class="sub" style="margin:0">Sign in or create your Habesha Keno account.</p></div><span class="soon-tag">ACCOUNT</span></div>
@@ -158,7 +158,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
         </div>
         <p class="payment-note">Demo only: no money is transferred or received.</p>
       </section>
-      <section class="card" id="walletHistoryCard">
+      <section class="card" id="walletHistoryCard" hidden>
         <div class="payment-heading"><div><h3>Wallet activity</h3><p class="sub">Recent virtual-credit changes and requests.</p></div><button class="refresh-btn" id="clearWalletHistory" type="button">Clear history</button></div>
         <div id="walletHistoryList" aria-live="polite"><p class="payment-note">No wallet activity yet.</p></div>
         <p class="payment-note">History is saved in this browser only for now. It is not yet synced to your Supabase account.</p>
@@ -217,10 +217,11 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
 </button>
     </section>
     <section class="card">
-      <h3>🥇 Top 12 leaderboard</h3>
+      <h3>🥇 Top 10 leaderboard</h3>
       <p class="sub">Fictional sample usernames only • daily practice points • no real-player accounts are shown.</p>
       <div class="stake-note" id="leaderboardStatus" style="margin:0 0 10px">Loading…</div>
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Practice points</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
+      <button id="leaderboardToggle" class="refresh-btn" type="button" hidden style="margin-top:10px">See more</button>
     </section>
   </section>
   <div class="payment-modal-backdrop" id="paymentModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="paymentModalTitle" aria-hidden="true">
@@ -543,7 +544,7 @@ function updateStakeUI(){
   const picks=selected.size;
   const valid=Number.isFinite(stake)&&stake>0;
   const set=(id,t)=>{const el=document.getElementById(id);if(el)el.textContent=t};
-  set('stakeBalance','Balance: '+fmt(balance));
+  set('stakeBalance',walletUserId?'Balance: '+fmt(balance):'');
   renderEntries();
   set('stakeShown',valid?fmt(stake):'—');
   const row=PAYTABLE[picks];
@@ -563,7 +564,12 @@ function updateStakeUI(){
   
   const note=document.getElementById('stakeNote');
   if(note){
-    if(valid&&stake>availableBalance())note.textContent=queuedEntries.length?`Not enough available points (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:(balance<MIN_STAKE?'You do not have enough practice points to stake.':'Stake is higher than your practice points balance.');
+    if(!walletUserId){
+      if(valid&&stake>availableBalance())note.textContent='Stake is higher than your available practice points.';
+      else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} credits.`;
+      else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} credits per entry. Log in to see your balance. Your balance changes after the draw.`;
+    }
+    else if(valid&&stake>availableBalance())note.textContent=queuedEntries.length?`Not enough available points (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:(balance<MIN_STAKE?'You do not have enough practice points to stake.':'Stake is higher than your practice points balance.');
     else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} credits.`;
     else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} credits per entry. Available to stake: ${fmt(availableBalance())}${pendingStake()?` (${fmt(pendingStake())} staked this round)`:''}. Your balance changes after the draw.`;
   }
@@ -715,50 +721,80 @@ function finishDraw(){
   document.getElementById('scheduledStatus').textContent=`Round #${roundSequence} complete — all 20 numbers revealed. The next entry window opens when the countdown reaches 00:00.`;
 }
 let showAllLeaderboard = false;
+let showAllRecentGames = false;
+let leaderboardRows = null,
+    leaderboardUpdatedAt = null,
+    leaderboardOnline = false,
+    leaderboardLoading = false;
+
+function renderRecentGames() {
+  const body = document.getElementById('recentGamesBody');
+  if (!body) return;
+  body.innerHTML = '';
+  if (!recentDemoGames.length) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = 2;
+    td.style.cssText = 'padding:12px 6px;color:#9aaba5';
+    td.textContent = 'No completed practice games yet. Results will be saved on this device.';
+    tr.appendChild(td);
+    body.appendChild(tr);
+  } else {
+    const rows = recentDemoGames.slice(0, showAllRecentGames ? 10 : 3);
+    rows.forEach(game => {
+      const tr = document.createElement('tr');
+      const tdGame = document.createElement('td');
+      tdGame.textContent = 'Round #' + game.round;
+      const tdWinner = document.createElement('td');
+      tdWinner.textContent = game.winner;
+      tr.append(tdGame, tdWinner);
+      body.appendChild(tr);
+    });
+  }
+  const btn = document.getElementById('recentGamesToggle');
+  if (btn) {
+    btn.hidden = recentDemoGames.length <= 3;
+    btn.textContent = showAllRecentGames ? 'See less' : 'See more';
+  }
+}
 
 function renderLeaderboard() {
   const body = document.getElementById('leaderboardBody');
   if (!body) return;
-
   body.innerHTML = '';
+  const statusEl = document.getElementById('leaderboardStatus');
 
-  // Use fictional sample players, not registered accounts.
-  const sortedPlayers = demoNames
-    .map((name, index) => ({
-      name,
-      points: Number(demoScores[index] || 0)
-    }))
-    .sort((a, b) =>
-      b.points - a.points || a.name.localeCompare(b.name)
-    );
+  const players = (leaderboardOnline && leaderboardRows)
+    ? leaderboardRows.map(r => ({ name: r.username, points: Number(r.practice_points || 0) }))
+    : demoNames
+        .map((name, index) => ({ name, points: Number(demoScores[index] || 0) }))
+        .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
 
-  const visiblePlayers = showAllLeaderboard
-    ? sortedPlayers
-    : sortedPlayers.slice(0, 12);
+  const visiblePlayers = players.slice(0, showAllLeaderboard ? 10 : 5);
 
   visiblePlayers.forEach((player, index) => {
     const tr = document.createElement('tr');
-
-    [
-      String(index + 1),
-      player.name,
-      player.points.toLocaleString('en-US')
-    ].forEach((value, column) => {
+    [String(index + 1), player.name, player.points.toLocaleString('en-US')].forEach(value => {
       const td = document.createElement('td');
-      td.style.padding = '10px 6px';
-      td.style.color = column === 0 ? '#ffdf83' : '#e9e5d5';
       td.textContent = value;
       tr.appendChild(td);
     });
-
     body.appendChild(tr);
   });
 
   const button = document.getElementById('leaderboardToggle');
-
   if (button) {
-    button.hidden = sortedPlayers.length <= 12;
+    button.hidden = players.length <= 5;
     button.textContent = showAllLeaderboard ? 'See less' : 'See more';
+  }
+
+  if (statusEl) {
+    if (leaderboardOnline && leaderboardUpdatedAt) {
+      const d = new Date(leaderboardUpdatedAt);
+      statusEl.textContent = `Fictional sample players • daily points saved online • updated ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())} UTC`;
+    } else {
+      statusEl.textContent = 'Fictional sample players • local preview only.';
+    }
   }
 }
 
@@ -766,16 +802,11 @@ document.getElementById('recentGamesToggle')?.addEventListener('click', () => {
   showAllRecentGames = !showAllRecentGames;
   renderRecentGames();
 });
-
 document.getElementById('leaderboardToggle')?.addEventListener('click', () => {
   showAllLeaderboard = !showAllLeaderboard;
   renderLeaderboard();
 });
 
-let leaderboardRows = null,
-    leaderboardUpdatedAt = null,
-    leaderboardOnline = false,
-    leaderboardLoading = false;
 async function refreshLeaderboard(){
   if(leaderboardLoading)return;
   leaderboardLoading=true;
@@ -783,70 +814,10 @@ async function refreshLeaderboard(){
     if(!supabaseClient) throw new Error('Supabase is not configured');
     const result=await supabaseClient.rpc('get_or_create_daily_sample_leaderboard');
     if(result.error) throw result.error;
-    leaderboardRows=(result.data||[]).slice(0,12);
+    leaderboardRows=(result.data||[]).slice(0,10);
     leaderboardOnline=true;leaderboardUpdatedAt=nowUTC();
   }catch(err){leaderboardOnline=false;console.error('Sample leaderboard load failed:',err);}
   leaderboardLoading=false;renderLeaderboard();
-}
-let showAllLeaderboard = false;
-function renderLeaderboard(){
-const body = document.getElementById('leaderboardBody');
-if(!body) return;
-body.innerHTML = '';
-
-const statusEl = document.getElementById('leaderboardStatus');
-
-const addRow = (rank, name, points) => {
-const tr = document.createElement('tr');
-tr.style.borderTop = '1px solid #ffffff18';
-
-```
-[String(rank), name, Number(points).toLocaleString('en-US')].forEach((value, j) => {
-  const td = document.createElement('td');
-  td.style.padding = '10px 6px';
-  td.style.color = j === 0 ? '#ffdf83' : '#e9e5d5';
-  td.textContent = value;
-  tr.appendChild(td);
-});
-
-body.appendChild(tr);
-```
-
-};
-
-const players = leaderboardOnline && leaderboardRows
-? leaderboardRows.map(r => ({
-name: r.username,
-points: r.practice_points
-}))
-: demoNames.map((name, index) => ({
-name,
-points: demoScores[index]
-})).sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
-
-const visiblePlayers = showAllLeaderboard
-? players
-: players.slice(0, 12);
-
-visiblePlayers.forEach((player, index) => {
-addRow(index + 1, player.name, player.points);
-});
-
-const button = document.getElementById('leaderboardToggle');
-
-if(button){
-button.hidden = players.length <= 12;
-button.textContent = showAllLeaderboard ? 'See less' : 'See more';
-}
-
-if(leaderboardOnline && leaderboardUpdatedAt){
-const d = new Date(leaderboardUpdatedAt);
-if(statusEl){
-statusEl.textContent = `Fictional sample players • daily points saved online • updated ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())} UTC`;
-}
-} else if(statusEl){
-statusEl.textContent = 'Fictional sample players • local preview only.';
-}
 }
 
 renderLeaderboard();
@@ -922,7 +893,7 @@ document.getElementById('playBtn').onclick=()=>{
  if(selected.size<1){status('Choose at least one number first.');return}
  const stake=readStake();
  if(!Number.isFinite(stake)||stake<MIN_STAKE||stake>MAX_STAKE||stake%10!==0){status(`Enter a stake between ${MIN_STAKE} and ${MAX_STAKE} points, in steps of 10.`);return}
- if(stake>availableBalance()){status(`Not enough practice points. Available: ${fmt(availableBalance())} (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`);return}
+ if(stake>availableBalance()){status(walletUserId?`Not enough practice points. Available: ${fmt(availableBalance())} (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:'Not enough practice points for this stake.');return}
  const picks=[...selected].sort((a,b)=>a-b);
  queuedEntries.push({id:++entrySeq,picks,stake,mode:'demo'});
  recordStakeOnline();
@@ -932,7 +903,6 @@ document.getElementById('playBtn').onclick=()=>{
  document.getElementById('result').classList.remove('show');
 };
 updateStakeUI();
-startCountdown();
 const homePanel=document.getElementById('homePanel');
 const kenoPanel=document.getElementById('kenoPanel');
 const walletPanel=document.getElementById('walletPanel');
@@ -1039,6 +1009,8 @@ async function showAccountSession(session) {
   // Do not show the available-balance card in Wallet before the player signs in.
   const walletBalanceSlot = document.getElementById('walletBalanceSlot');
   if (walletBalanceSlot) walletBalanceSlot.hidden = !session;
+  const walletHistoryCard = document.getElementById('walletHistoryCard');
+  if (walletHistoryCard) walletHistoryCard.hidden = !session;
 
   // Keep the Home tab clean after login: hide demo-mode and wallet/payment actions.
   const homePaymentActions = document.querySelector('#homePanel .payment-actions');
@@ -1168,7 +1140,7 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
   if(!supabaseClient)return;
   const {error}=await supabaseClient.auth.signOut();
   if(error)accountMessage('Could not sign out. Please try again.',true);
-  else accountMessage('You have signed out.');
+  else{accountMessage('You have signed out.');showAccountSession(null);}
 });
 // ---------- Admin dashboard ----------
 // Shows every player's practice points (welcome points + admin-assigned points) and updates right after
@@ -1398,7 +1370,7 @@ window.adjustAdminPoints = adjustAdminPoints;
 
 window.adjustPracticeBalance = adjustPracticeBalance;
 (async () => {
-  if (!supabaseClient) return;
+  if (!supabaseClient) { showAccountSession(null); return; }
   try {
     const { data, error } = await supabaseClient.auth.getSession();
     if (error) throw error;
