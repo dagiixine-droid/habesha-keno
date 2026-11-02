@@ -321,33 +321,24 @@ function setGameMode(mode) {
       : 'Admin Points Mode is selected. These are non-redeemable practice points assigned by an administrator.';
   }
 
-if (modeBadge) {
-  modeBadge.textContent = demo ? 'DEMO MODE' : 'REAL';
-}
+  if (notice) {
+    notice.textContent = demo
+      ? 'DEMO MODE: Free practice only. Practice points have no cash value.'
+      : 'PRACTICE MODE: Free practice only. No cash value or payouts.';
+  }
 
-if (msg) {
-  msg.classList.toggle('real-preview', !demo);
-  msg.textContent = demo
-    ? 'Demo Mode is active. Use your free practice balance.'
-    : 'Admin Points Mode is selected. These are non-redeemable practice points assigned by an administrator.';
-}
+  // Both signed-out demo mode and signed-in admin-points mode allow FREE practice play.
+  // Admin-assigned points are displayed separately and are never spent to join a draw.
+  if (playBtn) {
+    playBtn.disabled = false;
+    playBtn.textContent = joinLabel();
+  }
 
-if (notice) {
-  notice.textContent = demo
-    ? 'DEMO MODE: Free practice only. Practice points have no cash value.'
-    : 'Admin Points Mode: Practice points have no cash value.';
-}
-
-if (playBtn) {
-  playBtn.disabled = false;
-  playBtn.textContent = joinLabel();
-}
-
-document.querySelectorAll('#numberGrid .num, #clearBtn, #randomBtn').forEach(el => {
-  el.disabled = false;
-  el.removeAttribute('aria-disabled');
-  el.style.pointerEvents = 'auto';
-});
+  document.querySelectorAll('#numberGrid .num, #clearBtn, #randomBtn').forEach(el => {
+    el.disabled = false;
+    el.removeAttribute('aria-disabled');
+    el.style.pointerEvents = 'auto';
+  });
 
   renderModeBalance();
 }
@@ -381,7 +372,7 @@ function renderModeBalance(){
   const amount=document.getElementById('homeBalance');
   const caption=document.querySelector('.balance-amount small');
   if(amount) amount.textContent=fmt(gameMode==='demo'?balance:adminPointsBalance);
-  if(caption) caption.textContent=gameMode==='demo'?'practice credits':'ETB';
+  if(caption) caption.textContent=gameMode==='demo'?'practice credits':'admin-assigned practice points';
   if(typeof updateStakeUI==='function') updateStakeUI();
 }
 
