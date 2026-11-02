@@ -82,7 +82,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     <div class="home-balance card">
       <div class="balance-top"><span class="eyebrow">YOUR AVAILABLE BALANCE</span><span class="demo-tag" id="modeBadge">DEMO MODE</span></div>
       <div class="balance-amount"><span id="homeBalance">1,000</span><small>virtual credits</small></div>
-      <div class="balance-foot"><span>🔒 Secure demo wallet</span><button class="refresh-btn" id="refreshBalance" type="button">↻ Refresh</button></div>
+      <div class="balance-foot"><span>🔒 Secure wallet</span><button class="refresh-btn" id="refreshBalance" type="button">↻ Refresh</button></div>
     </div>
     <div class="payment-actions">
       <button class="action-card deposit-action" id="depositBtn" type="button"><span class="action-icon">＋</span><span><strong>Deposit</strong><small>Contact admin on Telegram</small></span><span class="action-arrow">›</span></button>
@@ -209,7 +209,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     </section>
     <section class="card">
       <h3>🥇 Top 12 leaderboard</h3>
-      <p class="sub">Real players ranked by their admin-assigned practice points. The board refreshes automatically and after every completed round.</p>
+      <p class="sub">Real players ranked by their Balance. The board refreshes automatically and after every completed round.</p>
       <div class="stake-note" id="leaderboardStatus" style="margin:0 0 10px">Loading…</div>
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Practice points</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
     </section>
@@ -287,7 +287,7 @@ function setGameMode(mode) {
   if (modeBadge) {
     modeBadge.textContent = demo
       ? 'DEMO MODE'
-      : 'ADMIN POINTS MODE';
+      : 'REAL';
   }
 
   if (msg) {
@@ -300,7 +300,6 @@ function setGameMode(mode) {
   if (notice) {
     notice.textContent = demo
       ? 'DEMO MODE: Stake virtual practice credits; they have no cash value.'
-      : 'ADMIN POINTS MODE: Administrator-assigned practice points only. They cannot be redeemed or withdrawn.';
   }
 
   // Both signed-out demo mode and signed-in admin-points mode allow FREE practice play.
