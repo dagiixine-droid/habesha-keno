@@ -181,7 +181,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     <aside class="stack">
       <section class="card">
         <h3>🎟️ Stake <span class="stake-bal" id="stakeBalance">Credits: 0</span></h3>
-        <div class="field"><label for="bet">Stake amount (credits)</label><input id="bet" type="number" min="10" max="500" step="10" value="50" inputmode="numeric"></div>
+        <div class="field"><label for="bet">Stake amount (admin points)</label><input id="bet" type="number" min="10" max="500" step="10" value="50" inputmode="numeric"></div>
         <div class="quick"><button type="button" data-bet="10">10</button><button type="button" data-bet="50">50</button><button type="button" data-bet="100">100</button><button type="button" data-bet="250">250</button><button type="button" data-bet="500">500</button></div>
         <div class="stake-note" id="stakeNote">Min 10 • Max 500 credits. Your balance changes after the draw: a win adds your profit, a loss removes your stake.</div>
         <div class="stat" style="margin-top:12px"><span>Numbers picked</span><strong id="pickCount">0</strong></div>
@@ -189,7 +189,6 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
         <div class="stat"><span>Max possible win</span><strong id="maxWin">—</strong></div>
         <div class="entries" id="entriesList" hidden></div>
         <div class="paytable" id="paytable"></div>
-        <button type="button" class="topup-btn" id="topupBtn">+ Get 1,000 free practice credits</button>
         <button class="greenbtn" id="playBtn" style="margin-top:14px">▶ Join next draw</button>
       </section>
       <section class="card">
@@ -324,6 +323,7 @@ function syncHomeBalance(){saveVirtualBalance();const el=document.getElementById
 let adminPointsBalance=0;
 async function loadPlayerWallet(session){
   if(!supabaseClient || !session?.user?.id) return;
+  walletUserId=session.user.id;
   const {data,error}=await supabaseClient.from('practice_wallets')
     .select('balance,admin_points')
     .eq('auth_user_id',session.user.id).maybeSingle();
@@ -365,10 +365,19 @@ const PAYTABLE={
   10:{5:2,6:15,7:50,8:250,9:1000,10:5000}
 };
 function payoutMultiplier(picks,hits){return (PAYTABLE[picks]&&PAYTABLE[picks][hits])||0}
-function activeBalance(){return gameMode==='demo'?balance:adminPointsBalance}
-function addToBalance(mode,delta){if(mode==='demo'){balance=Math.max(0,balance+delta);saveVirtualBalance();}else{adminPointsBalance=Math.max(0,adminPointsBalance+delta);}renderModeBalance();}
+let walletUserId=null;
+function activeBalance(){return adminPointsBalance}
+// Best-effort save of the admin-points balance back to the player's wallet row.
+async function persistAdminPoints(){
+  if(!supabaseClient||!walletUserId)return;
+  try{
+    const {error}=await supabaseClient.from('practice_wallets').update({admin_points:adminPointsBalance}).eq('auth_user_id',walletUserId);
+    if(error)console.error('Could not save admin points:',error);
+  }catch(err){console.error('Could not save admin points:',err);}
+}
+function addToBalance(mode,delta){adminPointsBalance=Math.max(0,adminPointsBalance+delta);renderModeBalance();persistAdminPoints();}
 function pendingStake(mode){return queuedEntries.filter(e=>!mode||e.mode===mode).reduce((t,e)=>t+e.stake,0)}
-function availableBalance(){return Math.max(0,activeBalance()-pendingStake(gameMode))}
+function availableBalance(){return Math.max(0,adminPointsBalance-pendingStake())}
 function joinLabel(){const n=queuedEntries.length;return n?`▶ Add another entry (${n} joined)`:'▶ Join next draw'}
 function renderEntries(){
   const host=document.getElementById('entriesList');if(!host)return;
@@ -404,7 +413,7 @@ function updateStakeUI(){
   const picks=selected.size;
   const valid=Number.isFinite(stake)&&stake>0;
   const set=(id,t)=>{const el=document.getElementById(id);if(el)el.textContent=t};
-  set('stakeBalance','Available: '+fmt(availableBalance()));
+  set('stakeBalance','Admin points: '+fmt(availableBalance()));
   renderEntries();
   set('stakeShown',valid?fmt(stake):'—');
   const row=PAYTABLE[picks];
@@ -420,11 +429,11 @@ function updateStakeUI(){
         lastHits.map(h=>`<div class="paytable-row"><span>${h} of ${picks}</span><b>${row[h]}x${valid?' = '+fmt(row[h]*stake):''}</b></div>`).join('');
     }
   }
-  const low=gameMode==='demo'&&balance<MIN_STAKE&&!queuedEntries.length;
-  const tb=document.getElementById('topupBtn');if(tb)tb.classList.toggle('show',low);
+  const low=false;
+  
   const note=document.getElementById('stakeNote');
   if(note){
-    if(valid&&stake>availableBalance())note.textContent=queuedEntries.length?`Not enough available credits (${fmt(pendingStake(gameMode))} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:'Stake is higher than your balance.';
+    if(valid&&stake>availableBalance())note.textContent=queuedEntries.length?`Not enough available credits (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:(adminPointsBalance<MIN_STAKE?'You have no admin-assigned points to stake. Sign in, or ask the admin to assign points.':'Stake is higher than your admin points balance.');
     else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} credits.`;
     else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} credits per entry. Join as many entries as your balance allows (about ${Math.floor(availableBalance()/Math.max(MIN_STAKE,valid?stake:MIN_STAKE))} more at this stake). Your balance changes after the draw.`;
   }
@@ -587,15 +596,14 @@ document.getElementById('randomBtn').onclick=()=>{selected.clear();while(selecte
 document.querySelectorAll('[data-bet]').forEach(b=>b.onclick=()=>{document.getElementById('bet').value=b.dataset.bet;updateStakeUI();});
 document.getElementById('bet').addEventListener('input',updateStakeUI);
 document.getElementById('bet').addEventListener('change',()=>{const v=readStake();document.getElementById('bet').value=v||MIN_STAKE;updateStakeUI();});
-document.getElementById('topupBtn').onclick=()=>{balance+=1000;saveVirtualBalance();addWalletActivity('Free practice credits',1000,'Practice top-up (no cash value)');renderModeBalance();updateStakeUI();status('1,000 free practice credits added.');};
 document.getElementById('playBtn').onclick=()=>{
  if(phase!=='countdown'){status('The draw is already in progress. Choose numbers for the next entry window.');return}
  if(selected.size<1){status('Choose at least one number first.');return}
  const stake=readStake();
  if(!Number.isFinite(stake)||stake<MIN_STAKE||stake>MAX_STAKE||stake%10!==0){status(`Enter a stake between ${MIN_STAKE} and ${MAX_STAKE} credits, in steps of 10.`);return}
- if(stake>availableBalance()){status(`Not enough available credits. Available: ${fmt(availableBalance())} (${fmt(pendingStake(gameMode))} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`);return}
+ if(stake>availableBalance()){status(`Not enough admin points. Available: ${fmt(availableBalance())} (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`);return}
  const picks=[...selected].sort((a,b)=>a-b);
- queuedEntries.push({id:++entrySeq,picks,stake,mode:gameMode});
+ queuedEntries.push({id:++entrySeq,picks,stake,mode:'real'});
  document.getElementById('playBtn').textContent=joinLabel();
  updateStakeUI();
  status(`Entry #${queuedEntries.length} added: ${picks.length} number${picks.length===1?'':'s'}, ${fmt(stake)} credits. You can add more entries with different numbers while you have available credits.`);
@@ -702,6 +710,7 @@ document.getElementById('loginTabBtn').addEventListener('click',()=>setAccountTa
 document.getElementById('registerTabBtn').addEventListener('click',()=>setAccountTab('register'));
 function accountMessage(message,isError=false){accountFeedback.textContent=message;accountFeedback.style.color=isError?'#ffb2a8':'#ffe29a';}
 async function showAccountSession(session) {
+  if(!session){walletUserId=null;adminPointsBalance=0;if(typeof renderModeBalance==='function')renderModeBalance();}
   signedOutBox.hidden = !!session;
   signedInBox.hidden = !session;
 
