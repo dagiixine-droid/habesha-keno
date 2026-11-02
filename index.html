@@ -372,7 +372,7 @@ function renderModeBalance(){
   const amount=document.getElementById('homeBalance');
   const caption=document.querySelector('.balance-amount small');
   if(amount) amount.textContent=fmt(gameMode==='demo'?balance:adminPointsBalance);
-  if(caption) caption.textContent=gameMode==='demo'?'practice credits':'admin-assigned practice points';
+  if(caption) caption.textContent=gameMode==='demo'?'practice credits':'ETB';
   if(typeof updateStakeUI==='function') updateStakeUI();
 }
 
