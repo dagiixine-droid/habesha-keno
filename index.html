@@ -209,7 +209,8 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     </section>
     <section class="card">
       <h3>🥇 Top 12 leaderboard</h3>
-      <p class="sub">Fictional practice players. Points update after each completed practice game.</p>
+      <p class="sub">Real players ranked by their admin-assigned practice points. The board refreshes automatically and after every completed round.</p>
+      <div class="stake-note" id="leaderboardStatus" style="margin:0 0 10px">Loading…</div>
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Practice points</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
     </section>
   </section>
@@ -320,10 +321,12 @@ function setGameMode(mode) {
 const fmt=n=>Number(n).toLocaleString('en-US');
 function saveVirtualBalance(){try{localStorage.setItem(WALLET_BALANCE_KEY,String(balance));}catch(_){}}
 function syncHomeBalance(){saveVirtualBalance();const el=document.getElementById('homeBalance');if(el)el.textContent=fmt(balance)}
-let adminPointsBalance=0;
-async function loadPlayerWallet(session){
+let adminPointsBalance=0, currentUsername='';
+async function loadPlayerWallet(session,skipFlush){
   if(!supabaseClient || !session?.user?.id) return;
   walletUserId=session.user.id;
+  currentUsername=session.user.user_metadata?.username||'';
+  if(!skipFlush)await flushSettlements();
   const {data,error}=await supabaseClient.from('practice_wallets')
     .select('balance,admin_points')
     .eq('auth_user_id',session.user.id).maybeSingle();
@@ -337,7 +340,7 @@ async function loadPlayerWallet(session){
     const demoValue=Number(data.balance);
     const adminValue=Number(data.admin_points);
     if(Number.isFinite(demoValue)&&demoValue>=0) balance=demoValue;
-    adminPointsBalance=Number.isFinite(adminValue)&&adminValue>=0?adminValue:0;
+    adminPointsBalance=Math.max(0,(Number.isFinite(adminValue)&&adminValue>=0?adminValue:0)+pendingNetForUser(walletUserId));
     renderModeBalance();
   } else { adminPointsBalance=0; renderModeBalance(); }
 }
@@ -362,15 +365,50 @@ const PAYTABLE={
 function payoutMultiplier(picks,hits){return (PAYTABLE[picks]&&PAYTABLE[picks][hits])||0}
 let walletUserId=null;
 function activeBalance(){return adminPointsBalance}
-// Best-effort save of the admin-points balance back to the player's wallet row.
-async function persistAdminPoints(){
-  if(!supabaseClient||!walletUserId)return;
-  try{
-    const {error}=await supabaseClient.from('practice_wallets').update({admin_points:adminPointsBalance}).eq('auth_user_id',walletUserId);
-    if(error)console.error('Could not save admin points:',error);
-  }catch(err){console.error('Could not save admin points:',err);}
+// ---- Online saving of practice points ----
+// Every finished round is saved online through the settle_keno_round() database function.
+// Unsent results are kept in this browser (localStorage) and retried, so nothing is lost if the player is offline or closes the app.
+const PENDING_KEY='habesha_keno_pending_settlements_v1';
+let flushingSettlements=false;
+function loadPending(){try{const v=JSON.parse(localStorage.getItem(PENDING_KEY)||'[]');return Array.isArray(v)?v:[]}catch(_){return[]}}
+function savePending(list){try{localStorage.setItem(PENDING_KEY,JSON.stringify(list.slice(-200)))}catch(_){}}
+function pendingNetForUser(uid){return loadPending().filter(x=>x.user===uid).reduce((t,x)=>t+(x.payout-x.staked),0)}
+function queueSettlement(round,entries,staked,payout){
+  if(!walletUserId)return;
+  const list=loadPending();
+  if(!list.some(x=>x.user===walletUserId&&x.round===round))list.push({user:walletUserId,round,entries,staked,payout});
+  savePending(list);
+  flushSettlements();
 }
-function addToBalance(mode,delta){adminPointsBalance=Math.max(0,adminPointsBalance+delta);renderModeBalance();persistAdminPoints();}
+async function flushSettlements(){
+  if(flushingSettlements||!supabaseClient||!walletUserId)return;
+  flushingSettlements=true;
+  let savedAny=false,lastServerBalance=null,dropped=false;
+  try{
+    for(let guard=0;guard<100;guard++){
+      const item=loadPending().find(x=>x.user===walletUserId);
+      if(!item)break;
+      const {data,error}=await supabaseClient.rpc('settle_keno_round',{p_round:item.round,p_entries:item.entries,p_staked:item.staked,p_payout:item.payout});
+      if(error){
+        const msg=String(error.message||'');
+        const network=!error.code&&/fetch|network|load failed|timeout/i.test(msg);
+        if(network)break;                       // offline: keep it and retry later
+        if(error.code==='PGRST202'||error.code==='42883'){console.error('settle_keno_round() is not installed in the database yet.');break;}
+        console.error('Round could not be saved and was discarded:',error);
+        savePending(loadPending().filter(x=>!(x.user===item.user&&x.round===item.round)));dropped=true;continue;
+      }
+      savePending(loadPending().filter(x=>!(x.user===item.user&&x.round===item.round)));
+      savedAny=true;lastServerBalance=Number(data);
+    }
+  }finally{flushingSettlements=false;}
+  if(lastServerBalance!==null&&Number.isFinite(lastServerBalance)){
+    // The server is the source of truth; add any results that are still waiting to be sent.
+    adminPointsBalance=Math.max(0,lastServerBalance+pendingNetForUser(walletUserId));renderModeBalance();
+  }
+  if(dropped){const {data}=await supabaseClient.auth.getSession();if(data?.session)await loadPlayerWallet(data.session,true);}
+  if(savedAny)refreshLeaderboard();
+}
+function addToBalance(mode,delta){adminPointsBalance=Math.max(0,adminPointsBalance+delta);renderModeBalance();}
 function pendingStake(mode){return queuedEntries.filter(e=>!mode||e.mode===mode).reduce((t,e)=>t+e.stake,0)}
 function availableBalance(){return Math.max(0,adminPointsBalance-pendingStake())}
 function joinLabel(){const n=queuedEntries.length;return n?`▶ Add another entry (${n} joined)`:'▶ Join next draw'}
@@ -559,6 +597,7 @@ function finishDraw(){
     const net=totalPayout-totalStake;
     // Balance changes only now, once for the whole draw: profit is added and lost stakes are removed.
     Object.keys(netByMode).forEach(m=>{if(netByMode[m])addToBalance(m,netByMode[m]);});
+    queueSettlement(roundSequence,entries.length,totalStake,totalPayout);
     addWalletActivity(net>0?'Keno win':net<0?'Keno loss':'Keno draw result',net,`${entries.length} entr${entries.length===1?'y':'ies'} • staked ${fmt(totalStake)} • returned ${fmt(totalPayout)}`);
     lastDraw=new Set(drawNumbers);lastHits=new Set();
     status(`Round complete. ${entries.length} entr${entries.length===1?'y was':'ies were'} settled after all 20 numbers were drawn.`);
@@ -586,14 +625,47 @@ function renderRecentGames(){
     body.appendChild(tr);
   });
 }
+let leaderboardRows=null, myRank=null, leaderboardUpdatedAt=null, leaderboardOnline=false, leaderboardLoading=false;
+async function refreshLeaderboard(){
+  if(leaderboardLoading)return;
+  if(!supabaseClient){leaderboardOnline=false;renderLeaderboard();return}
+  leaderboardLoading=true;
+  try{
+    const [lb,mine]=await Promise.all([supabaseClient.rpc('get_leaderboard',{p_limit:12}),supabaseClient.rpc('get_my_rank')]);
+    if(lb.error)throw lb.error;
+    leaderboardRows=lb.data||[];myRank=mine.error?null:(mine.data??null);
+    leaderboardOnline=true;leaderboardUpdatedAt=nowUTC();
+  }catch(err){leaderboardOnline=false;console.error('Leaderboard load failed:',err);}
+  leaderboardLoading=false;
+  renderLeaderboard();
+}
 function renderLeaderboard(){
   const body=document.getElementById('leaderboardBody');if(!body)return;body.innerHTML='';
-  const topTwelve=demoNames.map((name,index)=>({name,points:demoScores[index]}))
-    .sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name)).slice(0,12);
-  topTwelve.forEach((player,i)=>{const tr=document.createElement('tr');tr.style.borderTop='1px solid #ffffff18';
-    [String(i+1),player.name,player.points.toLocaleString('en-US')].forEach((value,j)=>{const td=document.createElement('td');td.style.padding='10px 6px';td.style.color=j===0?'#ffdf83':'#e9e5d5';td.textContent=value;tr.appendChild(td)});body.appendChild(tr)});
+  const statusEl=document.getElementById('leaderboardStatus');
+  const addRow=(rank,name,points,me)=>{
+    const tr=document.createElement('tr');tr.style.borderTop='1px solid #ffffff18';if(me)tr.style.background='#10372a';
+    [String(rank),me?name+' (you)':name,Number(points).toLocaleString('en-US')].forEach((value,j)=>{const td=document.createElement('td');td.style.padding='10px 6px';td.style.color=j===0?'#ffdf83':'#e9e5d5';td.textContent=value;tr.appendChild(td)});
+    body.appendChild(tr);
+  };
+  if(leaderboardOnline&&leaderboardRows){
+    if(!leaderboardRows.length){const tr=document.createElement('tr');const td=document.createElement('td');td.colSpan=3;td.style.cssText='padding:12px 6px;color:#9aaba5';td.textContent='No players on the leaderboard yet.';tr.appendChild(td);body.appendChild(tr);}
+    leaderboardRows.forEach(r=>addRow(r.rank,r.username||'Player',r.admin_points,!!r.is_me));
+    if(myRank&&!leaderboardRows.some(r=>r.is_me)){addRow(myRank,currentUsername||'You',adminPointsBalance,true);}
+    if(statusEl){
+      const d=new Date(leaderboardUpdatedAt);
+      statusEl.textContent=`✓ Live from the online database • updated ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}:${pad2(d.getUTCSeconds())} UTC`+(myRank?` • your rank: #${myRank}`:'');
+    }
+    return;
+  }
+  // Fallback while the online leaderboard is unavailable: clearly-labelled sample players.
+  demoNames.map((name,index)=>({name,points:demoScores[index]}))
+    .sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name)).slice(0,12)
+    .forEach((player,i)=>addRow(i+1,player.name,player.points,false));
+  if(statusEl)statusEl.textContent='⚠ Online leaderboard not connected — showing sample players. Run the SQL setup file in Supabase and check your connection.';
 }
 renderLeaderboard();
+refreshLeaderboard();
+setInterval(()=>{const lp=document.getElementById('leaderPanel');if(lp&&!lp.hidden&&!document.hidden)refreshLeaderboard();},15000);
 function resetRoundState(rid){
   currentRound=rid;roundSequence=rid;
   scheduledDrawNumbers=getRoundDraw(rid);revealCount=0;
@@ -626,6 +698,15 @@ function tickDraw(){
   }
   paintCountdown(t,pos);
 }
+// Save before the app is closed or hidden, and re-load the saved wallet when it comes back.
+window.addEventListener('pagehide',()=>{flushSettlements();});
+window.addEventListener('online',()=>{flushSettlements();});
+document.addEventListener('visibilitychange',async()=>{
+  if(!supabaseClient)return;
+  if(document.hidden){flushSettlements();return}
+  try{const {data}=await supabaseClient.auth.getSession();if(data?.session)await loadPlayerWallet(data.session);}catch(_){}
+});
+setInterval(()=>{if(!document.hidden)flushSettlements();},30000);
 function startCountdown(){
   if(timerInterval)clearInterval(timerInterval);
   tickDraw();
@@ -677,7 +758,7 @@ function showTab(tab){
   document.getElementById('leaderPanel').hidden=tab!=='leader';
   navButtons.forEach((b,i)=>b.classList.toggle('active',(tab==='home'&&i===0)||(tab==='keno'&&i===1)||(tab==='wallet'&&i===2)||(tab==='leader'&&i===3)));
   if(tab==='wallet'){homePanel.hidden=true;kenoPanel.hidden=true;}
-  else if(tab==='leader'){homePanel.hidden=true;kenoPanel.hidden=true;renderLeaderboard();renderRecentGames();}
+  else if(tab==='leader'){homePanel.hidden=true;kenoPanel.hidden=true;renderLeaderboard();refreshLeaderboard();renderRecentGames();}
   window.scrollTo({top:0,behavior:'smooth'});
 }
 // Mode is controlled by authentication; the Keno tab has no mode selector.
