@@ -209,7 +209,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     </section>
     <section class="card">
       <h3>🥇 Top 12 leaderboard</h3>
-      <p class="sub">Real players ranked by their Balance. The board refreshes automatically and after every completed round.</p>
+      <p class="sub">Fictional sample usernames only • daily practice points • no real-player accounts are shown.</p>
       <div class="stake-note" id="leaderboardStatus" style="margin:0 0 10px">Loading…</div>
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Practice points</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
     </section>
@@ -647,43 +647,34 @@ function renderRecentGames(){
     body.appendChild(tr);
   });
 }
-let leaderboardRows=null, myRank=null, leaderboardUpdatedAt=null, leaderboardOnline=false, leaderboardLoading=false;
+let leaderboardRows=null, leaderboardUpdatedAt=null, leaderboardOnline=false, leaderboardLoading=false;
 async function refreshLeaderboard(){
   if(leaderboardLoading)return;
-  if(!supabaseClient){leaderboardOnline=false;renderLeaderboard();return}
   leaderboardLoading=true;
   try{
-    const [lb,mine]=await Promise.all([supabaseClient.rpc('get_leaderboard',{p_limit:12}),supabaseClient.rpc('get_my_rank')]);
-    if(lb.error)throw lb.error;
-    leaderboardRows=lb.data||[];myRank=mine.error?null:(mine.data??null);
+    if(!supabaseClient) throw new Error('Supabase is not configured');
+    const result=await supabaseClient.rpc('get_or_create_daily_sample_leaderboard');
+    if(result.error) throw result.error;
+    leaderboardRows=(result.data||[]).slice(0,12);
     leaderboardOnline=true;leaderboardUpdatedAt=nowUTC();
-  }catch(err){leaderboardOnline=false;console.error('Leaderboard load failed:',err);}
-  leaderboardLoading=false;
-  renderLeaderboard();
+  }catch(err){leaderboardOnline=false;console.error('Sample leaderboard load failed:',err);}
+  leaderboardLoading=false;renderLeaderboard();
 }
 function renderLeaderboard(){
   const body=document.getElementById('leaderboardBody');if(!body)return;body.innerHTML='';
   const statusEl=document.getElementById('leaderboardStatus');
-  const addRow=(rank,name,points,me)=>{
-    const tr=document.createElement('tr');tr.style.borderTop='1px solid #ffffff18';if(me)tr.style.background='#10372a';
-    [String(rank),me?name+' (you)':name,Number(points).toLocaleString('en-US')].forEach((value,j)=>{const td=document.createElement('td');td.style.padding='10px 6px';td.style.color=j===0?'#ffdf83':'#e9e5d5';td.textContent=value;tr.appendChild(td)});
+  const addRow=(rank,name,points)=>{
+    const tr=document.createElement('tr');tr.style.borderTop='1px solid #ffffff18';
+    [String(rank),name,Number(points).toLocaleString('en-US')].forEach((value,j)=>{const td=document.createElement('td');td.style.padding='10px 6px';td.style.color=j===0?'#ffdf83':'#e9e5d5';td.textContent=value;tr.appendChild(td)});
     body.appendChild(tr);
   };
   if(leaderboardOnline&&leaderboardRows){
-    if(!leaderboardRows.length){const tr=document.createElement('tr');const td=document.createElement('td');td.colSpan=3;td.style.cssText='padding:12px 6px;color:#9aaba5';td.textContent='No players on the leaderboard yet.';tr.appendChild(td);body.appendChild(tr);}
-    leaderboardRows.forEach(r=>addRow(r.rank,r.username||'Player',r.admin_points,!!r.is_me));
-    if(myRank&&!leaderboardRows.some(r=>r.is_me)){addRow(myRank,currentUsername||'You',adminPointsBalance,true);}
-    if(statusEl){
-      const d=new Date(leaderboardUpdatedAt);
-      statusEl.textContent=`✓ Live from the online database • updated ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}:${pad2(d.getUTCSeconds())} UTC`+(myRank?` • your rank: #${myRank}`:'');
-    }
+    leaderboardRows.forEach(r=>addRow(r.rank,r.username,r.practice_points));
+    if(statusEl){const d=new Date(leaderboardUpdatedAt);statusEl.textContent=`Fictional sample players • daily points saved online • updated ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())} UTC`;}
     return;
   }
-  // Fallback while the online leaderboard is unavailable: clearly-labelled sample players.
-  demoNames.map((name,index)=>({name,points:demoScores[index]}))
-    .sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name)).slice(0,12)
-    .forEach((player,i)=>addRow(i+1,player.name,player.points,false));
-  if(statusEl)statusEl.textContent='⚠ Online leaderboard not connected — showing sample players. Run the SQL setup file in Supabase and check your connection.';
+  demoNames.map((name,index)=>({name,points:demoScores[index]})).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name)).slice(0,12).forEach((player,i)=>addRow(i+1,player.name,player.points));
+  if(statusEl)statusEl.textContent='Fictional sample players • local preview only; connect the daily leaderboard SQL in Supabase to share today’s rankings online.';
 }
 renderLeaderboard();
 renderRecentGames();
