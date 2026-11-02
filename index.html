@@ -175,7 +175,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
         <h3>🎟️ Stake <span class="stake-bal" id="stakeBalance">Credits: 0</span></h3>
         <div class="field"><label for="bet">Stake amount (credits)</label><input id="bet" type="number" min="10" max="500" step="10" value="50" inputmode="numeric"></div>
         <div class="quick"><button type="button" data-bet="10">10</button><button type="button" data-bet="50">50</button><button type="button" data-bet="100">100</button><button type="button" data-bet="250">250</button><button type="button" data-bet="500">500</button></div>
-        <div class="stake-note" id="stakeNote">Min 10 • Max 500 credits. Your stake is taken when you join and paid back with winnings after the draw.</div>
+        <div class="stake-note" id="stakeNote">Min 10 • Max 500 credits. Your balance changes after the draw: a win adds your profit, a loss removes your stake.</div>
         <div class="stat" style="margin-top:12px"><span>Numbers picked</span><strong id="pickCount">0</strong></div>
         <div class="stat"><span>Your stake</span><strong id="stakeShown">50</strong></div>
         <div class="stat"><span>Max possible win</span><strong id="maxWin">—</strong></div>
@@ -306,7 +306,7 @@ function setGameMode(mode) {
   // Admin-assigned points are displayed separately and are never spent to join a draw.
   if (playBtn) {
     playBtn.disabled = false;
-    playBtn.textContent = queuedEntry ? '✕ Cancel entry (refund stake)' : '▶ Join next draw';
+    playBtn.textContent = queuedEntry ? '✕ Cancel entry' : '▶ Join next draw';
   }
 
   document.querySelectorAll('#numberGrid .num, #clearBtn, #randomBtn').forEach(el => {
@@ -364,6 +364,9 @@ const PAYTABLE={
   10:{5:2,6:15,7:50,8:250,9:1000,10:5000}
 };
 function payoutMultiplier(picks,hits){return (PAYTABLE[picks]&&PAYTABLE[picks][hits])||0}
+function activeBalance(){return gameMode==='demo'?balance:adminPointsBalance}
+function addToBalance(mode,delta){if(mode==='demo'){balance=Math.max(0,balance+delta);saveVirtualBalance();}else{adminPointsBalance=Math.max(0,adminPointsBalance+delta);}renderModeBalance();}
+function pendingStake(){return queuedEntry?queuedEntry.stake:0}
 function readStake(){return Math.floor(Number(document.getElementById('bet').value))}
 function setStakeLocked(lock){
   const bet=document.getElementById('bet');if(bet)bet.disabled=lock;
@@ -374,7 +377,7 @@ function updateStakeUI(){
   const picks=queuedEntry?queuedEntry.picks.length:selected.size;
   const valid=Number.isFinite(stake)&&stake>0;
   const set=(id,t)=>{const el=document.getElementById(id);if(el)el.textContent=t};
-  set('stakeBalance','Credits: '+fmt(balance));
+  set('stakeBalance','Balance: '+fmt(activeBalance())+(queuedEntry?' • pending '+fmt(queuedEntry.stake):''));
   set('stakeShown',valid?fmt(stake):'—');
   const row=PAYTABLE[picks];
   const top=row?Math.max(...Object.values(row)):0;
@@ -392,14 +395,14 @@ function updateStakeUI(){
         lastHits.map(h=>`<div class="paytable-row"><span>${h} of ${picks}</span><b>${row[h]}x${valid?' = '+fmt(row[h]*stake):''}</b></div>`).join('');
     }
   }
-  const low=balance<MIN_STAKE&&!queuedEntry;
+  const low=gameMode==='demo'&&balance<MIN_STAKE&&!queuedEntry;
   const tb=document.getElementById('topupBtn');if(tb)tb.classList.toggle('show',low);
   const note=document.getElementById('stakeNote');
   if(note){
-    if(queuedEntry)note.textContent=`Stake of ${fmt(queuedEntry.stake)} credits is locked in for the next draw. You can cancel for a refund until it starts.`;
-    else if(valid&&stake>balance)note.textContent='Stake is higher than your practice credit balance.';
+    if(queuedEntry)note.textContent=`Stake of ${fmt(queuedEntry.stake)} credits is pending. Your balance updates after the draw; you can cancel until it starts.`;
+    else if(valid&&stake>activeBalance())note.textContent='Stake is higher than your balance.';
     else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} credits.`;
-    else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} credits. Your stake is taken when you join and paid back with winnings after the draw.`;
+    else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} credits. Your balance changes after the draw: a win adds your profit, a loss removes your stake.`;
   }
 }
 const WALLET_HISTORY_KEY='habesha_keno_virtual_wallet_history_v1';
@@ -481,15 +484,17 @@ function finishDraw(){
     const hits=entry.picks.filter(n=>drawNumbers.includes(n)).sort((a,b)=>a-b);
     const mult=payoutMultiplier(entry.picks.length,hits.length);
     const payout=entry.stake*mult;
-    if(payout>0){balance+=payout;addWalletActivity('Keno win',payout,`${hits.length} of ${entry.picks.length} matched • ${mult}x on a ${fmt(entry.stake)} stake`);}
-    else{addWalletActivity('Keno loss',0,`${hits.length} of ${entry.picks.length} matched • stake ${fmt(entry.stake)} lost`);}
-    saveVirtualBalance();renderModeBalance();
+    const net=payout-entry.stake;
+    // Balance changes only now: a win adds the profit, a loss removes the stake.
+    addToBalance(entry.mode,net);
+    if(payout>0){addWalletActivity(net>=0?'Keno win':'Keno partial return',net,`${hits.length} of ${entry.picks.length} matched • ${mult}x on a ${fmt(entry.stake)} stake`);}
+    else{addWalletActivity('Keno loss',-entry.stake,`${hits.length} of ${entry.picks.length} matched • stake ${fmt(entry.stake)} lost`);}
     lastDraw=new Set(drawNumbers);lastHits=new Set(hits);
     status('Round complete. Your result is shown below after all 20 numbers were drawn.');
     const r=document.getElementById('result');
-    r.innerHTML=`<strong>Demo round result</strong><br>Your numbers: <strong>${entry.picks.join(', ')}</strong><br>Draw numbers: <strong>${drawNumbers.join(', ')}</strong><br>Matched numbers: <strong>${hits.length}</strong><br>${hits.length?`Your matches: ${hits.join(', ')}`:'No matches this round.'}<br>Stake: <strong>${fmt(entry.stake)}</strong> credits<br>${payout>0?`<span class="win-line">🎉 You won ${fmt(payout)} credits (${mult}x)</span>`:`<span class="lose-line">No win this round — stake lost</span>`}<br><small>Virtual credits only — no cash value.</small>`;
+    r.innerHTML=`<strong>Demo round result</strong><br>Your numbers: <strong>${entry.picks.join(', ')}</strong><br>Draw numbers: <strong>${drawNumbers.join(', ')}</strong><br>Matched numbers: <strong>${hits.length}</strong><br>${hits.length?`Your matches: ${hits.join(', ')}`:'No matches this round.'}<br>Stake: <strong>${fmt(entry.stake)}</strong> credits<br>${payout>0?(net>=0?`<span class="win-line">🎉 You won ${fmt(payout)} credits (${mult}x) — balance ${net>0?'+':''}${fmt(net)}</span>`:`<span class="lose-line">Partial return ${fmt(payout)} (${mult}x) — balance ${fmt(net)}</span>`):`<span class="lose-line">No win — balance −${fmt(entry.stake)}</span>`}<br>New balance: <strong>${fmt(activeBalance())}</strong><br><small>Virtual credits only — no cash value.</small>`;
     r.classList.add('show');
-    totalMatches+=hits.length;totalWon+=payout;document.getElementById('rounds').textContent=rounds;document.getElementById('wagered').textContent=fmt(wagered);updateStakeUI();document.getElementById('matches').textContent=totalMatches;
+    totalMatches+=hits.length;totalWon+=payout;wagered+=entry.stake;document.getElementById('rounds').textContent=rounds;document.getElementById('wagered').textContent=fmt(wagered);updateStakeUI();document.getElementById('matches').textContent=totalMatches;
   }else{
     status('Draw complete. You did not join this round, so no personal result was recorded.');
   }
@@ -552,29 +557,25 @@ document.getElementById('bet').addEventListener('input',updateStakeUI);
 document.getElementById('bet').addEventListener('change',()=>{const v=readStake();document.getElementById('bet').value=v||MIN_STAKE;updateStakeUI();});
 document.getElementById('topupBtn').onclick=()=>{balance+=1000;saveVirtualBalance();addWalletActivity('Free practice credits',1000,'Practice top-up (no cash value)');renderModeBalance();updateStakeUI();status('1,000 free practice credits added.');};
 document.getElementById('playBtn').onclick=()=>{
- // Cancel an existing entry (refund) while the entry window is still open.
+ // Cancel an existing entry while the entry window is still open (balance was never changed).
  if(queuedEntry){
   if(phase!=='countdown'){status('The draw has started — your stake can no longer be cancelled.');return}
-  balance+=queuedEntry.stake;wagered-=queuedEntry.stake;
-  addWalletActivity('Keno stake refund',queuedEntry.stake,'Entry cancelled before the draw');
-  queuedEntry=null;saveVirtualBalance();renderModeBalance();setStakeLocked(false);
+  queuedEntry=null;setStakeLocked(false);
   document.getElementById('playBtn').textContent='▶ Join next draw';
-  document.getElementById('wagered').textContent=fmt(wagered);updateStakeUI();
-  status('Entry cancelled and your stake was refunded.');return;
+  updateStakeUI();
+  status('Entry cancelled. Your balance was not changed.');return;
  }
  if(phase!=='countdown'){status('The draw is already in progress. Choose numbers for the next entry window.');return}
  if(selected.size<1){status('Choose at least one number first.');return}
  const stake=readStake();
  if(!Number.isFinite(stake)||stake<MIN_STAKE||stake>MAX_STAKE||stake%10!==0){status(`Enter a stake between ${MIN_STAKE} and ${MAX_STAKE} credits, in steps of 10.`);return}
- if(stake>balance){status(`Not enough practice credits. Your balance is ${fmt(balance)}.`);return}
+ if(stake>activeBalance()){status(`Not enough credits. Your balance is ${fmt(activeBalance())}.`);return}
  const picks=[...selected].sort((a,b)=>a-b);
- balance-=stake;wagered+=stake;
- queuedEntry={picks,stake};
- addWalletActivity('Keno stake',-stake,`${picks.length} number${picks.length===1?'':'s'} picked`);
- saveVirtualBalance();renderModeBalance();setStakeLocked(true);
- document.getElementById('playBtn').textContent='✕ Cancel entry (refund stake)';
- document.getElementById('wagered').textContent=fmt(wagered);updateStakeUI();
- status(`You joined with ${picks.length} number${picks.length===1?'':'s'} and staked ${fmt(stake)} credits. Results appear after all 20 numbers are revealed.`);
+ queuedEntry={picks,stake,mode:gameMode};
+ setStakeLocked(true);
+ document.getElementById('playBtn').textContent='✕ Cancel entry';
+ updateStakeUI();
+ status(`You joined with ${picks.length} number${picks.length===1?'':'s'} and staked ${fmt(stake)} credits. Your balance updates after all 20 numbers are revealed.`);
  document.getElementById('result').classList.remove('show');
 };
 updateStakeUI();
