@@ -788,22 +788,68 @@ async function refreshLeaderboard(){
   }catch(err){leaderboardOnline=false;console.error('Sample leaderboard load failed:',err);}
   leaderboardLoading=false;renderLeaderboard();
 }
+let showAllLeaderboard = false;
+
 function renderLeaderboard(){
-  const body=document.getElementById('leaderboardBody');if(!body)return;body.innerHTML='';
-  const statusEl=document.getElementById('leaderboardStatus');
-  const addRow=(rank,name,points)=>{
-    const tr=document.createElement('tr');tr.style.borderTop='1px solid #ffffff18';
-    [String(rank),name,Number(points).toLocaleString('en-US')].forEach((value,j)=>{const td=document.createElement('td');td.style.padding='10px 6px';td.style.color=j===0?'#ffdf83':'#e9e5d5';td.textContent=value;tr.appendChild(td)});
-    body.appendChild(tr);
-  };
-  if(leaderboardOnline&&leaderboardRows){
-    leaderboardRows.forEach(r=>addRow(r.rank,r.username,r.practice_points));
-    if(statusEl){const d=new Date(leaderboardUpdatedAt);statusEl.textContent=`Fictional sample players • daily points saved online • updated ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())} UTC`;}
-    return;
-  }
-  demoNames.map((name,index)=>({name,points:demoScores[index]})).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name)).slice(0,12).forEach((player,i)=>addRow(i+1,player.name,player.points));
-  if(statusEl)statusEl.textContent='Fictional sample players • local preview only; connect the daily leaderboard SQL in Supabase to share today’s rankings online.';
+const body = document.getElementById('leaderboardBody');
+if(!body) return;
+body.innerHTML = '';
+
+const statusEl = document.getElementById('leaderboardStatus');
+
+const addRow = (rank, name, points) => {
+const tr = document.createElement('tr');
+tr.style.borderTop = '1px solid #ffffff18';
+
+```
+[String(rank), name, Number(points).toLocaleString('en-US')].forEach((value, j) => {
+  const td = document.createElement('td');
+  td.style.padding = '10px 6px';
+  td.style.color = j === 0 ? '#ffdf83' : '#e9e5d5';
+  td.textContent = value;
+  tr.appendChild(td);
+});
+
+body.appendChild(tr);
+```
+
+};
+
+const players = leaderboardOnline && leaderboardRows
+? leaderboardRows.map(r => ({
+name: r.username,
+points: r.practice_points
+}))
+: demoNames.map((name, index) => ({
+name,
+points: demoScores[index]
+})).sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
+
+const visiblePlayers = showAllLeaderboard
+? players
+: players.slice(0, 12);
+
+visiblePlayers.forEach((player, index) => {
+addRow(index + 1, player.name, player.points);
+});
+
+const button = document.getElementById('leaderboardToggle');
+
+if(button){
+button.hidden = players.length <= 12;
+button.textContent = showAllLeaderboard ? 'See less' : 'See more';
 }
+
+if(leaderboardOnline && leaderboardUpdatedAt){
+const d = new Date(leaderboardUpdatedAt);
+if(statusEl){
+statusEl.textContent = `Fictional sample players • daily points saved online • updated ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())} UTC`;
+}
+} else if(statusEl){
+statusEl.textContent = 'Fictional sample players • local preview only.';
+}
+}
+
 renderLeaderboard();
 renderRecentGames();
 refreshLeaderboard();
