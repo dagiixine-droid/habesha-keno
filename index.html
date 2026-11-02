@@ -367,7 +367,7 @@ async function loadPlayerWallet(session,skipFlush){
   }
   if(data){
     const demoValue=Number(data.balance);
-    if(Number.isFinite(demoValue)&&demoValue>=0) balance=Math.max(0,demoValue+pendingDelta(session.user.id));
+    if(Number.isFinite(demoValue)&&demoValue>=0) balance=Math.max(0,demoValue+pendingTotal(session.user.id));
     adminPointsBalance=0;
     renderModeBalance();
   } else { balance=0; adminPointsBalance=0; renderModeBalance(); }
@@ -396,7 +396,7 @@ function payoutMultiplier(picks,hits){return (PAYTABLE[picks]&&PAYTABLE[picks][h
 let walletUserId=null;
 function activeBalance(){return balance}
 // ---- Online saving of practice points ----
-// Every finished round is saved online through the settle_keno_round() database function.
+// Every finished round is saved online through the settle_practice_round() database function (see the SQL file).
 // Unsent results are kept in this browser (localStorage) and retried, so nothing is lost if the player is offline or closes the app.
 const PENDING_KEY='habesha_keno_pending_settlements_v1';
 let flushingSettlements=false;
@@ -418,12 +418,18 @@ async function flushSettlements(){
     for(let guard=0;guard<100;guard++){
       const item=loadPending().find(x=>x.user===walletUserId);
       if(!item)break;
-      const {data,error}=await supabaseClient.rpc('settle_keno_round',{p_round:item.round,p_entries:item.entries,p_staked:item.staked,p_payout:item.payout});
+      const {data,error}=await supabaseClient.rpc('settle_practice_round',{p_round:item.round,p_entries:item.entries,p_staked:item.staked,p_payout:item.payout});
       if(error){
         const msg=String(error.message||'');
         const network=!error.code&&/fetch|network|load failed|timeout/i.test(msg);
         if(network)break;                       // offline: keep it and retry later
-        if(error.code==='PGRST202'||error.code==='42883'){console.error('settle_keno_round() is not installed in the database yet.');break;}
+        if(error.code==='PGRST202'||error.code==='42883'){
+          // settle_practice_round() is not installed: fall back to updating the wallet row directly.
+          console.warn('settle_practice_round() is not installed - falling back to a direct wallet update.');
+          loadPending().filter(x=>x.user===walletUserId).forEach(x=>setPendingDelta(walletUserId,pendingDelta(walletUserId)+(x.payout-x.staked)));
+          savePending(loadPending().filter(x=>x.user!==walletUserId));
+          flushBalanceDelta();break;
+        }
         console.error('Round could not be saved and was discarded:',error);
         savePending(loadPending().filter(x=>!(x.user===item.user&&x.round===item.round)));dropped=true;continue;
       }
@@ -433,13 +439,14 @@ async function flushSettlements(){
   }finally{flushingSettlements=false;}
   if(lastServerBalance!==null&&Number.isFinite(lastServerBalance)){
     // The server is the source of truth; add any results that are still waiting to be sent.
-    adminPointsBalance=Math.max(0,lastServerBalance+pendingNetForUser(walletUserId));renderModeBalance();
+    balance=Math.max(0,lastServerBalance+pendingTotal(walletUserId));saveVirtualBalance();renderModeBalance();
   }
   if(dropped){const {data}=await supabaseClient.auth.getSession();if(data?.session)await loadPlayerWallet(data.session,true);}
   if(savedAny)refreshLeaderboard();
 }
 // Practice points (the balance shown on Home) are saved in this browser and, for signed-in players, online.
 const PENDING_DELTA_KEY='habesha_keno_pending_balance_delta_v1';
+function pendingTotal(uid){return pendingDelta(uid)+pendingNetForUser(uid)}
 function pendingDelta(uid){try{const o=JSON.parse(localStorage.getItem(PENDING_DELTA_KEY)||'{}');return Number(o[uid])||0}catch(_){return 0}}
 function setPendingDelta(uid,v){try{const o=JSON.parse(localStorage.getItem(PENDING_DELTA_KEY)||'{}');if(v)o[uid]=v;else delete o[uid];localStorage.setItem(PENDING_DELTA_KEY,JSON.stringify(o))}catch(_){}}
 let flushingDelta=false;
@@ -458,7 +465,7 @@ async function flushBalanceDelta(){
       const next=Math.max(0,Number(row.balance)+delta);
       const {data:upd,error:e2}=await supabaseClient.from('practice_wallets').update({balance:next}).eq('auth_user_id',uid).eq('balance',row.balance).select('balance');
       if(e2)throw e2;
-      if(upd&&upd.length){setPendingDelta(uid,pendingDelta(uid)-delta);balance=Math.max(0,next+pendingDelta(uid));saveVirtualBalance();renderModeBalance();}
+      if(upd&&upd.length){setPendingDelta(uid,pendingDelta(uid)-delta);balance=Math.max(0,next+pendingTotal(uid));saveVirtualBalance();renderModeBalance();}
       // otherwise the balance changed meanwhile (for example by the admin): loop again with the fresh value
     }
   }catch(err){console.error('Could not save practice points:',err);}
@@ -468,11 +475,12 @@ async function persistBalance(){saveVirtualBalance();return flushBalanceDelta();
 // Pulls the latest balance from the server (picks up admin add/deduct) after sending any unsent changes.
 async function syncBalanceFromServer(){
   if(!supabaseClient||!walletUserId||flushingDelta)return;
+  await flushSettlements();
   await flushBalanceDelta();
   try{
     const {data}=await supabaseClient.from('practice_wallets').select('balance').eq('auth_user_id',walletUserId).maybeSingle();
     const v=Number(data?.balance);
-    if(data&&Number.isFinite(v)&&v>=0){const nb=Math.max(0,v+pendingDelta(walletUserId));if(nb!==balance){balance=nb;saveVirtualBalance();renderModeBalance();}}
+    if(data&&Number.isFinite(v)&&v>=0){const nb=Math.max(0,v+pendingTotal(walletUserId));if(nb!==balance){balance=nb;saveVirtualBalance();renderModeBalance();}}
   }catch(_){}
 }
 function addToBalance(mode,delta){balance=Math.max(0,balance+delta);if(walletUserId)setPendingDelta(walletUserId,pendingDelta(walletUserId)+delta);renderModeBalance();persistBalance();}
@@ -664,7 +672,13 @@ function finishDraw(){
     });
     const net=totalPayout-totalStake;
     // Balance changes only now, once for the whole draw: profit is added and lost stakes are removed.
-    Object.keys(netByMode).forEach(m=>{if(netByMode[m])addToBalance(m,netByMode[m]);});
+    if(walletUserId){
+      // Signed-in player: update the balance now and save the round on the server (retried if offline).
+      balance=Math.max(0,balance+(totalPayout-totalStake));saveVirtualBalance();renderModeBalance();
+      queueSettlement(roundSequence,entries.length,totalStake,totalPayout);
+    }else{
+      addToBalance('demo',totalPayout-totalStake);
+    }
     addWalletActivity(net>0?'Keno win':net<0?'Keno loss':'Keno draw result',net,`${entries.length} entr${entries.length===1?'y':'ies'} • staked ${fmt(totalStake)} • returned ${fmt(totalPayout)}`);
     lastDraw=new Set(drawNumbers);lastHits=new Set();
     status(`Round complete. ${entries.length} entr${entries.length===1?'y was':'ies were'} settled after all 20 numbers were drawn.`);
@@ -1041,7 +1055,7 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
 // ---------- Admin dashboard ----------
 // Shows every player's practice points (welcome points + admin-assigned points) and updates right after
 // an admin adds or deducts points. It also refreshes itself every 15 seconds while it is open.
-const adminState={players:[],transactions:[],search:'',sort:'points',flashId:null,updatedAt:null,loading:false,timer:null};
+const adminState={players:[],transactions:[],search:'',sort:'points',flashId:null,updatedAt:null,loading:false,timer:null,changed:{},activity:[]};
 const escHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pts=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:2});
 const playerTotal=p=>Number(p.practice_balance||0);
@@ -1060,8 +1074,8 @@ function renderAdminDashboard(){
   else if(adminState.sort==='name')list.sort((x,y)=>String(x.username||'').localeCompare(String(y.username||'')));
   else list.sort((x,y)=>new Date(y.created_at||0)-new Date(x.created_at||0));
   document.getElementById('playerList').innerHTML=list.map((player,i)=>`
-    <div style="padding:12px;border-bottom:1px solid #555;${adminState.flashId===player.id?'background:#10372a;transition:background .6s;':''}">
-      <strong>#${i+1} ${escHtml(player.username||'No username')}</strong>
+    <div style="padding:12px;border-bottom:1px solid #555;${(adminState.flashId===player.id||(adminState.changed[player.id]&&Date.now()-adminState.changed[player.id].at<8000))?'background:#10372a;transition:background .6s;':''}">
+      <strong>#${i+1} ${escHtml(player.username||'No username')}</strong>${adminState.changed[player.id]?` <span style="font-size:12px;font-weight:800;color:${adminState.changed[player.id].delta>=0?'#19dc83':'#ff8a8a'}">${adminState.changed[player.id].delta>=0?'▲ +':'▼ −'}${pts(Math.abs(adminState.changed[player.id].delta))} • last result ${new Date(adminState.changed[player.id].at).toLocaleTimeString()}</span>`:''}
       <p style="margin:4px 0">${escHtml(player.email||'No email')}</p>
       <p style="margin:4px 0">Games Played: ${player.games_played??0}</p>
       <p style="margin:4px 0;font-size:16px;color:#ffdf83">Practice Points: <b>${pts(player.practice_balance)}</b> <small style="color:#a8b4aa">(the balance this player stakes with)</small></p>
@@ -1071,6 +1085,8 @@ function renderAdminDashboard(){
       <p style="margin:6px 0 0">Account Status: ${escHtml(player.account_status||'Registered')}</p>
       <small>Joined: ${player.created_at?new Date(player.created_at).toLocaleDateString():'—'}</small>
     </div>`).join('')||'<p>No players found.</p>';
+  const la=document.getElementById('liveActivity');
+  if(la)la.innerHTML=adminState.activity.length?adminState.activity.map(a=>`<div style="padding:8px 0;border-bottom:1px solid #444;font-size:13px"><span style="color:#a8b4aa">${new Date(a.at).toLocaleTimeString()}</span> • <b>${escHtml(a.name)}</b> ${a.delta>=0?'<span style="color:#19dc83">gained +':'<span style="color:#ff8a8a">lost −'}${pts(Math.abs(a.delta))}</span> (${pts(a.from)} → ${pts(a.to)})</div>`).join(''):'<p style="color:#a8b4aa;font-size:13px">No changes yet — waiting for players to finish a draw.</p>';
   const tx=adminState.transactions;
   document.getElementById('transactionList').innerHTML=tx.length?tx.map(t=>{
     const who=byId.get(t.auth_user_id);const add=t.transaction_type==='ADD';
@@ -1091,7 +1107,20 @@ async function refreshAdminData(silent=true){
   try{
     const { data, error } = await supabaseClient.functions.invoke('admin-players');
     if(error)throw error;
-    adminState.players=data?.players??[];
+    const fresh=data?.players??[];
+    const prev=new Map(adminState.players.map(x=>[x.id,Number(x.practice_balance||0)]));
+    if(adminState.players.length){
+      fresh.forEach(x=>{
+        const before=prev.get(x.id),now=Number(x.practice_balance||0);
+        if(before!==undefined&&now!==before){
+          const delta=now-before;
+          adminState.changed[x.id]={delta,at:Date.now()};
+          adminState.activity.unshift({name:x.username||'Player',from:before,to:now,delta,at:Date.now()});
+          adminState.activity.length=Math.min(adminState.activity.length,40);
+        }
+      });
+    }
+    adminState.players=fresh;
     adminState.transactions=data?.transactions??[];
     adminState.updatedAt=Date.now();
     renderAdminDashboard();
@@ -1126,6 +1155,9 @@ async function loadAdminDashboard() {
           <small id="adminUpdated" style="color:#a8b4aa"></small>
         </div>
         <div id="playerList"></div>
+        <h2 style="color:#c9a227;margin-top:25px;">Live player results</h2>
+        <p style="margin:0 0 8px;color:#a8b4aa;font-size:12px">Balance changes seen while this dashboard is open: a player's wins and losses appear here within seconds.</p>
+        <div id="liveActivity"></div>
         <h2 style="color:#c9a227;margin-top:25px;">Practice Points Transaction History</h2>
         <div id="transactionList"></div>`;
       document.body.appendChild(dashboard);
@@ -1134,7 +1166,7 @@ async function loadAdminDashboard() {
       document.getElementById('adminRefresh').addEventListener('click',()=>refreshAdminData(false));
       document.getElementById('closeAdmin').addEventListener('click',()=>{dashboard.remove();clearInterval(adminState.timer);adminState.timer=null;});
       clearInterval(adminState.timer);
-      adminState.timer=setInterval(()=>{if(!document.getElementById('adminDashboard')){clearInterval(adminState.timer);adminState.timer=null;return}if(!document.hidden)refreshAdminData(true);},15000);
+      adminState.timer=setInterval(()=>{if(!document.getElementById('adminDashboard')){clearInterval(adminState.timer);adminState.timer=null;return}if(!document.hidden)refreshAdminData(true);},5000);
     }
     await refreshAdminData(false);
   } catch (error) {
