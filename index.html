@@ -71,10 +71,9 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
 .result-list{max-height:220px;overflow-y:auto;margin-top:8px;border-top:1px solid #ffffff18}
 .result-row{padding:7px 0;border-bottom:1px solid #ffffff10;font-size:12px}
 
-/* Free practice only: hide all payment and stake controls. */
+/* Real-money payments stay disabled. Staking uses virtual practice points only. */
 #homePanel .payment-actions,#homePanel .payment-card,#walletPaymentCard,#paymentModalBackdrop{display:none!important}
 #depositBtn,#withdrawBtn,#walletDepositBtn,#walletWithdrawBtn,#walletTelebirrBtn{display:none!important}
-#bet,.quick,[data-bet],#maxWin,#paytable,.stake-bal{display:none!important}
 #stakeNote{font-size:12px;color:#b8f7d2}
 </style>
 </head>
@@ -167,7 +166,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     </div>
   </section>
   <section id="kenoPanel" hidden>
-  <div class="notice" id="kenoModeNotice"><strong>FREE PRACTICE ONLY:</strong> Choose numbers and compare them with the draw. No stakes, payments, prizes, or withdrawals.</div>
+  <div class="notice" id="kenoModeNotice"><strong>PRACTICE STAKES:</strong> Stakes and winnings use virtual practice points with no cash value. Deposits, withdrawals, real-money betting, and cash prizes are not enabled.</div>
   <section class="countdown-card" aria-live="polite">
     <div><div class="countdown-label">⏱ NEXT DRAW STARTS IN</div><div class="countdown-note" id="timerNote">Choose numbers and join during the countdown</div></div>
     <div class="countdown-time" id="countdown">01:00</div>
@@ -186,8 +185,8 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     </section>
     <aside class="stack">
       <section class="card">
-        <h3>🧩 Practice round</h3>
-        <div class="field"><label for="bet">Stake amount (admin points)</label><input id="bet" type="number" min="10" max="500" step="10" value="50" inputmode="numeric"></div>
+        <h3>🎟️ Stake <span class="stake-bal" id="stakeBalance">Balance: 0</span></h3>
+        <div class="field"><label for="bet">Stake amount (practice points)</label><input id="bet" type="number" min="10" max="500" step="10" value="50" inputmode="numeric"></div>
         <div class="quick"><button type="button" data-bet="10">10</button><button type="button" data-bet="50">50</button><button type="button" data-bet="100">100</button><button type="button" data-bet="250">250</button><button type="button" data-bet="500">500</button></div>
         <div class="stake-note" id="stakeNote">Min 10 • Max 500 credits. Your balance changes after the draw: a win adds your profit, a loss removes your stake.</div>
         <div class="stat" style="margin-top:12px"><span>Numbers picked</span><strong id="pickCount">0</strong></div>
@@ -195,11 +194,11 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
         <div class="stat"><span>Max possible win</span><strong id="maxWin">—</strong></div>
         <div class="entries" id="entriesList" hidden></div>
         <div class="paytable" id="paytable"></div>
-        <button class="greenbtn" id="playBtn" style="margin-top:14px">▶ Practice next draw</button>
+        <button class="greenbtn" id="playBtn" style="margin-top:14px">▶ Join next draw</button>
       </section>
       <section class="card">
         <h3>✨ Draw results</h3>
-        <div id="drawStatus" style="font-size:13px;color:#aab5ad">Your latest free practice result will appear here.</div>
+        <div id="drawStatus" style="font-size:13px;color:#aab5ad">Your latest draw will appear here.</div>
         <div class="result" id="result"></div>
       </section>
     </aside>
@@ -329,8 +328,8 @@ function setGameMode(mode) {
 
   if (notice) {
     notice.textContent = demo
-      ? 'DEMO MODE: Free practice only. Practice points have no cash value.'
-      : 'PRACTICE MODE: Free practice only. No cash value or payouts.';
+      ? 'DEMO MODE: Stake virtual practice points; they have no cash value.'
+      : 'PRACTICE MODE: Stake virtual practice points; no cash value or payouts.';
   }
 
   // Both signed-out demo mode and signed-in admin-points mode allow FREE practice play.
@@ -380,6 +379,7 @@ function renderModeBalance() {
   if (caption) caption.textContent = walletUserId
     ? 'welcome practice points'
     : 'free practice points';
+  if (typeof updateStakeUI === 'function') updateStakeUI();
 }
 
 const MIN_STAKE=10, MAX_STAKE=500, MAX_PICKS=5;
@@ -438,10 +438,19 @@ async function flushSettlements(){
   if(dropped){const {data}=await supabaseClient.auth.getSession();if(data?.session)await loadPlayerWallet(data.session,true);}
   if(savedAny)refreshLeaderboard();
 }
-function addToBalance(mode,delta){adminPointsBalance=Math.max(0,adminPointsBalance+delta);renderModeBalance();}
+// Practice points (the balance shown on Home) are saved in this browser and, for signed-in players, online.
+async function persistBalance(){
+  saveVirtualBalance();
+  if(!supabaseClient||!walletUserId)return;
+  try{
+    const {error}=await supabaseClient.from('practice_wallets').update({balance}).eq('auth_user_id',walletUserId);
+    if(error)console.error('Could not save practice points:',error);
+  }catch(err){console.error('Could not save practice points:',err);}
+}
+function addToBalance(mode,delta){balance=Math.max(0,balance+delta);renderModeBalance();persistBalance();}
 function pendingStake(mode){return queuedEntries.filter(e=>!mode||e.mode===mode).reduce((t,e)=>t+e.stake,0)}
-function availableBalance(){return Math.max(0,adminPointsBalance-pendingStake())}
-function joinLabel(){const n=queuedEntries.length;return n?`▶ Add another entry (${n} joined)`:'▶ Practice next draw'}
+function availableBalance(){return Math.max(0,balance-pendingStake())}
+function joinLabel(){const n=queuedEntries.length;return n?`▶ Add another entry (${n} joined)`:'▶ Join next draw'}
 function renderEntries(){
   const host=document.getElementById('entriesList');if(!host)return;
   host.innerHTML='';
@@ -476,7 +485,7 @@ function updateStakeUI(){
   const picks=selected.size;
   const valid=Number.isFinite(stake)&&stake>0;
   const set=(id,t)=>{const el=document.getElementById(id);if(el)el.textContent=t};
-  set('stakeBalance','Admin points: '+fmt(availableBalance()));
+  set('stakeBalance','Balance: '+fmt(availableBalance()));
   renderEntries();
   set('stakeShown',valid?fmt(stake):'—');
   const row=PAYTABLE[picks];
@@ -496,7 +505,7 @@ function updateStakeUI(){
   
   const note=document.getElementById('stakeNote');
   if(note){
-    if(valid&&stake>availableBalance())note.textContent=queuedEntries.length?`Not enough available credits (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:(adminPointsBalance<MIN_STAKE?'You have no admin-assigned points to stake. Sign in, or ask the admin to assign points.':'Stake is higher than your admin points balance.');
+    if(valid&&stake>availableBalance())note.textContent=queuedEntries.length?`Not enough available points (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:(balance<MIN_STAKE?'You do not have enough practice points to stake.':'Stake is higher than your practice points balance.');
     else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} credits.`;
     else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} credits per entry. Join as many entries as your balance allows (about ${Math.floor(availableBalance()/Math.max(MIN_STAKE,valid?stake:MIN_STAKE))} more at this stake). Your balance changes after the draw.`;
   }
@@ -628,7 +637,6 @@ function finishDraw(){
     const net=totalPayout-totalStake;
     // Balance changes only now, once for the whole draw: profit is added and lost stakes are removed.
     Object.keys(netByMode).forEach(m=>{if(netByMode[m])addToBalance(m,netByMode[m]);});
-    queueSettlement(roundSequence,entries.length,totalStake,totalPayout);
     addWalletActivity(net>0?'Keno win':net<0?'Keno loss':'Keno draw result',net,`${entries.length} entr${entries.length===1?'y':'ies'} • staked ${fmt(totalStake)} • returned ${fmt(totalPayout)}`);
     lastDraw=new Set(drawNumbers);lastHits=new Set();
     status(`Round complete. ${entries.length} entr${entries.length===1?'y was':'ies were'} settled after all 20 numbers were drawn.`);
@@ -750,11 +758,14 @@ document.getElementById('playBtn').onclick=()=>{
  if(!clockReady){status('Syncing the practice draw… please try again shortly.');return}
  if(!inEntryWindow()){status('The draw is in progress. Choose numbers for the next practice round.');return}
  if(selected.size<1){status('Choose at least one number first.');return}
+ const stake=readStake();
+ if(!Number.isFinite(stake)||stake<MIN_STAKE||stake>MAX_STAKE||stake%10!==0){status(`Enter a stake between ${MIN_STAKE} and ${MAX_STAKE} points, in steps of 10.`);return}
+ if(stake>availableBalance()){status(`Not enough practice points. Available: ${fmt(availableBalance())} (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`);return}
  const picks=[...selected].sort((a,b)=>a-b);
- queuedEntries.push({id:++entrySeq,picks,stake:0,mode:'demo'});
+ queuedEntries.push({id:++entrySeq,picks,stake,mode:'demo'});
  document.getElementById('playBtn').textContent=joinLabel();
  updateStakeUI();
- status(`Practice selection saved: ${picks.length} number${picks.length===1?'':'s'}. No points are spent and no prizes are awarded.`);
+ status(`Entry #${queuedEntries.length} added: ${picks.length} number${picks.length===1?'':'s'}, ${fmt(stake)} points. Your balance changes after the draw. You can add more entries while you have available points.`);
  document.getElementById('result').classList.remove('show');
 };
 updateStakeUI();
