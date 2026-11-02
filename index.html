@@ -188,14 +188,6 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
         <div id="drawStatus" style="font-size:13px;color:#aab5ad">Your latest draw will appear here.</div>
         <div class="result" id="result"></div>
       </section>
-      <section class="card">
-        <h3>📊 Session stats</h3>
-        <div class="stat"><span>Rounds played</span><strong id="rounds">0</strong></div>
-        <div class="stat"><span>Total staked</span><strong id="wagered">0</strong></div>
-        <div class="stat"><span>Total won</span><strong id="wonTotal">0</strong></div>
-        <div class="stat"><span>Net result</span><strong id="netTotal">0</strong></div>
-        <div class="stat"><span>Total matches</span><strong id="matches">0</strong></div>
-      </section>
     </aside>
   </main>
   </section>
@@ -382,9 +374,6 @@ function updateStakeUI(){
   const row=PAYTABLE[picks];
   const top=row?Math.max(...Object.values(row)):0;
   set('maxWin',row&&valid?fmt(top*stake)+' credits':'—');
-  set('wonTotal',fmt(totalWon));
-  const net=totalWon-wagered;const netEl=document.getElementById('netTotal');
-  if(netEl){netEl.textContent=(net>0?'+':'')+fmt(net);netEl.style.color=net>0?'#19dc83':net<0?'#ff8a8a':'';}
   document.querySelectorAll('[data-bet]').forEach(b=>b.classList.toggle('on',valid&&Number(b.dataset.bet)===stake));
   const pt=document.getElementById('paytable');
   if(pt){
@@ -494,7 +483,7 @@ function finishDraw(){
     const r=document.getElementById('result');
     r.innerHTML=`<strong>Demo round result</strong><br>Your numbers: <strong>${entry.picks.join(', ')}</strong><br>Draw numbers: <strong>${drawNumbers.join(', ')}</strong><br>Matched numbers: <strong>${hits.length}</strong><br>${hits.length?`Your matches: ${hits.join(', ')}`:'No matches this round.'}<br>Stake: <strong>${fmt(entry.stake)}</strong> credits<br>${payout>0?(net>=0?`<span class="win-line">🎉 You won ${fmt(payout)} credits (${mult}x) — balance ${net>0?'+':''}${fmt(net)}</span>`:`<span class="lose-line">Partial return ${fmt(payout)} (${mult}x) — balance ${fmt(net)}</span>`):`<span class="lose-line">No win — balance −${fmt(entry.stake)}</span>`}<br>New balance: <strong>${fmt(activeBalance())}</strong><br><small>Virtual credits only — no cash value.</small>`;
     r.classList.add('show');
-    totalMatches+=hits.length;totalWon+=payout;wagered+=entry.stake;document.getElementById('rounds').textContent=rounds;document.getElementById('wagered').textContent=fmt(wagered);updateStakeUI();document.getElementById('matches').textContent=totalMatches;
+    totalMatches+=hits.length;totalWon+=payout;wagered+=entry.stake;updateStakeUI();
   }else{
     status('Draw complete. You did not join this round, so no personal result was recorded.');
   }
