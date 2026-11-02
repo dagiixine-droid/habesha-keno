@@ -762,14 +762,20 @@ function renderLeaderboard() {
   }
 }
 
-document.getElementById('recentGamesToggle')?.addEventListener('click',()=>{
+document.getElementById('recentGamesToggle')?.addEventListener('click', () => {
   showAllRecentGames = !showAllRecentGames;
   renderRecentGames();
 });
+
+document.getElementById('leaderboardToggle')?.addEventListener('click', () => {
   showAllLeaderboard = !showAllLeaderboard;
   renderLeaderboard();
 });
-let leaderboardRows=null, leaderboardUpdatedAt=null, leaderboardOnline=false, leaderboardLoading=false;
+
+let leaderboardRows = null,
+    leaderboardUpdatedAt = null,
+    leaderboardOnline = false,
+    leaderboardLoading = false;
 async function refreshLeaderboard(){
   if(leaderboardLoading)return;
   leaderboardLoading=true;
