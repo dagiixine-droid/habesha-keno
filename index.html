@@ -367,7 +367,7 @@ async function loadPlayerWallet(session,skipFlush){
   }
   if(data){
     const demoValue=Number(data.balance);
-    if(Number.isFinite(demoValue)&&demoValue>=0) balance=demoValue;
+    if(Number.isFinite(demoValue)&&demoValue>=0) balance=Math.max(0,demoValue+pendingDelta(session.user.id));
     adminPointsBalance=0;
     renderModeBalance();
   } else { balance=0; adminPointsBalance=0; renderModeBalance(); }
@@ -439,15 +439,43 @@ async function flushSettlements(){
   if(savedAny)refreshLeaderboard();
 }
 // Practice points (the balance shown on Home) are saved in this browser and, for signed-in players, online.
-async function persistBalance(){
-  saveVirtualBalance();
-  if(!supabaseClient||!walletUserId)return;
+const PENDING_DELTA_KEY='habesha_keno_pending_balance_delta_v1';
+function pendingDelta(uid){try{const o=JSON.parse(localStorage.getItem(PENDING_DELTA_KEY)||'{}');return Number(o[uid])||0}catch(_){return 0}}
+function setPendingDelta(uid,v){try{const o=JSON.parse(localStorage.getItem(PENDING_DELTA_KEY)||'{}');if(v)o[uid]=v;else delete o[uid];localStorage.setItem(PENDING_DELTA_KEY,JSON.stringify(o))}catch(_){}}
+let flushingDelta=false;
+// Wins and losses are sent to the server as CHANGES (+/-), applied on top of the current server balance,
+// so points an admin added or deducted in the meantime are never overwritten. Unsent changes are kept and retried.
+async function flushBalanceDelta(){
+  if(flushingDelta||!supabaseClient||!walletUserId)return;
+  const uid=walletUserId;
+  if(!pendingDelta(uid))return;
+  flushingDelta=true;
   try{
-    const {error}=await supabaseClient.from('practice_wallets').update({balance}).eq('auth_user_id',walletUserId);
-    if(error)console.error('Could not save practice points:',error);
+    for(let i=0;i<4;i++){
+      const delta=pendingDelta(uid);if(!delta)break;
+      const {data:row,error:e1}=await supabaseClient.from('practice_wallets').select('balance').eq('auth_user_id',uid).maybeSingle();
+      if(e1||!row)throw e1||new Error('Wallet row not found');
+      const next=Math.max(0,Number(row.balance)+delta);
+      const {data:upd,error:e2}=await supabaseClient.from('practice_wallets').update({balance:next}).eq('auth_user_id',uid).eq('balance',row.balance).select('balance');
+      if(e2)throw e2;
+      if(upd&&upd.length){setPendingDelta(uid,pendingDelta(uid)-delta);balance=Math.max(0,next+pendingDelta(uid));saveVirtualBalance();renderModeBalance();}
+      // otherwise the balance changed meanwhile (for example by the admin): loop again with the fresh value
+    }
   }catch(err){console.error('Could not save practice points:',err);}
+  finally{flushingDelta=false;}
 }
-function addToBalance(mode,delta){balance=Math.max(0,balance+delta);renderModeBalance();persistBalance();}
+async function persistBalance(){saveVirtualBalance();return flushBalanceDelta();}
+// Pulls the latest balance from the server (picks up admin add/deduct) after sending any unsent changes.
+async function syncBalanceFromServer(){
+  if(!supabaseClient||!walletUserId||flushingDelta)return;
+  await flushBalanceDelta();
+  try{
+    const {data}=await supabaseClient.from('practice_wallets').select('balance').eq('auth_user_id',walletUserId).maybeSingle();
+    const v=Number(data?.balance);
+    if(data&&Number.isFinite(v)&&v>=0){const nb=Math.max(0,v+pendingDelta(walletUserId));if(nb!==balance){balance=nb;saveVirtualBalance();renderModeBalance();}}
+  }catch(_){}
+}
+function addToBalance(mode,delta){balance=Math.max(0,balance+delta);if(walletUserId)setPendingDelta(walletUserId,pendingDelta(walletUserId)+delta);renderModeBalance();persistBalance();}
 function pendingStake(mode){return queuedEntries.filter(e=>!mode||e.mode===mode).reduce((t,e)=>t+e.stake,0)}
 function availableBalance(){return Math.max(0,balance-pendingStake())}
 function joinLabel(){const n=queuedEntries.length;return n?`▶ Add another entry (${n} joined)`:'▶ Join next draw'}
@@ -733,8 +761,11 @@ document.addEventListener('visibilitychange',async()=>{
   if(!supabaseClient)return;
   if(document.hidden){flushSettlements();return}
   try{const {data}=await supabaseClient.auth.getSession();if(data?.session)await loadPlayerWallet(data.session);}catch(_){}
+  syncBalanceFromServer();
 });
 setInterval(()=>{if(!document.hidden)flushSettlements();},30000);
+setInterval(()=>{if(!document.hidden)syncBalanceFromServer();},15000);
+window.addEventListener('online',()=>{syncBalanceFromServer();});
 function startCountdown(){
   if(timerInterval)clearInterval(timerInterval);
   tickDraw();
@@ -1013,7 +1044,7 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
 const adminState={players:[],transactions:[],search:'',sort:'points',flashId:null,updatedAt:null,loading:false,timer:null};
 const escHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pts=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:2});
-const playerTotal=p=>Number(p.practice_balance||0)+Number(p.admin_points||0);
+const playerTotal=p=>Number(p.practice_balance||0);
 
 function renderAdminDashboard(){
   const dash=document.getElementById('adminDashboard');if(!dash)return;
@@ -1021,7 +1052,7 @@ function renderAdminDashboard(){
   const totalAll=players.reduce((t,p)=>t+playerTotal(p),0);
   const totalAdmin=players.reduce((t,p)=>t+Number(p.admin_points||0),0);
   const games=players.reduce((t,p)=>t+Number(p.games_played||0),0);
-  const cards=[['Total Players',players.length],['Total Games Played',games],['All Practice Points',pts(totalAll)],['Admin-Assigned Points',pts(totalAdmin)]];
+  const cards=[['Total Players',players.length],['Total Games Played',games],['All Players\' Practice Points',pts(totalAll)],['Average Per Player',pts(players.length?totalAll/players.length:0)]];
   document.getElementById('adminSummary').innerHTML=cards.map(([k,v])=>`<div style="background:#252525;padding:15px;border-radius:10px;flex:1;min-width:140px"><h3 style="margin:0 0 6px;font-size:13px;color:#d9c47c">${k}</h3><h2 style="margin:0">${v}</h2></div>`).join('');
   const q=adminState.search.toLowerCase();
   const list=players.filter(p=>((p.username||'')+' '+(p.email||'')).toLowerCase().includes(q));
@@ -1033,9 +1064,8 @@ function renderAdminDashboard(){
       <strong>#${i+1} ${escHtml(player.username||'No username')}</strong>
       <p style="margin:4px 0">${escHtml(player.email||'No email')}</p>
       <p style="margin:4px 0">Games Played: ${player.games_played??0}</p>
-      <p style="margin:4px 0">Welcome Practice Points: <b>${pts(player.practice_balance)}</b></p>
-      <p style="margin:4px 0">Admin-Assigned Points: <b>${pts(player.admin_points)}</b></p>
-      <p style="margin:4px 0;font-size:16px;color:#ffdf83">Total Practice Points: <b>${pts(playerTotal(player))}</b></p>
+      <p style="margin:4px 0;font-size:16px;color:#ffdf83">Practice Points: <b>${pts(player.practice_balance)}</b> <small style="color:#a8b4aa">(the balance this player stakes with)</small></p>
+      ${Number(player.admin_points||0)>0?`<p style="margin:4px 0;color:#a8b4aa"><small>Older admin-assigned points (not used for staking): ${pts(player.admin_points)}</small></p>`:''}
       <button onclick="adjustAdminPoints('${escHtml(player.id)}','ADD')" style="background:#16834a;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;">+ Add Practice Points</button>
       <button onclick="adjustAdminPoints('${escHtml(player.id)}','DEDUCT')" style="background:#a83232;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;margin-left:5px;">- Deduct Practice Points</button>
       <p style="margin:6px 0 0">Account Status: ${escHtml(player.account_status||'Registered')}</p>
@@ -1164,24 +1194,27 @@ async function adjustAdminPoints(playerId, type) {
     alert('Enter a positive amount up to 1,000,000.');
     return;
   }
+  const reason = prompt('Reason for this adjustment (optional):') || '';
   try {
-    const { data, error } = await supabaseClient.rpc('adjust_admin_points', {
+    // Changes the practice points the player stakes with (and records the transaction).
+    const { data, error } = await supabaseClient.rpc('adjust_practice_balance', {
       p_player_id: playerId,
       p_type: type,
-      p_amount: numericAmount
+      p_amount: numericAmount,
+      p_reason: reason
     });
     if (error) throw error;
     // Show the new balance in the dashboard immediately, then confirm with fresh data from the server.
     const row=adminState.players.find(x=>x.id===playerId);
-    if(row&&Number.isFinite(Number(data)))row.admin_points=Number(data);
+    if(row&&Number.isFinite(Number(data)))row.practice_balance=Number(data);
     adminState.flashId=playerId;renderAdminDashboard();
     setTimeout(()=>{if(adminState.flashId===playerId){adminState.flashId=null;renderAdminDashboard();}},4000);
     refreshAdminData(true);
-    try{const { data: sessionData } = await supabaseClient.auth.getSession();
-    if (sessionData?.session) await loadPlayerWallet(sessionData.session);}catch(_){}
+    syncBalanceFromServer();
   } catch (error) {
-    console.error('Admin points adjustment failed:', error);
-    alert('Could not update practice points: ' + (error?.message || 'Unknown error'));
+    console.error('Practice points adjustment failed:', error);
+    const missing=error?.code==='PGRST202'||error?.code==='42883';
+    alert(missing?'The database function adjust_practice_balance() is not installed yet.':'Could not update practice points: ' + (error?.message || 'Unknown error'));
   }
 }
 window.adjustAdminPoints = adjustAdminPoints;
