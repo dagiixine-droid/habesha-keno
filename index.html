@@ -158,7 +158,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
       <section class="card">
         <h3>📊 Session stats</h3>
         <div class="stat"><span>Rounds played</span><strong id="rounds">0</strong></div>
-        <div class="stat"><span>Total demo credits wagered</span><strong id="wagered">0</strong></div>
+        <div class="stat"><span>Practice points earned</span><strong id="wagered">0</strong></div>
         <div class="stat"><span>Total matches</span><strong id="matches">0</strong></div>
       </section>
     </aside>
@@ -169,13 +169,13 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
   <section id="leaderPanel" hidden>
     <section class="card" style="margin-bottom:14px">
       <h3>🏆 Recent games result</h3>
-      <p class="sub">Sample results only — usernames and winners below are fictional, not real player records.</p>
+      <p class="sub">Fictional practice accounts. Scores update after each completed draw; no points are staked.</p>
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:440px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">20 drawn numbers</th><th style="padding:10px 6px">Sample winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="3" style="padding:12px 6px;color:#9aaba5">No completed demo games yet. The first result will appear here.</td></tr></tbody></table></div>
     </section>
     <section class="card">
       <h3>🥇 Top 12 leaderboard</h3>
       <p class="sub">Fictional practice players. Points update after each completed practice game.</p>
-      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Demo points</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Practice points</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
     </section>
   </section>
   <div class="payment-modal-backdrop" id="paymentModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="paymentModalTitle" aria-hidden="true">
@@ -222,10 +222,8 @@ try{const savedBalance=localStorage.getItem(WALLET_BALANCE_KEY);if(savedBalance!
 let rounds=0, wagered=0, totalMatches=0;
 let timerRemaining=60, timerInterval=null, revealInterval=null, lastDraw=new Set(), lastHits=new Set();
 let scheduledDrawNumbers=[], phase='countdown', phaseDeadline=Date.now()+60000, revealCount=0, queuedEntry=null, roundSequence=0;
-const ethiopianFirstNames=['Abebe','Liya','Dawit','Hana','Mikias','Selam','Nahom','Eden','Bereket','Mahlet','Yonas','Sara','Meron','Daniel','Ruth','Samuel','Bethel','Henok','Rahel','Natnael','Tigist','Fikru','Mimi','Kalkidan','Biruk','Saron','Yonatan','Marta','Solomon','Hiwot','Fitsum','Hirut','Robel','Elias','Feven','Amanuel','Genet','Mesfin','Senait','Eyob'];
-const ethiopianHandles=['Addis','Bole','Arada','Kality','Mekelle','Gondar','Hawassa','DireDawa','Jimma','BahirDar','Adama','Harar','Wolaita','Gurage','Shewa','Tigray','Sidama','Oromo','Habesha','BlueNile'];
-const demoNames=Array.from({length:260},(_,i)=>`${ethiopianFirstNames[i%ethiopianFirstNames.length]}_${ethiopianHandles[Math.floor(i/ethiopianFirstNames.length)%ethiopianHandles.length]}${String(i+1).padStart(3,'0')}`);
-const demoScores=demoNames.map((_,i)=>Math.max(10,1200-i*4+(i*37)%83));
+const demoNames=["abebe_k94", "Tigist.Hailu21", "dawit#1987", "selam_girma$", "Biniam-2003", "meron.tesfaye_7", "yonas@addis", "liya_h_2000", "samuel.bekele99", "Eden*Tadesse", "fikru_abay88", "mulu.negash#5", "tsegaye-1991", "almaz_wolde$12", "henok_gebre_04", "bethlehem.m@1", "natnael-tekle77", "ruth_alemu_2002", "tewodros#king", "aster.mamo_89", "girma_wondimu!", "hiwot.desta22", "mekonnen_abebe#", "sara_yilma_96", "getachew.lulu$", "rahel-tsegaye01", "amanuel_zeleke7", "mahlet.assefa_x", "yared#music", "selamawit_g.15", "bereket-tilahun", "tsion_mulat_93", "eyob.kassa@23", "netsanet_bire_8", "haile#gebreselassie", "marta.worku_00", "mulugeta-1975", "birhane_kiros$", "zerihun.taye44", "helen_assegid_*", "kaleab_demissie_6", "kidist.berhe#10", "lemma_megersa!", "tadesse-bekele_3", "genet_zewde_1998", "solomon.tefera$", "yohannes_ayele@7", "saron_tilahun_05", "abel#weeknd_et", "feven.getu_2001", "teddy_afro_fan#", "bezawit_alem_19", "nahom-assefa_90", "zelalem.fikadu$", "mekdes_haile_33", "ermias_negussie!", "dagim_tamene_11", "elias.worku#2", "hanna_belay_97", "mikias-desalegn", "blen_mesfin_2004", "robel.kebede@5", "tizita_melaku$", "surafel_ayalew_8", "wondwosen#abera", "lidya_gashaw_14", "fitsum-berhane_6", "senait.mekuria!", "million_belete_99", "bruktawit_h_07", "daniel.tsegaye*", "meskerem_ayana_3", "tamrat_desta#88", "alemayehu_shiferaw", "berhanu.nigatu_4", "chaltu_bekele$", "dereje-gudeta_72", "eshetu_amare@9", "fasil_demoz_2000", "gebre.mariam#1", "habtamu_wale_55", "ibsa_roba_1995", "jemal.ahmed$", "kassahun-tadele", "lensa_dinsa_24", "mohammed_kedir@8", "nardos.tesfu_17", "obsa#oromo_pride", "rediet_abera_2001", "seble.wondimu*", "tariku_olana_13", "urgessa-fayisa", "workneh_alemu$4", "yeshi_mengistu_21", "zewdu.hailemichael", "addis_boy#251", "habesha_girl_92", "et_gamer_2005!", "lalibela.lover@", "ethio_coder_x7", "ras_dashen_climber", "sheger_fm_fan#1", "injera_lover_$", "buna.time_2024", "tej_master_et", "gojo_boy#09", "kitfo_king_88", "doro_wot.chef@", "shiro_queen_14", "tibs_hunter_99", "dire_dawa_kid!", "harar.hyena_07", "bahir.dar_lake$", "gonder_castle_12", "mekele_pride#6", "hawassa_girl_03", "jimma_coffee_boy", "adama_runner_5k", "arba.minch_fish", "sodo_soul@251", "habesha_vibes*", "ethiopia_1st_#", "tigray_star_21", "amhara.pride_44", "oromo_rise_$", "sidama_boy_01", "gurage_trader_7", "afar_nomad#10", "somali_et_88", "wolayta_king_9", "gamo_highland!", "hadiya_girl_22", "kambata_boy@5", "addis.nights_*", "bole_boy_251", "piassa_kid_#4", "merkato.hustler", "kazanchis_fan_2", "megenagna_man$", "lideta_girl_17", "abyssinia_lion", "lion.of.judah#1", "menelik_II_fan", "tewodros_heir_$", "haile.selassie_x", "adwa_victory_96", "yekatit_12_#", "meskel_square_27", "timkat_blessing!", "genna_2017_@", "enkutatash_new*", "fasika_feast_55", "buhe_boy_19", "ashenda_girl_$", "irreecha_spirit", "fichee_chambalala", "gadaa_legacy#", "selam.et_peace", "tena_yistilign_1", "ameseginalehu_$", "kenya_runner_et", "abebe.bikila_fan", "kenenisa_b_#5", "tirunesh_d_10k", "derartu_t_gold!", "haile_g_marathon", "meseret_d_1500", "genzebe_dibaba$", "almaz_ayana_27", "gelete_burka@", "addis_dev_404", "et_coder_#101", "py_habesha_3.14", "data.girl_addis", "tech_tigist_*", "web.wizard_ET", "app_dawit_2025", "code.selam_<3", "ai_ethiopia_$1", "cyber_hana_#0", "coffee_origin_ET", "kaffa_bean_$", "yirgacheffe_fan", "sidamo.roast_9", "buna_ceremony_#", "jebena_master_1", "nyala_mountain_x", "walia.ibex_14", "gelada_baboon!", "simien_trek_@6", "omo_valley_2", "danakil_hot_*", "erta.ale_fire$", "blue_nile_flow", "tis_abay_falls#", "lake_tana_07", "axum_stela_001", "harar.jugol_99", "konso_culture_!", "ethio_forever_251"];
+const demoScores=demoNames.map((_,i)=>Math.max(0,1200-i*4+(i*37)%83));
 const recentDemoGames=[];
 let gameMode='demo';
 function setGameMode(mode) {
@@ -366,10 +364,23 @@ function revealOneNumber(){
 }
 function finishDraw(){
   const drawNumbers=scheduledDrawNumbers.slice();
-  const winnerIndex=(roundSequence*7)%demoNames.length;
+  // Practice-only leaderboard: every fictional account receives a small,
+  // deterministic score change after each completed draw. No points are staked.
+  let winnerIndex=0;
+  let highestGain=-1;
+  demoNames.forEach((name,index)=>{
+    let seed=(roundSequence*1009+index*9176+0x51f15e)>>>0;
+    seed=(Math.imul(seed^(seed>>>16),0x45d9f3b))>>>0;
+    seed=(Math.imul(seed^(seed>>>16),0x45d9f3b))>>>0;
+    seed=(seed^(seed>>>16))>>>0;
+    const gain=seed%21;
+    demoScores[index]+=gain;
+    if(gain>highestGain || (gain===highestGain && demoScores[index]>demoScores[winnerIndex])){
+      highestGain=gain;
+      winnerIndex=index;
+    }
+  });
   const sampleWinner=demoNames[winnerIndex];
-  // Practice-only scoring: the selected fictional winner receives 10 points per completed round.
-  demoScores[winnerIndex]+=10;
   recentDemoGames.unshift({round:roundSequence,numbers:drawNumbers.slice(),winner:sampleWinner});
   recentDemoGames.splice(10);
   renderRecentGames();
@@ -381,7 +392,7 @@ function finishDraw(){
     lastDraw=new Set(drawNumbers);lastHits=new Set(hits);
     status('Round complete. Your result is shown below after all 20 numbers were drawn.');
     const r=document.getElementById('result');
-    r.innerHTML=`<strong>Demo round result</strong><br>Your numbers: <strong>${entry.picks.join(', ')}</strong><br>Draw numbers: <strong>${drawNumbers.join(', ')}</strong><br>Matched numbers: <strong>${hits.length}</strong><br>${hits.length?`Your matches: ${hits.join(', ')}`:'No matches this round.'}<br>Demo bet used: ${fmt(entry.bet)} credits<br><strong>No winnings are paid in this prototype.</strong>`;
+    r.innerHTML=`<strong>Demo round result</strong><br>Your numbers: <strong>${entry.picks.join(', ')}</strong><br>Draw numbers: <strong>${drawNumbers.join(', ')}</strong><br>Matched numbers: <strong>${hits.length}</strong><br>${hits.length?`Your matches: ${hits.join(', ')}`:'No matches this round.'}<br>Free practice entry — no points were staked.<br><strong>No winnings are paid in this prototype.</strong>`;
     r.classList.add('show');
     totalMatches+=hits.length;document.getElementById('rounds').textContent=rounds;document.getElementById('wagered').textContent=fmt(wagered);document.getElementById('matches').textContent=totalMatches;
   }else{
