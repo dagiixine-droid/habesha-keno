@@ -377,6 +377,21 @@ function renderModeBalance() {
   }
 
   if (caption) {
+    caption.textContent = 'welcome practice points';
+  }
+
+  if (typeof updateStakeUI === 'function') {
+    updateStakeUI();
+  }
+}
+  const amount = document.getElementById('homeBalance');
+  const caption = document.querySelector('.balance-amount small');
+
+  if (amount) {
+    amount.textContent = fmt(balance);
+  }
+
+  if (caption) {
     caption.textContent = walletUserId
       ? 'welcome practice points'
       : 'demo practice credits';
