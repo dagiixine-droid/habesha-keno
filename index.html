@@ -48,6 +48,8 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
 #leaderboardBody td:nth-child(2){font-weight:800;color:#f3f0df!important}
 #leaderboardBody td:last-child{font-weight:950;color:#a8ffd0!important;text-align:right}
 #recentGamesBody tr:hover,#leaderboardBody tr:hover{filter:brightness(1.18)}
+.list-toggle{min-width:108px;font-weight:800;cursor:pointer}
+.list-toggle[hidden]{display:none!important}
 
 
 .stake-bal{float:right;color:#ffdf83;font-size:12px;font-weight:800}
@@ -70,11 +72,6 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
 .entry-x{flex-shrink:0;width:30px;height:30px;border-radius:8px;border:1px solid #6b3a3a;background:#2a1313;color:#ff9a9a;font-weight:900}
 .result-list{max-height:220px;overflow-y:auto;margin-top:8px;border-top:1px solid #ffffff18}
 .result-row{padding:7px 0;border-bottom:1px solid #ffffff10;font-size:12px}
-
-/* Real-money payments stay disabled. Staking uses virtual practice points only. */
-#homePanel .payment-actions,#homePanel .payment-card,#walletPaymentCard,#paymentModalBackdrop{display:none!important}
-#depositBtn,#withdrawBtn,#walletDepositBtn,#walletWithdrawBtn,#walletTelebirrBtn{display:none!important}
-#stakeNote{font-size:12px;color:#b8f7d2}
 </style>
 </head>
 <body>
@@ -166,7 +163,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     </div>
   </section>
   <section id="kenoPanel" hidden>
-  <div class="notice" id="kenoModeNotice"><strong>PRACTICE STAKES:</strong> Stakes and winnings use virtual practice points with no cash value. Deposits, withdrawals, real-money betting, and cash prizes are not enabled.</div>
+  <div class="notice" id="kenoModeNotice"><strong>DEMO ONLY:</strong> Stakes and winnings use virtual credits with no cash value. Deposits, withdrawals, real-money betting, and cash prizes are not enabled.</div>
   <section class="countdown-card" aria-live="polite">
     <div><div class="countdown-label">⏱ NEXT DRAW STARTS IN</div><div class="countdown-note" id="timerNote">Choose numbers and join during the countdown</div></div>
     <div class="countdown-time" id="countdown">01:00</div>
@@ -185,10 +182,9 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     </section>
     <aside class="stack">
       <section class="card">
-        <h3>🎟️ Stake <span class="stake-bal" id="stakeBalance">Balance: 0</span></h3>
-        <div class="field"><label for="bet">Stake amount (practice points)</label><input id="bet" type="number" min="10" max="500" step="10" value="50" inputmode="numeric"></div>
+        <h3>🎟️ Stake <span class="stake-bal" id="stakeBalance">Credits: 0</span></h3>
+        <div class="field"><label for="bet">Stake amount (admin points)</label><input id="bet" type="number" min="10" max="500" step="10" value="50" inputmode="numeric"></div>
         <div class="quick"><button type="button" data-bet="10">10</button><button type="button" data-bet="50">50</button><button type="button" data-bet="100">100</button><button type="button" data-bet="250">250</button><button type="button" data-bet="500">500</button></div>
-        <div class="stake-note" id="syncStatus" hidden style="font-weight:700"></div>
         <div class="stake-note" id="stakeNote">Min 10 • Max 500 credits. Your balance changes after the draw: a win adds your profit, a loss removes your stake.</div>
         <div class="stat" style="margin-top:12px"><span>Numbers picked</span><strong id="pickCount">0</strong></div>
         <div class="stat"><span>Your stake</span><strong id="stakeShown">50</strong></div>
@@ -210,14 +206,16 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
   <section id="leaderPanel" hidden>
     <section class="card" style="margin-bottom:14px">
       <h3>🏆 Recent games result</h3>
-      <p class="sub">Practice draw history is saved on this device and restored when you reopen the app. Rankings are practice-only.</p>
-      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:280px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">Sample winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="2" style="padding:12px 6px;color:#9aaba5">No completed practice games yet. Results will be saved on this device.</td></tr></tbody></table></div>
+      <p class="sub">Fictional practice accounts. Scores update after each completed draw; no points are staked.</p>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:440px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">20 drawn numbers</th><th style="padding:10px 6px">Sample winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="3" style="padding:12px 6px;color:#9aaba5">No completed demo games yet. The first result will appear here.</td></tr></tbody></table></div>
+      <button type="button" class="refresh-btn list-toggle" id="recentGamesToggle" aria-expanded="false" style="margin-top:12px">See more</button>
     </section>
     <section class="card">
       <h3>🥇 Top 12 leaderboard</h3>
-      <p class="sub">Fictional sample usernames only • daily practice points • no real-player accounts are shown.</p>
+      <p class="sub">Real players ranked by their Balance. The board refreshes automatically and after every completed round.</p>
       <div class="stake-note" id="leaderboardStatus" style="margin:0 0 10px">Loading…</div>
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Practice points</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
+      <button type="button" class="refresh-btn list-toggle" id="leaderboardToggle" aria-expanded="false" style="margin-top:12px">See more</button>
     </section>
   </section>
   <div class="payment-modal-backdrop" id="paymentModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="paymentModalTitle" aria-hidden="true">
@@ -266,31 +264,7 @@ let timerRemaining=60, timerInterval=null, revealInterval=null, lastDraw=new Set
 let scheduledDrawNumbers=[], phase='syncing', revealCount=0, queuedEntries=[], entrySeq=0, roundSequence=0;
 const demoNames=["abebe_k94", "Tigist.Hailu21", "dawit#1987", "selam_girma$", "Biniam-2003", "meron.tesfaye_7", "yonas@addis", "liya_h_2000", "samuel.bekele99", "Eden*Tadesse", "fikru_abay88", "mulu.negash#5", "tsegaye-1991", "almaz_wolde$12", "henok_gebre_04", "bethlehem.m@1", "natnael-tekle77", "ruth_alemu_2002", "tewodros#king", "aster.mamo_89", "girma_wondimu!", "hiwot.desta22", "mekonnen_abebe#", "sara_yilma_96", "getachew.lulu$", "rahel-tsegaye01", "amanuel_zeleke7", "mahlet.assefa_x", "yared#music", "selamawit_g.15", "bereket-tilahun", "tsion_mulat_93", "eyob.kassa@23", "netsanet_bire_8", "haile#gebreselassie", "marta.worku_00", "mulugeta-1975", "birhane_kiros$", "zerihun.taye44", "helen_assegid_*", "kaleab_demissie_6", "kidist.berhe#10", "lemma_megersa!", "tadesse-bekele_3", "genet_zewde_1998", "solomon.tefera$", "yohannes_ayele@7", "saron_tilahun_05", "abel#weeknd_et", "feven.getu_2001", "teddy_afro_fan#", "bezawit_alem_19", "nahom-assefa_90", "zelalem.fikadu$", "mekdes_haile_33", "ermias_negussie!", "dagim_tamene_11", "elias.worku#2", "hanna_belay_97", "mikias-desalegn", "blen_mesfin_2004", "robel.kebede@5", "tizita_melaku$", "surafel_ayalew_8", "wondwosen#abera", "lidya_gashaw_14", "fitsum-berhane_6", "senait.mekuria!", "million_belete_99", "bruktawit_h_07", "daniel.tsegaye*", "meskerem_ayana_3", "tamrat_desta#88", "alemayehu_shiferaw", "berhanu.nigatu_4", "chaltu_bekele$", "dereje-gudeta_72", "eshetu_amare@9", "fasil_demoz_2000", "gebre.mariam#1", "habtamu_wale_55", "ibsa_roba_1995", "jemal.ahmed$", "kassahun-tadele", "lensa_dinsa_24", "mohammed_kedir@8", "nardos.tesfu_17", "obsa#oromo_pride", "rediet_abera_2001", "seble.wondimu*", "tariku_olana_13", "urgessa-fayisa", "workneh_alemu$4", "yeshi_mengistu_21", "zewdu.hailemichael", "addis_boy#251", "habesha_girl_92", "et_gamer_2005!", "lalibela.lover@", "ethio_coder_x7", "ras_dashen_climber", "sheger_fm_fan#1", "injera_lover_$", "buna.time_2024", "tej_master_et", "gojo_boy#09", "kitfo_king_88", "doro_wot.chef@", "shiro_queen_14", "tibs_hunter_99", "dire_dawa_kid!", "harar.hyena_07", "bahir.dar_lake$", "gonder_castle_12", "mekele_pride#6", "hawassa_girl_03", "jimma_coffee_boy", "adama_runner_5k", "arba.minch_fish", "sodo_soul@251", "habesha_vibes*", "ethiopia_1st_#", "tigray_star_21", "amhara.pride_44", "oromo_rise_$", "sidama_boy_01", "gurage_trader_7", "afar_nomad#10", "somali_et_88", "wolayta_king_9", "gamo_highland!", "hadiya_girl_22", "kambata_boy@5", "addis.nights_*", "bole_boy_251", "piassa_kid_#4", "merkato.hustler", "kazanchis_fan_2", "megenagna_man$", "lideta_girl_17", "abyssinia_lion", "lion.of.judah#1", "menelik_II_fan", "tewodros_heir_$", "haile.selassie_x", "adwa_victory_96", "yekatit_12_#", "meskel_square_27", "timkat_blessing!", "genna_2017_@", "enkutatash_new*", "fasika_feast_55", "buhe_boy_19", "ashenda_girl_$", "irreecha_spirit", "fichee_chambalala", "gadaa_legacy#", "selam.et_peace", "tena_yistilign_1", "ameseginalehu_$", "kenya_runner_et", "abebe.bikila_fan", "kenenisa_b_#5", "tirunesh_d_10k", "derartu_t_gold!", "haile_g_marathon", "meseret_d_1500", "genzebe_dibaba$", "almaz_ayana_27", "gelete_burka@", "addis_dev_404", "et_coder_#101", "py_habesha_3.14", "data.girl_addis", "tech_tigist_*", "web.wizard_ET", "app_dawit_2025", "code.selam_<3", "ai_ethiopia_$1", "cyber_hana_#0", "coffee_origin_ET", "kaffa_bean_$", "yirgacheffe_fan", "sidamo.roast_9", "buna_ceremony_#", "jebena_master_1", "nyala_mountain_x", "walia.ibex_14", "gelada_baboon!", "simien_trek_@6", "omo_valley_2", "danakil_hot_*", "erta.ale_fire$", "blue_nile_flow", "tis_abay_falls#", "lake_tana_07", "axum_stela_001", "harar.jugol_99", "konso_culture_!", "ethio_forever_251"];
 const demoScores=demoNames.map((_,i)=>Math.max(0,1200-i*4+(i*37)%83));
-const RECENT_GAMES_KEY='habesha_keno_recent_games_v1';
-const DEMO_SCORES_KEY='habesha_keno_demo_scores_v1';
 const recentDemoGames=[];
-try{
-  const savedGames=JSON.parse(localStorage.getItem(RECENT_GAMES_KEY)||'[]');
-  if(Array.isArray(savedGames)){
-    savedGames.slice(0,20).forEach(g=>{
-      if(g&&Number.isFinite(Number(g.round))&&Array.isArray(g.numbers)&&g.numbers.length===20&&g.numbers.every(n=>Number.isInteger(n)&&n>=1&&n<=80)&&typeof g.winner==='string'){
-        recentDemoGames.push({round:Number(g.round),numbers:g.numbers,winner:g.winner,completedAt:g.completedAt||null});
-      }
-    });
-  }
-}catch(_){}
-try{
-  const savedScores=JSON.parse(localStorage.getItem(DEMO_SCORES_KEY)||'null');
-  if(Array.isArray(savedScores)&&savedScores.length===demoNames.length&&savedScores.every(n=>Number.isFinite(Number(n)))){
-    savedScores.forEach((score,i)=>demoScores[i]=Number(score));
-  }
-}catch(_){}
-function saveRecentGameData(){
-  try{
-    localStorage.setItem(RECENT_GAMES_KEY,JSON.stringify(recentDemoGames.slice(0,20)));
-    localStorage.setItem(DEMO_SCORES_KEY,JSON.stringify(demoScores));
-  }catch(error){console.warn('Could not save recent practice results:',error);}
-}
 let gameMode='demo';
 function setGameMode(mode) {
   gameMode = mode;
@@ -329,8 +303,7 @@ function setGameMode(mode) {
 
   if (notice) {
     notice.textContent = demo
-      ? 'DEMO MODE: Stake virtual practice points; they have no cash value.'
-      : 'PRACTICE MODE: Stake virtual practice points; no cash value or payouts.';
+      ? 'DEMO MODE: Stake virtual practice credits; they have no cash value.'
   }
 
   // Both signed-out demo mode and signed-in admin-points mode allow FREE practice play.
@@ -368,19 +341,18 @@ async function loadPlayerWallet(session,skipFlush){
   }
   if(data){
     const demoValue=Number(data.balance);
-    if(Number.isFinite(demoValue)&&demoValue>=0) balance=Math.max(0,demoValue+pendingTotal(session.user.id));if(!pendingTotal(session.user.id))setTimeout(()=>setSync(true,'✓ Balance saved online — the admin sees this amount.'),0);
-    adminPointsBalance=0;
+    const adminValue=Number(data.admin_points);
+    if(Number.isFinite(demoValue)&&demoValue>=0) balance=demoValue;
+    adminPointsBalance=Math.max(0,(Number.isFinite(adminValue)&&adminValue>=0?adminValue:0)+pendingNetForUser(walletUserId));
     renderModeBalance();
-  } else { balance=0; adminPointsBalance=0; renderModeBalance(); }
+  } else { adminPointsBalance=0; renderModeBalance(); }
 }
-function renderModeBalance() {
-  const amount = document.getElementById('homeBalance');
-  const caption = document.querySelector('.balance-amount small');
-  if (amount) amount.textContent = fmt(balance);
-  if (caption) caption.textContent = walletUserId
-    ? 'welcome practice points'
-    : 'free practice points';
-  if (typeof updateStakeUI === 'function') updateStakeUI();
+function renderModeBalance(){
+  const amount=document.getElementById('homeBalance');
+  const caption=document.querySelector('.balance-amount small');
+  if(amount) amount.textContent=fmt(gameMode==='demo'?balance:adminPointsBalance);
+  if(caption) caption.textContent=gameMode==='demo'?'practice credits':'admin-assigned practice points';
+  if(typeof updateStakeUI==='function') updateStakeUI();
 }
 
 const MIN_STAKE=10, MAX_STAKE=500, MAX_PICKS=5;
@@ -395,9 +367,9 @@ const PAYTABLE={
 };
 function payoutMultiplier(picks,hits){return (PAYTABLE[picks]&&PAYTABLE[picks][hits])||0}
 let walletUserId=null;
-function activeBalance(){return balance}
+function activeBalance(){return adminPointsBalance}
 // ---- Online saving of practice points ----
-// Every finished round is saved online through the settle_practice_round() database function (see the SQL file).
+// Every finished round is saved online through the settle_keno_round() database function.
 // Unsent results are kept in this browser (localStorage) and retried, so nothing is lost if the player is offline or closes the app.
 const PENDING_KEY='habesha_keno_pending_settlements_v1';
 let flushingSettlements=false;
@@ -419,91 +391,29 @@ async function flushSettlements(){
     for(let guard=0;guard<100;guard++){
       const item=loadPending().find(x=>x.user===walletUserId);
       if(!item)break;
-      const {data,error}=await supabaseClient.rpc('settle_practice_round',{p_round:item.round,p_entries:item.entries,p_staked:item.staked,p_payout:item.payout});
+      const {data,error}=await supabaseClient.rpc('settle_keno_round',{p_round:item.round,p_entries:item.entries,p_staked:item.staked,p_payout:item.payout});
       if(error){
         const msg=String(error.message||'');
         const network=!error.code&&/fetch|network|load failed|timeout/i.test(msg);
-        if(network){setSync(false,'⚠ Offline — your result will be saved online when you reconnect.');break;}                       // offline: keep it and retry later
-        if(error.code==='PGRST202'||error.code==='42883'){
-          // settle_practice_round() is not installed: fall back to updating the wallet row directly.
-          console.warn('settle_practice_round() is not installed - falling back to a direct wallet update.');
-          loadPending().filter(x=>x.user===walletUserId).forEach(x=>setPendingDelta(walletUserId,pendingDelta(walletUserId)+(x.payout-x.staked)));
-          savePending(loadPending().filter(x=>x.user!==walletUserId));
-          flushBalanceDelta();break;
-        }
+        if(network)break;                       // offline: keep it and retry later
+        if(error.code==='PGRST202'||error.code==='42883'){console.error('settle_keno_round() is not installed in the database yet.');break;}
         console.error('Round could not be saved and was discarded:',error);
-        setSync(false,'⚠ A round could not be saved online ('+msg+'). Your balance was reset to the saved amount.');
         savePending(loadPending().filter(x=>!(x.user===item.user&&x.round===item.round)));dropped=true;continue;
       }
       savePending(loadPending().filter(x=>!(x.user===item.user&&x.round===item.round)));
       savedAny=true;lastServerBalance=Number(data);
     }
   }finally{flushingSettlements=false;}
-  if(savedAny&&!pendingTotal(walletUserId))setSync(true,'✓ Balance saved online — the admin sees this amount.');
   if(lastServerBalance!==null&&Number.isFinite(lastServerBalance)){
     // The server is the source of truth; add any results that are still waiting to be sent.
-    balance=Math.max(0,lastServerBalance+pendingTotal(walletUserId));saveVirtualBalance();renderModeBalance();
+    adminPointsBalance=Math.max(0,lastServerBalance+pendingNetForUser(walletUserId));renderModeBalance();
   }
   if(dropped){const {data}=await supabaseClient.auth.getSession();if(data?.session)await loadPlayerWallet(data.session,true);}
   if(savedAny)refreshLeaderboard();
 }
-// Practice points (the balance shown on Home) are saved in this browser and, for signed-in players, online.
-const PENDING_DELTA_KEY='habesha_keno_pending_balance_delta_v1';
-function pendingTotal(uid){return pendingDelta(uid)+pendingNetForUser(uid)}
-function pendingDelta(uid){try{const o=JSON.parse(localStorage.getItem(PENDING_DELTA_KEY)||'{}');return Number(o[uid])||0}catch(_){return 0}}
-function setPendingDelta(uid,v){try{const o=JSON.parse(localStorage.getItem(PENDING_DELTA_KEY)||'{}');if(v)o[uid]=v;else delete o[uid];localStorage.setItem(PENDING_DELTA_KEY,JSON.stringify(o))}catch(_){}}
-let flushingDelta=false;
-// Reports the player's currently staked points to the server right away, so the admin dashboard can show
-// them immediately ("staked this round"). The balance itself still changes only after the draw.
-async function recordStakeOnline(){
-  if(!supabaseClient||!walletUserId||currentRound===null)return;
-  try{
-    const {error}=await supabaseClient.rpc('record_practice_stake',{p_round:currentRound,p_entries:queuedEntries.length,p_staked:pendingStake()});
-    if(error&&error.code!=='PGRST202'&&error.code!=='42883')console.error('Could not record stake:',error);
-  }catch(_){}
-}
-// Shows signed-in players whether their balance is saved online (the balance the admin sees).
-function setSync(ok,msg){
-  const el=document.getElementById('syncStatus');if(!el)return;
-  if(!walletUserId){el.hidden=true;return}
-  el.hidden=false;el.textContent=msg;el.style.color=ok?'#19dc83':'#ffb86b';
-}
-// Wins and losses are sent to the server as CHANGES (+/-), applied on top of the current server balance,
-// so points an admin added or deducted in the meantime are never overwritten. Unsent changes are kept and retried.
-async function flushBalanceDelta(){
-  if(flushingDelta||!supabaseClient||!walletUserId)return;
-  const uid=walletUserId;
-  if(!pendingDelta(uid))return;
-  flushingDelta=true;
-  try{
-    for(let i=0;i<4;i++){
-      const delta=pendingDelta(uid);if(!delta)break;
-      const {data:row,error:e1}=await supabaseClient.from('practice_wallets').select('balance').eq('auth_user_id',uid).maybeSingle();
-      if(e1||!row)throw e1||new Error('Wallet row not found');
-      const next=Math.max(0,Number(row.balance)+delta);
-      const {data:upd,error:e2}=await supabaseClient.from('practice_wallets').update({balance:next}).eq('auth_user_id',uid).eq('balance',row.balance).select('balance');
-      if(e2)throw e2;
-      if(upd&&upd.length){setPendingDelta(uid,pendingDelta(uid)-delta);balance=Math.max(0,next+pendingTotal(uid));saveVirtualBalance();renderModeBalance();if(!pendingTotal(uid))setSync(true,'✓ Balance saved online — the admin sees this amount.');}
-      // otherwise the balance changed meanwhile (for example by the admin): loop again with the fresh value
-    }
-  }catch(err){console.error('Could not save practice points:',err);setSync(false,'⚠ Your balance is NOT saved online yet ('+(err?.message||'permission denied')+'). The admin will see the old amount until it saves. Run the SQL setup file, or allow players to update their own practice_wallets row.');}
-  finally{flushingDelta=false;}
-}
-async function persistBalance(){saveVirtualBalance();return flushBalanceDelta();}
-// Pulls the latest balance from the server (picks up admin add/deduct) after sending any unsent changes.
-async function syncBalanceFromServer(){
-  if(!supabaseClient||!walletUserId||flushingDelta)return;
-  await flushSettlements();
-  await flushBalanceDelta();
-  try{
-    const {data}=await supabaseClient.from('practice_wallets').select('balance').eq('auth_user_id',walletUserId).maybeSingle();
-    const v=Number(data?.balance);
-    if(data&&Number.isFinite(v)&&v>=0){const nb=Math.max(0,v+pendingTotal(walletUserId));if(nb!==balance){balance=nb;saveVirtualBalance();renderModeBalance();}}
-  }catch(_){}
-}
-function addToBalance(mode,delta){balance=Math.max(0,balance+delta);if(walletUserId)setPendingDelta(walletUserId,pendingDelta(walletUserId)+delta);renderModeBalance();persistBalance();}
+function addToBalance(mode,delta){adminPointsBalance=Math.max(0,adminPointsBalance+delta);renderModeBalance();}
 function pendingStake(mode){return queuedEntries.filter(e=>!mode||e.mode===mode).reduce((t,e)=>t+e.stake,0)}
-function availableBalance(){return Math.max(0,balance-pendingStake())}
+function availableBalance(){return Math.max(0,adminPointsBalance-pendingStake())}
 function joinLabel(){const n=queuedEntries.length;return n?`▶ Add another entry (${n} joined)`:'▶ Join next draw'}
 function renderEntries(){
   const host=document.getElementById('entriesList');if(!host)return;
@@ -529,7 +439,6 @@ function renderEntries(){
 function cancelEntry(id){
   if(!inEntryWindow()){status('The draw has started — entries can no longer be cancelled.');return}
   queuedEntries=queuedEntries.filter(e=>e.id!==id);
-  recordStakeOnline();
   document.getElementById('playBtn').textContent=joinLabel();
   updateStakeUI();status('Entry cancelled. Your balance was not changed.');
 }
@@ -540,7 +449,7 @@ function updateStakeUI(){
   const picks=selected.size;
   const valid=Number.isFinite(stake)&&stake>0;
   const set=(id,t)=>{const el=document.getElementById(id);if(el)el.textContent=t};
-  set('stakeBalance','Balance: '+fmt(balance));
+  set('stakeBalance','Admin points: '+fmt(availableBalance()));
   renderEntries();
   set('stakeShown',valid?fmt(stake):'—');
   const row=PAYTABLE[picks];
@@ -560,9 +469,9 @@ function updateStakeUI(){
   
   const note=document.getElementById('stakeNote');
   if(note){
-    if(valid&&stake>availableBalance())note.textContent=queuedEntries.length?`Not enough available points (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:(balance<MIN_STAKE?'You do not have enough practice points to stake.':'Stake is higher than your practice points balance.');
+    if(valid&&stake>availableBalance())note.textContent=queuedEntries.length?`Not enough available credits (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:(adminPointsBalance<MIN_STAKE?'You have no admin-assigned points to stake. Sign in, or ask the admin to assign points.':'Stake is higher than your admin points balance.');
     else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} credits.`;
-    else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} credits per entry. Available to stake: ${fmt(availableBalance())}${pendingStake()?` (${fmt(pendingStake())} staked this round)`:''}. Your balance changes after the draw.`;
+    else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} credits per entry. Join as many entries as your balance allows (about ${Math.floor(availableBalance()/Math.max(MIN_STAKE,valid?stake:MIN_STAKE))} more at this stake). Your balance changes after the draw.`;
   }
 }
 const WALLET_HISTORY_KEY='habesha_keno_virtual_wallet_history_v1';
@@ -670,9 +579,8 @@ function finishDraw(){
     }
   });
   const sampleWinner=demoNames[winnerIndex];
-  recentDemoGames.unshift({round:roundSequence,numbers:drawNumbers.slice(),winner:sampleWinner,completedAt:new Date(nowUTC()).toISOString()});
-  recentDemoGames.splice(20);
-  saveRecentGameData();
+  recentDemoGames.unshift({round:roundSequence,numbers:drawNumbers.slice(),winner:sampleWinner});
+  recentDemoGames.splice(10);
   renderRecentGames();
   renderLeaderboard();
   document.getElementById('scheduledStatus').textContent='Draw complete — all 20 numbers have been revealed.';
@@ -691,13 +599,8 @@ function finishDraw(){
     });
     const net=totalPayout-totalStake;
     // Balance changes only now, once for the whole draw: profit is added and lost stakes are removed.
-    if(walletUserId){
-      // Signed-in player: update the balance now and save the round on the server (retried if offline).
-      balance=Math.max(0,balance+(totalPayout-totalStake));saveVirtualBalance();renderModeBalance();
-      queueSettlement(roundSequence,entries.length,totalStake,totalPayout);
-    }else{
-      addToBalance('demo',totalPayout-totalStake);
-    }
+    Object.keys(netByMode).forEach(m=>{if(netByMode[m])addToBalance(m,netByMode[m]);});
+    queueSettlement(roundSequence,entries.length,totalStake,totalPayout);
     addWalletActivity(net>0?'Keno win':net<0?'Keno loss':'Keno draw result',net,`${entries.length} entr${entries.length===1?'y':'ies'} • staked ${fmt(totalStake)} • returned ${fmt(totalPayout)}`);
     lastDraw=new Set(drawNumbers);lastHits=new Set();
     status(`Round complete. ${entries.length} entr${entries.length===1?'y was':'ies were'} settled after all 20 numbers were drawn.`);
@@ -711,48 +614,98 @@ function finishDraw(){
   document.getElementById('playBtn').textContent=joinLabel();updateStakeUI();
   document.getElementById('scheduledStatus').textContent=`Round #${roundSequence} complete — all 20 numbers revealed. The next entry window opens when the countdown reaches 00:00.`;
 }
+let recentGamesExpanded=false;
+const RECENT_GAMES_COLLAPSED=3;
+function updateRecentGamesToggle(){
+  const button=document.getElementById('recentGamesToggle');
+  if(!button)return;
+  const hasMore=recentDemoGames.length>RECENT_GAMES_COLLAPSED;
+  button.hidden=!hasMore;
+  button.textContent=recentGamesExpanded?'See less':'See more';
+  button.setAttribute('aria-expanded',String(recentGamesExpanded));
+}
+document.getElementById('recentGamesToggle')?.addEventListener('click',()=>{
+  recentGamesExpanded=!recentGamesExpanded;
+  renderRecentGames();
+});
 function renderRecentGames(){
   const body=document.getElementById('recentGamesBody');
   if(!body)return;
   body.innerHTML='';
-  recentDemoGames.forEach(game=>{
+  const visibleGames=recentGamesExpanded?recentDemoGames:recentDemoGames.slice(0,RECENT_GAMES_COLLAPSED);
+  visibleGames.forEach(game=>{
     const tr=document.createElement('tr');
-    const roundCell=document.createElement('td');roundCell.textContent=`Game #${game.round}`;tr.appendChild(roundCell);
-    const winnerCell=document.createElement('td');winnerCell.textContent=game.winner || 'Sample winner';tr.appendChild(winnerCell);
+    const roundCell=document.createElement('td');roundCell.textContent=`#${game.round}`;tr.appendChild(roundCell);
+    const numbersCell=document.createElement('td');const numberWrap=document.createElement('div');numberWrap.className='draw-number-list';
+    game.numbers.forEach(number=>{const chip=document.createElement('span');chip.className='draw-number-chip';chip.textContent=number;numberWrap.appendChild(chip)});
+    numbersCell.appendChild(numberWrap);tr.appendChild(numbersCell);
+    const winnerCell=document.createElement('td');winnerCell.textContent=game.winner;tr.appendChild(winnerCell);
     body.appendChild(tr);
   });
+  updateRecentGamesToggle();
 }
-let leaderboardRows=null, leaderboardUpdatedAt=null, leaderboardOnline=false, leaderboardLoading=false;
+let leaderboardRows=null, myRank=null, leaderboardUpdatedAt=null, leaderboardOnline=false, leaderboardLoading=false;
+let leaderboardExpanded=false;
+const LEADERBOARD_COLLAPSED=5;
+function updateLeaderboardToggle(totalRows){
+  const button=document.getElementById('leaderboardToggle');
+  if(!button)return;
+  const hasMore=totalRows>LEADERBOARD_COLLAPSED;
+  button.hidden=!hasMore;
+  button.textContent=leaderboardExpanded?'See less':'See more';
+  button.setAttribute('aria-expanded',String(leaderboardExpanded));
+}
+document.getElementById('leaderboardToggle')?.addEventListener('click',()=>{
+  leaderboardExpanded=!leaderboardExpanded;
+  renderLeaderboard();
+});
 async function refreshLeaderboard(){
   if(leaderboardLoading)return;
+  if(!supabaseClient){leaderboardOnline=false;renderLeaderboard();return}
   leaderboardLoading=true;
   try{
-    if(!supabaseClient) throw new Error('Supabase is not configured');
-    const result=await supabaseClient.rpc('get_or_create_daily_sample_leaderboard');
-    if(result.error) throw result.error;
-    leaderboardRows=(result.data||[]).slice(0,12);
+    const [lb,mine]=await Promise.all([supabaseClient.rpc('get_leaderboard',{p_limit:12}),supabaseClient.rpc('get_my_rank')]);
+    if(lb.error)throw lb.error;
+    leaderboardRows=lb.data||[];myRank=mine.error?null:(mine.data??null);
     leaderboardOnline=true;leaderboardUpdatedAt=nowUTC();
-  }catch(err){leaderboardOnline=false;console.error('Sample leaderboard load failed:',err);}
-  leaderboardLoading=false;renderLeaderboard();
+  }catch(err){leaderboardOnline=false;console.error('Leaderboard load failed:',err);}
+  leaderboardLoading=false;
+  renderLeaderboard();
 }
 function renderLeaderboard(){
   const body=document.getElementById('leaderboardBody');if(!body)return;body.innerHTML='';
   const statusEl=document.getElementById('leaderboardStatus');
-  const addRow=(rank,name,points)=>{
-    const tr=document.createElement('tr');tr.style.borderTop='1px solid #ffffff18';
-    [String(rank),name,Number(points).toLocaleString('en-US')].forEach((value,j)=>{const td=document.createElement('td');td.style.padding='10px 6px';td.style.color=j===0?'#ffdf83':'#e9e5d5';td.textContent=value;tr.appendChild(td)});
+  let renderedRows=0;
+  const addRow=(rank,name,points,me)=>{
+    const tr=document.createElement('tr');tr.style.borderTop='1px solid #ffffff18';if(me)tr.style.background='#10372a';
+    [String(rank),me?name+' (you)':name,Number(points).toLocaleString('en-US')].forEach((value,j)=>{const td=document.createElement('td');td.style.padding='10px 6px';td.style.color=j===0?'#ffdf83':'#e9e5d5';td.textContent=value;tr.appendChild(td)});
     body.appendChild(tr);
+    renderedRows++;
   };
   if(leaderboardOnline&&leaderboardRows){
-    leaderboardRows.forEach(r=>addRow(r.rank,r.username,r.practice_points));
-    if(statusEl){const d=new Date(leaderboardUpdatedAt);statusEl.textContent=`Fictional sample players • daily points saved online • updated ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())} UTC`;}
+    if(!leaderboardRows.length){const tr=document.createElement('tr');const td=document.createElement('td');td.colSpan=3;td.style.cssText='padding:12px 6px;color:#9aaba5';td.textContent='No players on the leaderboard yet.';tr.appendChild(td);body.appendChild(tr);}
+    const onlineRows=leaderboardRows.slice();
+    const extraMe=myRank&&!onlineRows.some(r=>r.is_me);
+    const totalRows=onlineRows.length+(extraMe?1:0);
+    const shownRows=leaderboardExpanded?onlineRows:onlineRows.slice(0,LEADERBOARD_COLLAPSED);
+    shownRows.forEach(r=>addRow(r.rank,r.username||'Player',r.admin_points,!!r.is_me));
+    if(extraMe&&(leaderboardExpanded||onlineRows.length<LEADERBOARD_COLLAPSED)){addRow(myRank,currentUsername||'You',adminPointsBalance,true);}
+    updateLeaderboardToggle(totalRows);
+    if(statusEl){
+      const d=new Date(leaderboardUpdatedAt);
+      statusEl.textContent=`✓ Live from the online database • updated ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}:${pad2(d.getUTCSeconds())} UTC`+(myRank?` • your rank: #${myRank}`:'');
+    }
     return;
   }
-  demoNames.map((name,index)=>({name,points:demoScores[index]})).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name)).slice(0,12).forEach((player,i)=>addRow(i+1,player.name,player.points));
-  if(statusEl)statusEl.textContent='Fictional sample players • local preview only; connect the daily leaderboard SQL in Supabase to share today’s rankings online.';
+  // Fallback while the online leaderboard is unavailable: clearly-labelled sample players.
+  const sampleRows=demoNames.map((name,index)=>({name,points:demoScores[index]}))
+    .sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name)).slice(0,12);
+  (leaderboardExpanded?sampleRows:sampleRows.slice(0,LEADERBOARD_COLLAPSED))
+    .forEach((player,i)=>addRow(i+1,player.name,player.points,false));
+  updateLeaderboardToggle(sampleRows.length);
+  if(statusEl)statusEl.textContent='⚠ Online leaderboard not connected — showing sample players. Run the SQL setup file in Supabase and check your connection.';
 }
 renderLeaderboard();
-renderRecentGames();
 refreshLeaderboard();
 setInterval(()=>{const lp=document.getElementById('leaderPanel');if(lp&&!lp.hidden&&!document.hidden)refreshLeaderboard();},15000);
 function resetRoundState(rid){
@@ -794,11 +747,8 @@ document.addEventListener('visibilitychange',async()=>{
   if(!supabaseClient)return;
   if(document.hidden){flushSettlements();return}
   try{const {data}=await supabaseClient.auth.getSession();if(data?.session)await loadPlayerWallet(data.session);}catch(_){}
-  syncBalanceFromServer();
 });
 setInterval(()=>{if(!document.hidden)flushSettlements();},30000);
-setInterval(()=>{if(!document.hidden)syncBalanceFromServer();},15000);
-window.addEventListener('online',()=>{syncBalanceFromServer();});
 function startCountdown(){
   if(timerInterval)clearInterval(timerInterval);
   tickDraw();
@@ -819,18 +769,17 @@ document.querySelectorAll('[data-bet]').forEach(b=>b.onclick=()=>{document.getEl
 document.getElementById('bet').addEventListener('input',updateStakeUI);
 document.getElementById('bet').addEventListener('change',()=>{const v=readStake();document.getElementById('bet').value=v||MIN_STAKE;updateStakeUI();});
 document.getElementById('playBtn').onclick=()=>{
- if(!clockReady){status('Syncing the practice draw… please try again shortly.');return}
- if(!inEntryWindow()){status('The draw is in progress. Choose numbers for the next practice round.');return}
+ if(!clockReady){status('Syncing with universal time… please try again in a moment.');return}
+ if(!inEntryWindow()){status('The draw is already in progress. Choose numbers for the next entry window.');return}
  if(selected.size<1){status('Choose at least one number first.');return}
  const stake=readStake();
- if(!Number.isFinite(stake)||stake<MIN_STAKE||stake>MAX_STAKE||stake%10!==0){status(`Enter a stake between ${MIN_STAKE} and ${MAX_STAKE} points, in steps of 10.`);return}
- if(stake>availableBalance()){status(`Not enough practice points. Available: ${fmt(availableBalance())} (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`);return}
+ if(!Number.isFinite(stake)||stake<MIN_STAKE||stake>MAX_STAKE||stake%10!==0){status(`Enter a stake between ${MIN_STAKE} and ${MAX_STAKE} credits, in steps of 10.`);return}
+ if(stake>availableBalance()){status(`Not enough admin points. Available: ${fmt(availableBalance())} (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`);return}
  const picks=[...selected].sort((a,b)=>a-b);
- queuedEntries.push({id:++entrySeq,picks,stake,mode:'demo'});
- recordStakeOnline();
+ queuedEntries.push({id:++entrySeq,picks,stake,mode:'real'});
  document.getElementById('playBtn').textContent=joinLabel();
  updateStakeUI();
- status(`Entry #${queuedEntries.length} added: ${picks.length} number${picks.length===1?'':'s'}, ${fmt(stake)} points. Your balance changes after the draw. You can add more entries while you have available points.`);
+ status(`Entry #${queuedEntries.length} added: ${picks.length} number${picks.length===1?'':'s'}, ${fmt(stake)} credits. You can add more entries with different numbers while you have available credits.`);
  document.getElementById('result').classList.remove('show');
 };
 updateStakeUI();
@@ -934,7 +883,7 @@ document.getElementById('loginTabBtn').addEventListener('click',()=>setAccountTa
 document.getElementById('registerTabBtn').addEventListener('click',()=>setAccountTab('register'));
 function accountMessage(message,isError=false){accountFeedback.textContent=message;accountFeedback.style.color=isError?'#ffb2a8':'#ffe29a';}
 async function showAccountSession(session) {
-  if(!session){walletUserId=null;adminPointsBalance=0;setSync(true,'');if(typeof renderModeBalance==='function')renderModeBalance();}
+  if(!session){walletUserId=null;adminPointsBalance=0;if(typeof renderModeBalance==='function')renderModeBalance();}
   signedOutBox.hidden = !!session;
   signedInBox.hidden = !session;
 
@@ -1023,24 +972,9 @@ if (sessionError) throw sessionError;
 accountMessage('Login successful.');
 showAccountSession(sessionData.session);
 event.target.reset();
- } catch (error) {
+  }catch(error){
     console.error('Username login failed:', error);
-
-    if (error.context) {
-        console.error('HTTP status:', error.context.status);
-
-        try {
-            const responseBody = await error.context.clone().text();
-            console.error('Server response:', responseBody);
-        } catch (readError) {
-            console.error('Could not read server response:', readError);
-        }
-    }
-
-    accountMessage(
-        'Sign-in failed. Check the browser console for details.',
-        true
-    );
+    accountMessage(error?.message || 'Sign-in failed. Check your username and password.',true);
   }finally{button.disabled=false;button.textContent='Login';}
 });
 document.getElementById('registerForm').addEventListener('submit',async(event)=>{
@@ -1072,153 +1006,115 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
   if(error)accountMessage('Could not sign out. Please try again.',true);
   else accountMessage('You have signed out.');
 });
-// ---------- Admin dashboard ----------
-// Shows every player's practice points (welcome points + admin-assigned points) and updates right after
-// an admin adds or deducts points. It also refreshes itself every 15 seconds while it is open.
-const adminState={players:[],transactions:[],search:'',sort:'points',flashId:null,updatedAt:null,loading:false,timer:null,changed:{},activity:[],stakeSeen:{},live:false};
-const escHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const pts=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:2});
-const playerTotal=p=>Number(p.practice_balance||0);
-
-function renderAdminDashboard(){
-  const dash=document.getElementById('adminDashboard');if(!dash)return;
-  const players=adminState.players, byId=new Map(players.map(p=>[p.id,p]));
-  const totalAll=players.reduce((t,p)=>t+playerTotal(p),0);
-  const totalAdmin=players.reduce((t,p)=>t+Number(p.admin_points||0),0);
-  const games=players.reduce((t,p)=>t+Number(p.games_played||0),0);
-  const cards=[['Total Players',players.length],['Total Games Played',games],['All Players\' Practice Points',pts(totalAll)],['Average Per Player',pts(players.length?totalAll/players.length:0)]];
-  document.getElementById('adminSummary').innerHTML=cards.map(([k,v])=>`<div style="background:#252525;padding:15px;border-radius:10px;flex:1;min-width:140px"><h3 style="margin:0 0 6px;font-size:13px;color:#d9c47c">${k}</h3><h2 style="margin:0">${v}</h2></div>`).join('');
-  const q=adminState.search.toLowerCase();
-  const list=players.filter(p=>((p.username||'')+' '+(p.email||'')).toLowerCase().includes(q));
-  if(adminState.sort==='points')list.sort((x,y)=>playerTotal(y)-playerTotal(x));
-  else if(adminState.sort==='name')list.sort((x,y)=>String(x.username||'').localeCompare(String(y.username||'')));
-  else list.sort((x,y)=>new Date(y.created_at||0)-new Date(x.created_at||0));
-  document.getElementById('playerList').innerHTML=list.map((player,i)=>`
-    <div style="padding:12px;border-bottom:1px solid #555;${(adminState.flashId===player.id||(adminState.changed[player.id]&&Date.now()-adminState.changed[player.id].at<8000))?'background:#10372a;transition:background .6s;':''}">
-      <strong>#${i+1} ${escHtml(player.username||'No username')}</strong>${(adminState.changed[player.id]&&adminState.changed[player.id].delta)?` <span style="font-size:12px;font-weight:800;color:${adminState.changed[player.id].delta>=0?'#19dc83':'#ff8a8a'}">${adminState.changed[player.id].delta>=0?'▲ +':'▼ −'}${pts(Math.abs(adminState.changed[player.id].delta))} • last result ${new Date(adminState.changed[player.id].at).toLocaleTimeString()}</span>`:''}
-      <p style="margin:4px 0">${escHtml(player.email||'No email')}</p>
-      <p style="margin:4px 0">Games Played: ${player.games_played??0}</p>
-      <p style="margin:4px 0;font-size:16px;color:#ffdf83">Practice Points: <b>${pts(player.practice_balance)}</b> <small style="color:#a8b4aa">(the balance this player stakes with)</small></p>
-      ${Number(player.staked_now||0)>0?`<p style="margin:4px 0;color:#ffcf66;font-weight:800">🎟 Staked this round: ${pts(player.staked_now)} (${player.entries_now||0} entr${Number(player.entries_now)===1?'y':'ies'}) — balance changes after the draw. After this stake: ${pts(Math.max(0,Number(player.practice_balance||0)-Number(player.staked_now)))}</p>`:''}
-      ${Number(player.admin_points||0)>0?`<p style="margin:4px 0;color:#a8b4aa"><small>Older admin-assigned points (not used for staking): ${pts(player.admin_points)}</small></p>`:''}
-      <button onclick="adjustAdminPoints('${escHtml(player.id)}','ADD')" style="background:#16834a;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;">+ Add Practice Points</button>
-      <button onclick="adjustAdminPoints('${escHtml(player.id)}','DEDUCT')" style="background:#a83232;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;margin-left:5px;">- Deduct Practice Points</button>
-      <p style="margin:6px 0 0">Account Status: ${escHtml(player.account_status||'Registered')}</p>
-      <small>Joined: ${player.created_at?new Date(player.created_at).toLocaleDateString():'—'}</small>
-    </div>`).join('')||'<p>No players found.</p>';
-  const la=document.getElementById('liveActivity');
-  if(la)la.innerHTML=adminState.activity.length?adminState.activity.map(a=>a.kind==='stake'?`<div style="padding:8px 0;border-bottom:1px solid #444;font-size:13px"><span style="color:#a8b4aa">${new Date(a.at).toLocaleTimeString()}</span> • <b>${escHtml(a.name)}</b> <span style="color:#ffcf66">staked ${pts(a.amount)}</span> (${a.entries} entr${a.entries===1?'y':'ies'}) — waiting for the draw</div>`:`<div style="padding:8px 0;border-bottom:1px solid #444;font-size:13px"><span style="color:#a8b4aa">${new Date(a.at).toLocaleTimeString()}</span> • <b>${escHtml(a.name)}</b> ${a.delta>=0?'<span style="color:#19dc83">gained +':'<span style="color:#ff8a8a">lost −'}${pts(Math.abs(a.delta))}</span> (${pts(a.from)} → ${pts(a.to)})</div>`).join(''):'<p style="color:#a8b4aa;font-size:13px">No changes yet — waiting for players to finish a draw.</p>';
-  const tx=adminState.transactions;
-  document.getElementById('transactionList').innerHTML=tx.length?tx.map(t=>{
-    const who=byId.get(t.auth_user_id);const add=t.transaction_type==='ADD';
-    return `<div style="padding:12px;border-bottom:1px solid #555;">
-      <strong>${add?'➕ Added':'➖ Deducted'}</strong>
-      <p style="margin:4px 0">Amount: ${pts(t.amount)} practice points</p>
-      <p style="margin:4px 0">Player: ${escHtml(who?.username||t.auth_user_id)}</p>
-      <p style="margin:4px 0">Reason: ${escHtml(t.reason||'No reason provided')}</p>
-      <small>${new Date(t.created_at).toLocaleString()}</small></div>`;
-  }).join(''):'<p>No transactions yet.</p>';
-  const ln=document.getElementById('adminLiveNote');
-  if(ln){ln.style.color=adminState.live?'#19dc83':'#ffb86b';ln.textContent=adminState.live?'✓ Live data: balances and stakes come straight from the database.':'⚠ Basic data only. For live balances and stakes, run supabase_practice_settlement.sql and add your admin account to keno_admins (see the SQL file).';}
-  const u=document.getElementById('adminUpdated');
-  if(u&&adminState.updatedAt){const d=new Date(adminState.updatedAt);u.textContent=`Updated ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;}
-}
-
-async function refreshAdminData(silent=true){
-  if(adminState.loading)return;
-  adminState.loading=true;
-  try{
-    const { data, error } = await supabaseClient.functions.invoke('admin-players');
-    if(error)throw error;
-    const fresh=data?.players??[];
-    // Live balances and open stakes straight from the database (needs the SQL setup); otherwise basic data only.
-    let live=null;
-    try{const r=await supabaseClient.rpc('admin_live_player_points');if(!r.error&&Array.isArray(r.data))live=r.data;}catch(_){}
-    adminState.live=!!live;
-    if(live){
-      const byId=new Map(fresh.map(x=>[x.id,x]));
-      live.forEach(l=>{
-        let x=byId.get(l.player_id);
-        if(!x){x={id:l.player_id,username:l.username,games_played:l.rounds_played,created_at:null};fresh.push(x);byId.set(x.id,x);}
-        x.practice_balance=Number(l.balance);x.staked_now=Number(l.staked_now||0);x.entries_now=Number(l.entries_now||0);
-      });
-    }
-    if(adminState.players.length){
-      fresh.forEach(x=>{
-        const now=Number(x.staked_now||0),before=Number(adminState.stakeSeen[x.id]||0);
-        if(now>before){
-          adminState.changed[x.id]=Object.assign({},adminState.changed[x.id]||{delta:0},{at:Date.now(),staked:now});
-          adminState.activity.unshift({kind:'stake',name:x.username||'Player',amount:now,entries:Number(x.entries_now||0),at:Date.now()});
-          adminState.activity.length=Math.min(adminState.activity.length,40);
-        }
-      });
-    }
-    fresh.forEach(x=>{adminState.stakeSeen[x.id]=Number(x.staked_now||0);});
-    const prev=new Map(adminState.players.map(x=>[x.id,Number(x.practice_balance||0)]));
-    if(adminState.players.length){
-      fresh.forEach(x=>{
-        const before=prev.get(x.id),now=Number(x.practice_balance||0);
-        if(before!==undefined&&now!==before){
-          const delta=now-before;
-          adminState.changed[x.id]={delta,at:Date.now()};
-          adminState.activity.unshift({name:x.username||'Player',from:before,to:now,delta,at:Date.now()});
-          adminState.activity.length=Math.min(adminState.activity.length,40);
-        }
-      });
-    }
-    adminState.players=fresh;
-    adminState.transactions=data?.transactions??[];
-    adminState.updatedAt=Date.now();
-    renderAdminDashboard();
-  }catch(error){
-    console.error('Admin refresh failed:',error);
-    if(!silent)alert('Admin error: '+(error?.message||'Unknown error'));
-  }finally{adminState.loading=false;}
-}
-
-async function loadAdminDashboard() {
+    async function loadAdminDashboard() {
   try {
-    const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
-    if (sessionError) throw sessionError;
-    if (!sessionData.session) { alert('Please log in first.'); return; }
+    alert("Checking administrator access...");
 
-    if(!document.getElementById('adminDashboard')){
-      const dashboard=document.createElement('div');
-      dashboard.id='adminDashboard';
-      dashboard.style.cssText='position:fixed;inset:5%;background:#151515;color:white;padding:20px;border:2px solid #c9a227;border-radius:12px;z-index:10000;overflow:auto;';
-      dashboard.innerHTML=`
-        <button id="closeAdmin">Close ✕</button>
-        <h2 style="color:#c9a227">Admin Dashboard</h2>
-        <div id="adminSummary" style="display:flex;gap:12px;flex-wrap:wrap;margin:20px 0;"></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:15px;">
-          <input id="playerSearch" placeholder="Search username or email..." style="padding:10px;flex:1;min-width:180px;">
-          <select id="playerSort" style="padding:10px;">
-            <option value="points">Sort: highest points</option>
-            <option value="name">Sort: name A–Z</option>
-            <option value="newest">Sort: newest</option>
-          </select>
-          <button id="adminRefresh" type="button" style="padding:10px;cursor:pointer;">↻ Refresh</button>
-          <small id="adminUpdated" style="color:#a8b4aa"></small>
-        </div>
-        <div id="adminLiveNote" style="font-size:12px;margin:-6px 0 12px"></div>
-        <div id="playerList"></div>
-        <h2 style="color:#c9a227;margin-top:25px;">Live player results</h2>
-        <p style="margin:0 0 8px;color:#a8b4aa;font-size:12px">Balance changes seen while this dashboard is open: a player's wins and losses appear here within seconds.</p>
-        <div id="liveActivity"></div>
-        <h2 style="color:#c9a227;margin-top:25px;">Practice Points Transaction History</h2>
-        <div id="transactionList"></div>`;
-      document.body.appendChild(dashboard);
-      document.getElementById('playerSearch').addEventListener('input',e=>{adminState.search=e.target.value;renderAdminDashboard();});
-      document.getElementById('playerSort').addEventListener('change',e=>{adminState.sort=e.target.value;renderAdminDashboard();});
-      document.getElementById('adminRefresh').addEventListener('click',()=>refreshAdminData(false));
-      document.getElementById('closeAdmin').addEventListener('click',()=>{dashboard.remove();clearInterval(adminState.timer);adminState.timer=null;});
-      clearInterval(adminState.timer);
-      adminState.timer=setInterval(()=>{if(!document.getElementById('adminDashboard')){clearInterval(adminState.timer);adminState.timer=null;return}if(!document.hidden)refreshAdminData(true);},5000);
+    const { data: sessionData, error: sessionError } =
+      await supabaseClient.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    if (!sessionData.session) {
+      alert("Please log in first.");
+      return;
     }
-    await refreshAdminData(false);
-  } catch (error) {
-    console.error('Dashboard error:', error);
-    alert('Dashboard error: ' + error.message);
+
+    const { data, error } =
+      await supabaseClient.functions.invoke("admin-players");
+
+    if (error) {
+      console.error("Admin function error:", error);
+      alert("Admin error: " + error.message);
+      return;
+    }
+
+    const players = data.players ?? [];
+const transactions = data.transactions ?? [];
+    document.getElementById("adminDashboard")?.remove();
+
+    const dashboard = document.createElement("div");
+    dashboard.id = "adminDashboard";
+    dashboard.style.cssText =
+      "position:fixed;inset:5%;background:#151515;color:white;padding:20px;border:2px solid #c9a227;border-radius:12px;z-index:10000;overflow:auto;";
+
+    dashboard.innerHTML = `
+      <button id="closeAdmin">Close ✕</button>
+      <h2 style="color:#c9a227">Admin Dashboard</h2>
+     <div style="display:flex;gap:12px;flex-wrap:wrap;margin:20px 0;">
+  <div style="background:#252525;padding:15px;border-radius:10px;flex:1;">
+    <h3>Total Players</h3>
+    <h2>${players.length}</h2>
+  </div>
+
+  <div style="background:#252525;padding:15px;border-radius:10px;flex:1;">
+    <h3>Total Games Played</h3>
+    <h2>${players.reduce((total, player) =>
+      total + Number(player.games_played || 0), 0)}</h2>
+  </div>
+</div>
+      <input id="playerSearch" placeholder="Search username..."
+        style="padding:10px;width:100%;margin-bottom:15px;">
+      <div id="playerList"></div>
+      <h2 style="color:#c9a227;margin-top:25px;">
+  Practice Credit Transaction History
+</h2>
+
+<div id="transactionList">
+  ${transactions.length ? transactions.map(transaction => `
+    <div style="padding:12px;border-bottom:1px solid #555;">
+      <strong>${transaction.transaction_type === "ADD" ? "➕ Added" : "➖ Deducted"}</strong>
+      <p>Amount: ${Number(transaction.amount).toFixed(2)} Practice ETB</p>
+      <p>Player ID: ${transaction.auth_user_id}</p>
+      <p>Reason: ${transaction.reason || "No reason provided"}</p>
+      <small>${new Date(transaction.created_at).toLocaleString()}</small>
+    </div>
+  `).join("") : "<p>No transactions yet.</p>"}
+</div>
+    `;
+
+    document.body.appendChild(dashboard);
+
+    function renderPlayers(search = "") {
+      const filtered = players.filter(player =>
+        (player.username || "").toLowerCase().includes(search.toLowerCase())
+      );
+
+      document.getElementById("playerList").innerHTML =
+        filtered.map(player => `
+          <div style="padding:12px;border-bottom:1px solid #555;">
+            <strong>${player.username || "No username"}</strong>
+            <p>${player.email || "No email"}</p>
+            <p>Games Played: ${player.games_played ?? 0}</p>
+            <p>Practice Balance: ${Number(player.practice_balance || 0).toFixed(2)} ETB</p>
+            <p>Admin Points: ${Number(player.admin_points || 0).toFixed(2)} practice points</p>
+            <button onclick="adjustAdminPoints('${player.id}', 'ADD')"
+  style="background:#16834a;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;">
+  + Add Practice Points
+</button>
+<button onclick="adjustAdminPoints('${player.id}', 'DEDUCT')"
+  style="background:#a83232;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;margin-left:5px;">
+  - Deduct Practice Points
+</button>
+            <p>Account Status: ${player.account_status || "Registered"}</p>
+            <small>Joined: ${new Date(player.created_at).toLocaleDateString()}</small>
+          </div>
+        `).join("") || "<p>No players found.</p>";
+    }
+
+    renderPlayers();
+
+    document.getElementById("playerSearch").addEventListener("input", event => {
+      renderPlayers(event.target.value);
+    });
+
+    document.getElementById("closeAdmin").addEventListener("click", () => {
+      dashboard.remove();
+    });
+
+   } catch (error) {
+    console.error("Dashboard error:", error);
+    alert("Dashboard error: " + error.message);
   }
 }
 async function adjustPracticeBalance(playerId, type) {
@@ -1265,35 +1161,28 @@ async function adjustPracticeBalance(playerId, type) {
 
 async function adjustAdminPoints(playerId, type) {
   const amount = prompt(type === 'ADD'
-    ? 'Enter practice points to add:'
-    : 'Enter practice points to deduct:');
+    ? 'Enter free practice points to add:'
+    : 'Enter free practice points to deduct:');
   if (amount === null) return;
   const numericAmount = Number(amount);
   if (!Number.isFinite(numericAmount) || numericAmount <= 0 || numericAmount > 1000000) {
     alert('Enter a positive amount up to 1,000,000.');
     return;
   }
-  const reason = prompt('Reason for this adjustment (optional):') || '';
   try {
-    // Changes the practice points the player stakes with (and records the transaction).
-    const { data, error } = await supabaseClient.rpc('adjust_practice_balance', {
+    const { data, error } = await supabaseClient.rpc('adjust_admin_points', {
       p_player_id: playerId,
       p_type: type,
-      p_amount: numericAmount,
-      p_reason: reason
+      p_amount: numericAmount
     });
     if (error) throw error;
-    // Show the new balance in the dashboard immediately, then confirm with fresh data from the server.
-    const row=adminState.players.find(x=>x.id===playerId);
-    if(row&&Number.isFinite(Number(data)))row.practice_balance=Number(data);
-    adminState.flashId=playerId;renderAdminDashboard();
-    setTimeout(()=>{if(adminState.flashId===playerId){adminState.flashId=null;renderAdminDashboard();}},4000);
-    refreshAdminData(true);
-    syncBalanceFromServer();
+    alert('Practice points updated. New admin-points balance: ' + Number(data).toLocaleString());
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (sessionData?.session) await loadPlayerWallet(sessionData.session);
+    await loadAdminDashboard();
   } catch (error) {
-    console.error('Practice points adjustment failed:', error);
-    const missing=error?.code==='PGRST202'||error?.code==='42883';
-    alert(missing?'The database function adjust_practice_balance() is not installed yet.':'Could not update practice points: ' + (error?.message || 'Unknown error'));
+    console.error('Admin points adjustment failed:', error);
+    alert('Could not update practice points: ' + (error?.message || 'Unknown error'));
   }
 }
 window.adjustAdminPoints = adjustAdminPoints;
