@@ -368,7 +368,20 @@ async function loadPlayerWallet(session,skipFlush){
     renderModeBalance();
   } else { adminPointsBalance=0; renderModeBalance(); }
 }
-function renderModeBalance(){
+function renderModeBalance() {
+  const amount = document.getElementById('homeBalance');
+  const caption = document.querySelector('.balance-amount small');
+
+  if (amount) {
+    amount.textContent = fmt(balance);
+  }
+
+  if (caption) {
+    caption.textContent = walletUserId
+      ? 'welcome practice points'
+      : 'demo practice credits';
+  }
+}
   const amount=document.getElementById('homeBalance');
   const caption=document.querySelector('.balance-amount small');
   if(amount) amount.textContent=fmt(gameMode==='demo'?balance:adminPointsBalance);
