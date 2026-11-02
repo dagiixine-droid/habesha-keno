@@ -278,6 +278,8 @@ function setGameMode(mode) {
 
   document.querySelectorAll('#numberGrid .num, #clearBtn, #randomBtn').forEach(el => {
     el.disabled = false;
+    el.removeAttribute('aria-disabled');
+    el.style.pointerEvents = 'auto';
   });
 
   renderModeBalance();
@@ -336,7 +338,7 @@ function renderWalletHistory(){
   });
 }
 document.getElementById('clearWalletHistory')?.addEventListener('click',()=>{walletHistory=[];saveWalletHistory();renderWalletHistory();});
-for(let n=1;n<=80;n++){const b=document.createElement('button');b.className='num';b.textContent=n;b.setAttribute('aria-label','Number '+n);b.onclick=()=>toggle(n,b);grid.appendChild(b)}
+for(let n=1;n<=80;n++){const b=document.createElement('button');b.type='button';b.className='num';b.textContent=n;b.setAttribute('aria-label','Select number '+n);b.disabled=false;b.addEventListener('click',(event)=>{event.preventDefault();toggle(n,b)});grid.appendChild(b)}
 function paintCountdown(){
   const remaining=Math.max(0,Math.ceil((phaseDeadline-Date.now())/1000));
   timerRemaining=remaining;
