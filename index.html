@@ -212,6 +212,9 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
       <h3>🏆 Recent games result</h3>
       <p class="sub">Practice draw history is saved on this device and restored when you reopen the app. Rankings are practice-only.</p>
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:280px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">Sample winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="2" style="padding:12px 6px;color:#9aaba5">No completed practice games yet. Results will be saved on this device.</td></tr></tbody></table></div>
+        <button id="recentGamesToggle" class="refresh-btn" type="button">
+  See more
+</button>
     </section>
     <section class="card">
       <h3>🥇 Top 12 leaderboard</h3>
@@ -711,17 +714,58 @@ function finishDraw(){
   document.getElementById('playBtn').textContent=joinLabel();updateStakeUI();
   document.getElementById('scheduledStatus').textContent=`Round #${roundSequence} complete — all 20 numbers revealed. The next entry window opens when the countdown reaches 00:00.`;
 }
-function renderRecentGames(){
-  const body=document.getElementById('recentGamesBody');
-  if(!body)return;
-  body.innerHTML='';
-  recentDemoGames.forEach(game=>{
-    const tr=document.createElement('tr');
-    const roundCell=document.createElement('td');roundCell.textContent=`Game #${game.round}`;tr.appendChild(roundCell);
-    const winnerCell=document.createElement('td');winnerCell.textContent=game.winner || 'Sample winner';tr.appendChild(winnerCell);
+let showAllLeaderboard = false;
+
+function renderLeaderboard() {
+  const body = document.getElementById('leaderboardBody');
+  if (!body) return;
+
+  body.innerHTML = '';
+
+  // Use fictional sample players, not registered accounts.
+  const sortedPlayers = demoNames
+    .map((name, index) => ({
+      name,
+      points: Number(demoScores[index] || 0)
+    }))
+    .sort((a, b) =>
+      b.points - a.points || a.name.localeCompare(b.name)
+    );
+
+  const visiblePlayers = showAllLeaderboard
+    ? sortedPlayers
+    : sortedPlayers.slice(0, 12);
+
+  visiblePlayers.forEach((player, index) => {
+    const tr = document.createElement('tr');
+
+    [
+      String(index + 1),
+      player.name,
+      player.points.toLocaleString('en-US')
+    ].forEach((value, column) => {
+      const td = document.createElement('td');
+      td.style.padding = '10px 6px';
+      td.style.color = column === 0 ? '#ffdf83' : '#e9e5d5';
+      td.textContent = value;
+      tr.appendChild(td);
+    });
+
     body.appendChild(tr);
   });
+
+  const button = document.getElementById('leaderboardToggle');
+
+  if (button) {
+    button.hidden = sortedPlayers.length <= 12;
+    button.textContent = showAllLeaderboard ? 'See less' : 'See more';
+  }
 }
+
+document.getElementById('leaderboardToggle').addEventListener('click', () => {
+  showAllLeaderboard = !showAllLeaderboard;
+  renderLeaderboard();
+});
 let leaderboardRows=null, leaderboardUpdatedAt=null, leaderboardOnline=false, leaderboardLoading=false;
 async function refreshLeaderboard(){
   if(leaderboardLoading)return;
