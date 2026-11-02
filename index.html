@@ -1007,115 +1007,109 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
   if(error)accountMessage('Could not sign out. Please try again.',true);
   else accountMessage('You have signed out.');
 });
-    async function loadAdminDashboard() {
+// ---------- Admin dashboard ----------
+// Shows every player's practice points (welcome points + admin-assigned points) and updates right after
+// an admin adds or deducts points. It also refreshes itself every 15 seconds while it is open.
+const adminState={players:[],transactions:[],search:'',sort:'points',flashId:null,updatedAt:null,loading:false,timer:null};
+const escHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pts=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:2});
+const playerTotal=p=>Number(p.practice_balance||0)+Number(p.admin_points||0);
+
+function renderAdminDashboard(){
+  const dash=document.getElementById('adminDashboard');if(!dash)return;
+  const players=adminState.players, byId=new Map(players.map(p=>[p.id,p]));
+  const totalAll=players.reduce((t,p)=>t+playerTotal(p),0);
+  const totalAdmin=players.reduce((t,p)=>t+Number(p.admin_points||0),0);
+  const games=players.reduce((t,p)=>t+Number(p.games_played||0),0);
+  const cards=[['Total Players',players.length],['Total Games Played',games],['All Practice Points',pts(totalAll)],['Admin-Assigned Points',pts(totalAdmin)]];
+  document.getElementById('adminSummary').innerHTML=cards.map(([k,v])=>`<div style="background:#252525;padding:15px;border-radius:10px;flex:1;min-width:140px"><h3 style="margin:0 0 6px;font-size:13px;color:#d9c47c">${k}</h3><h2 style="margin:0">${v}</h2></div>`).join('');
+  const q=adminState.search.toLowerCase();
+  const list=players.filter(p=>((p.username||'')+' '+(p.email||'')).toLowerCase().includes(q));
+  if(adminState.sort==='points')list.sort((x,y)=>playerTotal(y)-playerTotal(x));
+  else if(adminState.sort==='name')list.sort((x,y)=>String(x.username||'').localeCompare(String(y.username||'')));
+  else list.sort((x,y)=>new Date(y.created_at||0)-new Date(x.created_at||0));
+  document.getElementById('playerList').innerHTML=list.map((player,i)=>`
+    <div style="padding:12px;border-bottom:1px solid #555;${adminState.flashId===player.id?'background:#10372a;transition:background .6s;':''}">
+      <strong>#${i+1} ${escHtml(player.username||'No username')}</strong>
+      <p style="margin:4px 0">${escHtml(player.email||'No email')}</p>
+      <p style="margin:4px 0">Games Played: ${player.games_played??0}</p>
+      <p style="margin:4px 0">Welcome Practice Points: <b>${pts(player.practice_balance)}</b></p>
+      <p style="margin:4px 0">Admin-Assigned Points: <b>${pts(player.admin_points)}</b></p>
+      <p style="margin:4px 0;font-size:16px;color:#ffdf83">Total Practice Points: <b>${pts(playerTotal(player))}</b></p>
+      <button onclick="adjustAdminPoints('${escHtml(player.id)}','ADD')" style="background:#16834a;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;">+ Add Practice Points</button>
+      <button onclick="adjustAdminPoints('${escHtml(player.id)}','DEDUCT')" style="background:#a83232;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;margin-left:5px;">- Deduct Practice Points</button>
+      <p style="margin:6px 0 0">Account Status: ${escHtml(player.account_status||'Registered')}</p>
+      <small>Joined: ${player.created_at?new Date(player.created_at).toLocaleDateString():'—'}</small>
+    </div>`).join('')||'<p>No players found.</p>';
+  const tx=adminState.transactions;
+  document.getElementById('transactionList').innerHTML=tx.length?tx.map(t=>{
+    const who=byId.get(t.auth_user_id);const add=t.transaction_type==='ADD';
+    return `<div style="padding:12px;border-bottom:1px solid #555;">
+      <strong>${add?'➕ Added':'➖ Deducted'}</strong>
+      <p style="margin:4px 0">Amount: ${pts(t.amount)} practice points</p>
+      <p style="margin:4px 0">Player: ${escHtml(who?.username||t.auth_user_id)}</p>
+      <p style="margin:4px 0">Reason: ${escHtml(t.reason||'No reason provided')}</p>
+      <small>${new Date(t.created_at).toLocaleString()}</small></div>`;
+  }).join(''):'<p>No transactions yet.</p>';
+  const u=document.getElementById('adminUpdated');
+  if(u&&adminState.updatedAt){const d=new Date(adminState.updatedAt);u.textContent=`Updated ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;}
+}
+
+async function refreshAdminData(silent=true){
+  if(adminState.loading)return;
+  adminState.loading=true;
+  try{
+    const { data, error } = await supabaseClient.functions.invoke('admin-players');
+    if(error)throw error;
+    adminState.players=data?.players??[];
+    adminState.transactions=data?.transactions??[];
+    adminState.updatedAt=Date.now();
+    renderAdminDashboard();
+  }catch(error){
+    console.error('Admin refresh failed:',error);
+    if(!silent)alert('Admin error: '+(error?.message||'Unknown error'));
+  }finally{adminState.loading=false;}
+}
+
+async function loadAdminDashboard() {
   try {
-    alert("Checking administrator access...");
-
-    const { data: sessionData, error: sessionError } =
-      await supabaseClient.auth.getSession();
-
+    const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
     if (sessionError) throw sessionError;
+    if (!sessionData.session) { alert('Please log in first.'); return; }
 
-    if (!sessionData.session) {
-      alert("Please log in first.");
-      return;
+    if(!document.getElementById('adminDashboard')){
+      const dashboard=document.createElement('div');
+      dashboard.id='adminDashboard';
+      dashboard.style.cssText='position:fixed;inset:5%;background:#151515;color:white;padding:20px;border:2px solid #c9a227;border-radius:12px;z-index:10000;overflow:auto;';
+      dashboard.innerHTML=`
+        <button id="closeAdmin">Close ✕</button>
+        <h2 style="color:#c9a227">Admin Dashboard</h2>
+        <div id="adminSummary" style="display:flex;gap:12px;flex-wrap:wrap;margin:20px 0;"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:15px;">
+          <input id="playerSearch" placeholder="Search username or email..." style="padding:10px;flex:1;min-width:180px;">
+          <select id="playerSort" style="padding:10px;">
+            <option value="points">Sort: highest points</option>
+            <option value="name">Sort: name A–Z</option>
+            <option value="newest">Sort: newest</option>
+          </select>
+          <button id="adminRefresh" type="button" style="padding:10px;cursor:pointer;">↻ Refresh</button>
+          <small id="adminUpdated" style="color:#a8b4aa"></small>
+        </div>
+        <div id="playerList"></div>
+        <h2 style="color:#c9a227;margin-top:25px;">Practice Points Transaction History</h2>
+        <div id="transactionList"></div>`;
+      document.body.appendChild(dashboard);
+      document.getElementById('playerSearch').addEventListener('input',e=>{adminState.search=e.target.value;renderAdminDashboard();});
+      document.getElementById('playerSort').addEventListener('change',e=>{adminState.sort=e.target.value;renderAdminDashboard();});
+      document.getElementById('adminRefresh').addEventListener('click',()=>refreshAdminData(false));
+      document.getElementById('closeAdmin').addEventListener('click',()=>{dashboard.remove();clearInterval(adminState.timer);adminState.timer=null;});
+      clearInterval(adminState.timer);
+      adminState.timer=setInterval(()=>{if(!document.getElementById('adminDashboard')){clearInterval(adminState.timer);adminState.timer=null;return}if(!document.hidden)refreshAdminData(true);},15000);
     }
-
-    const { data, error } =
-      await supabaseClient.functions.invoke("admin-players");
-
-    if (error) {
-      console.error("Admin function error:", error);
-      alert("Admin error: " + error.message);
-      return;
-    }
-
-    const players = data.players ?? [];
-const transactions = data.transactions ?? [];
-    document.getElementById("adminDashboard")?.remove();
-
-    const dashboard = document.createElement("div");
-    dashboard.id = "adminDashboard";
-    dashboard.style.cssText =
-      "position:fixed;inset:5%;background:#151515;color:white;padding:20px;border:2px solid #c9a227;border-radius:12px;z-index:10000;overflow:auto;";
-
-    dashboard.innerHTML = `
-      <button id="closeAdmin">Close ✕</button>
-      <h2 style="color:#c9a227">Admin Dashboard</h2>
-     <div style="display:flex;gap:12px;flex-wrap:wrap;margin:20px 0;">
-  <div style="background:#252525;padding:15px;border-radius:10px;flex:1;">
-    <h3>Total Players</h3>
-    <h2>${players.length}</h2>
-  </div>
-
-  <div style="background:#252525;padding:15px;border-radius:10px;flex:1;">
-    <h3>Total Games Played</h3>
-    <h2>${players.reduce((total, player) =>
-      total + Number(player.games_played || 0), 0)}</h2>
-  </div>
-</div>
-      <input id="playerSearch" placeholder="Search username..."
-        style="padding:10px;width:100%;margin-bottom:15px;">
-      <div id="playerList"></div>
-      <h2 style="color:#c9a227;margin-top:25px;">
-  Practice Credit Transaction History
-</h2>
-
-<div id="transactionList">
-  ${transactions.length ? transactions.map(transaction => `
-    <div style="padding:12px;border-bottom:1px solid #555;">
-      <strong>${transaction.transaction_type === "ADD" ? "➕ Added" : "➖ Deducted"}</strong>
-      <p>Amount: ${Number(transaction.amount).toFixed(2)} Practice ETB</p>
-      <p>Player ID: ${transaction.auth_user_id}</p>
-      <p>Reason: ${transaction.reason || "No reason provided"}</p>
-      <small>${new Date(transaction.created_at).toLocaleString()}</small>
-    </div>
-  `).join("") : "<p>No transactions yet.</p>"}
-</div>
-    `;
-
-    document.body.appendChild(dashboard);
-
-    function renderPlayers(search = "") {
-      const filtered = players.filter(player =>
-        (player.username || "").toLowerCase().includes(search.toLowerCase())
-      );
-
-      document.getElementById("playerList").innerHTML =
-        filtered.map(player => `
-          <div style="padding:12px;border-bottom:1px solid #555;">
-            <strong>${player.username || "No username"}</strong>
-            <p>${player.email || "No email"}</p>
-            <p>Games Played: ${player.games_played ?? 0}</p>
-            <p>Practice Balance: ${Number(player.practice_balance || 0).toFixed(2)} ETB</p>
-            <p>Admin Points: ${Number(player.admin_points || 0).toFixed(2)} practice points</p>
-            <button onclick="adjustAdminPoints('${player.id}', 'ADD')"
-  style="background:#16834a;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;">
-  + Add Practice Points
-</button>
-<button onclick="adjustAdminPoints('${player.id}', 'DEDUCT')"
-  style="background:#a83232;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;margin-left:5px;">
-  - Deduct Practice Points
-</button>
-            <p>Account Status: ${player.account_status || "Registered"}</p>
-            <small>Joined: ${new Date(player.created_at).toLocaleDateString()}</small>
-          </div>
-        `).join("") || "<p>No players found.</p>";
-    }
-
-    renderPlayers();
-
-    document.getElementById("playerSearch").addEventListener("input", event => {
-      renderPlayers(event.target.value);
-    });
-
-    document.getElementById("closeAdmin").addEventListener("click", () => {
-      dashboard.remove();
-    });
-
-   } catch (error) {
-    console.error("Dashboard error:", error);
-    alert("Dashboard error: " + error.message);
+    await refreshAdminData(false);
+  } catch (error) {
+    console.error('Dashboard error:', error);
+    alert('Dashboard error: ' + error.message);
   }
 }
 async function adjustPracticeBalance(playerId, type) {
@@ -1162,8 +1156,8 @@ async function adjustPracticeBalance(playerId, type) {
 
 async function adjustAdminPoints(playerId, type) {
   const amount = prompt(type === 'ADD'
-    ? 'Enter free practice points to add:'
-    : 'Enter free practice points to deduct:');
+    ? 'Enter practice points to add:'
+    : 'Enter practice points to deduct:');
   if (amount === null) return;
   const numericAmount = Number(amount);
   if (!Number.isFinite(numericAmount) || numericAmount <= 0 || numericAmount > 1000000) {
@@ -1177,10 +1171,14 @@ async function adjustAdminPoints(playerId, type) {
       p_amount: numericAmount
     });
     if (error) throw error;
-    alert('Practice points updated. New admin-points balance: ' + Number(data).toLocaleString());
-    const { data: sessionData } = await supabaseClient.auth.getSession();
-    if (sessionData?.session) await loadPlayerWallet(sessionData.session);
-    await loadAdminDashboard();
+    // Show the new balance in the dashboard immediately, then confirm with fresh data from the server.
+    const row=adminState.players.find(x=>x.id===playerId);
+    if(row&&Number.isFinite(Number(data)))row.admin_points=Number(data);
+    adminState.flashId=playerId;renderAdminDashboard();
+    setTimeout(()=>{if(adminState.flashId===playerId){adminState.flashId=null;renderAdminDashboard();}},4000);
+    refreshAdminData(true);
+    try{const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (sessionData?.session) await loadPlayerWallet(sessionData.session);}catch(_){}
   } catch (error) {
     console.error('Admin points adjustment failed:', error);
     alert('Could not update practice points: ' + (error?.message || 'Unknown error'));
