@@ -944,9 +944,24 @@ if (sessionError) throw sessionError;
 accountMessage('Login successful.');
 showAccountSession(sessionData.session);
 event.target.reset();
-  }catch(error){
+ } catch (error) {
     console.error('Username login failed:', error);
-    accountMessage(error?.message || 'Sign-in failed. Check your username and password.',true);
+
+    if (error.context) {
+        console.error('HTTP status:', error.context.status);
+
+        try {
+            const responseBody = await error.context.clone().text();
+            console.error('Server response:', responseBody);
+        } catch (readError) {
+            console.error('Could not read server response:', readError);
+        }
+    }
+
+    accountMessage(
+        'Sign-in failed. Check the browser console for details.',
+        true
+    );
   }finally{button.disabled=false;button.textContent='Login';}
 });
 document.getElementById('registerForm').addEventListener('submit',async(event)=>{
