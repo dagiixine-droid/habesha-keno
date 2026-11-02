@@ -303,7 +303,8 @@ function setGameMode(mode) {
 
   if (notice) {
     notice.textContent = demo
-      ? 'DEMO MODE: Stake virtual practice credits; they have no cash value.'
+      ? 'DEMO MODE: Free practice only; points have no cash value.'
+      : 'Practice mode: no wagering or cash value.';
   }
 
   // Both signed-out demo mode and signed-in admin-points mode allow FREE practice play.
