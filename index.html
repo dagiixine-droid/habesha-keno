@@ -197,12 +197,9 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
 
   <section id="leaderPanel" hidden>
     <section class="card" style="margin-bottom:14px">
-      <h3>🏆 Recent games result</h3>
-      <p class="sub">Practice draw history is saved on this device and restored when you reopen the app. Rankings are practice-only.</p>
-      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:280px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">Sample winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="2" style="padding:12px 6px;color:#9aaba5">No completed practice games yet. Results will be saved on this device.</td></tr></tbody></table></div>
-        <button id="recentGamesToggle" class="refresh-btn" type="button">
-  See more
-</button>
+      <h3>🏆 Recent demo games</h3>
+      <p class="sub">Sample results only — usernames and winners below are fictional, not real player records.</p>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:440px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">20 drawn numbers</th><th style="padding:10px 6px">Sample winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="3" style="padding:12px 6px;color:#9aaba5">No completed demo games yet. The first result will appear here.</td></tr></tbody></table></div>
     </section>
     <section class="card">
       <h3>🥇 Top 12 leaderboard</h3>
@@ -667,7 +664,7 @@ function finishDraw(){
   recentDemoGames.unshift({round:roundSequence,numbers:drawNumbers.slice(),winner:sampleWinner,completedAt:new Date(nowUTC()).toISOString()});
   recentDemoGames.splice(20);
   saveRecentGameData();
-  renderRecentGames();
+  window.renderRecentGames();
   renderLeaderboard();
   document.getElementById('scheduledStatus').textContent='Draw complete — all 20 numbers have been revealed.';
   if(queuedEntries.length){
@@ -753,10 +750,26 @@ function renderLeaderboard() {
   }
 }
 
-document.getElementById('recentGamesToggle')?.addEventListener('click', () => {
-  showAllRecentGames = !showAllRecentGames;
-  renderRecentGames();
-});
+// Attach explicitly to window so every game callback can access it reliably.
+window.renderRecentGames = function renderRecentGames(){
+  const body=document.getElementById('recentGamesBody');
+  if(!body)return;
+  body.innerHTML='';
+  recentDemoGames.forEach(game=>{
+    const tr=document.createElement('tr');
+    tr.style.borderTop='1px solid #ffffff18';
+    const cells=[`#${game.round}`,game.numbers.join(', '),game.winner];
+    cells.forEach((value,i)=>{
+      const td=document.createElement('td');
+      td.style.padding='10px 6px';
+      td.style.verticalAlign='top';
+      td.style.color=i===2?'#ffdf83':'#e9e5d5';
+      td.textContent=value;
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
+};
 
 document.getElementById('leaderboardToggle')?.addEventListener('click', () => {
   showAllLeaderboard = !showAllLeaderboard;
@@ -838,7 +851,7 @@ statusEl.textContent = 'Fictional sample players • local preview only.';
 }
 
 renderLeaderboard();
-renderRecentGames();
+window.renderRecentGames();
 refreshLeaderboard();
 setInterval(()=>{const lp=document.getElementById('leaderPanel');if(lp&&!lp.hidden&&!document.hidden)refreshLeaderboard();},15000);
 function resetRoundState(rid){
