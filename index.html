@@ -139,7 +139,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
       </section>
       <section class="card payment-card" id="walletPaymentCard">
         <div class="payment-heading"><div><h3>Payment methods</h3><p class="sub">Choose a method to deposit or request a withdrawal.</p></div><span class="soon-tag">WALLET</span></div>
-        <div class="payment-methods"><button class="method" type="button" id="walletTelebirrBtn"><span class="method-mark telebirr">T</span><span><strong>Telebirr</strong><small>Telebirr secure checkout</small></span><span class="method-arrow">›</span></button></div>
+        <div class="payment-methods"><div class="method" id="walletTelebirrDisplay" role="note" aria-label="Telebirr payment method"><span class="method-mark telebirr">T</span><span><strong>Telebirr</strong><small>Available payment method</small></span></div></div>
         <div class="payment-actions">
           <button class="action-card deposit-action" id="walletDepositBtn" type="button"><span class="action-icon">＋</span><span><strong>Deposit</strong><small>Add funds using Telebirr</small></span><span class="action-arrow">›</span></button>
           <button class="action-card withdraw-action" id="walletWithdrawBtn" type="button"><span class="action-icon">↗</span><span><strong>Withdraw</strong><small>Request a withdrawal</small></span><span class="action-arrow">›</span></button>
@@ -940,9 +940,10 @@ const walletPanel=document.getElementById('walletPanel');
 // The account form is placed directly inside the Wallet tab.
 document.getElementById('walletBalanceSlot').appendChild(homePanel.querySelector('.home-balance'));
 
-document.getElementById('walletDepositBtn').onclick=()=>openPaymentScreen('deposit');
-document.getElementById('walletTelebirrBtn').onclick=()=>openPaymentScreen('deposit');
-document.getElementById('walletWithdrawBtn').onclick=()=>openPaymentScreen('withdraw');
+// Telebirr is displayed as an informational payment method, not a clickable control.
+// Deposit and withdrawal actions open a Telegram chat with the administrator.
+document.getElementById('walletDepositBtn').onclick=()=>openTelegramAdmin('deposit');
+document.getElementById('walletWithdrawBtn').onclick=()=>openTelegramAdmin('withdraw');
 const navButtons=[document.getElementById('homeNav'),document.getElementById('kenoNav'),document.getElementById('walletNav'),document.getElementById('leaderNav')];
 function showTab(tab){
   homePanel.hidden=tab!=='home';
@@ -959,7 +960,15 @@ document.getElementById('homeNav').onclick=()=>showTab('home');
 document.getElementById('kenoNav').onclick=()=>showTab('keno');
 document.getElementById('walletNav').onclick=()=>showTab('wallet');
 document.getElementById('leaderNav').onclick=()=>showTab('leader');
-function openTelegramAdmin(){ window.open('https://t.me/habesha_keno?text='+encodeURIComponent('Hello admin, I need help with Habesha Keno.'),'_blank','noopener'); }
+function openTelegramAdmin(action='general'){
+  const messages={
+    deposit:'Hello admin, I would like to make a deposit to my Habesha Keno wallet. Please guide me through the process.',
+    withdraw:'Hello admin, I would like to request a withdrawal from my Habesha Keno wallet. Please guide me through the process.',
+    general:'Hello admin, I need help with Habesha Keno.'
+  };
+  const message=messages[action]||messages.general;
+  window.open('https://t.me/habesha_keno?text='+encodeURIComponent(message),'_blank','noopener');
+}
 let paymentAction='deposit';
 const paymentBackdrop=document.getElementById('paymentModalBackdrop');
 const paymentAmount=document.getElementById('paymentAmount');
