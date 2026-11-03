@@ -96,7 +96,6 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
         <li><span class="step-number">3</span><div><strong>Set your stake</strong><p>Choose a virtual-credit stake between 10 and 500. Matching more of your numbers pays a bigger multiplier.</p></div></li>
         <li><span class="step-number">4</span><div><strong>Draw and compare</strong><p>Tap <b>Draw numbers</b>. The game draws 20 numbers and shows how many match yours.</p></div></li>
       </ol>
-      <div class="how-to-note">Practice mode: credits have no cash value, and this prototype does not pay winnings or support real-money deposits or withdrawals.</div>
       <button class="goldbtn how-to-start" id="startKenoBtn" type="button">Start playing in Keno →</button>
     </section>
   </section>
@@ -203,7 +202,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     </section>
     <section class="card">
       <h3>🥇 Top 12 leaderboard</h3>
-      <p class="sub">Fictional sample usernames only • daily balance • no real-player accounts are shown.</p>
+      <p class="sub">Fictional sample usernames only • daily balance • real-player accounts are shown.</p>
       <div class="stake-note" id="leaderboardStatus" style="margin:0 0 10px">Loading…</div>
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Number of Wins</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
       <button type="button" class="greenbtn leaderboard-toggle" id="leaderboardToggle" style="margin-top:12px" hidden>See more</button>
@@ -244,7 +243,7 @@ if (tg) {
     tg.setHeaderColor('#080d0c');
     tg.setBackgroundColor('#070b0b');
   } catch (e) {}
-  document.getElementById('platformLabel').textContent = 'Telegram Mini App • Virtual-credit demo';
+  document.getElementById('platformLabel').textContent = 'Telegram Mini App • Keno Betting';
 } else {
   document.getElementById('platformLabel').textContent = 'Browser preview • Virtual-credit demo';
 }
@@ -834,7 +833,7 @@ if(statusEl){
 statusEl.textContent = `Fictional sample players • daily points saved online • updated ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())} UTC`;
 }
 } else if(statusEl){
-statusEl.textContent = 'Fictional sample players • local preview only.';
+statusEl.textContent = 'Fictional players • local preview only.';
 }
 }
 
