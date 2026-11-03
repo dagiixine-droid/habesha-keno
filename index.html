@@ -947,6 +947,10 @@ document.getElementById('homeNav').onclick=()=>showTab('home');
 document.getElementById('kenoNav').onclick=()=>showTab('keno');
 document.getElementById('walletNav').onclick=()=>showTab('wallet');
 document.getElementById('leaderNav').onclick=()=>showTab('leader');
+    // Always open the Wallet tab when Habesha Keno launches
+document.addEventListener('DOMContentLoaded', function () {
+  showTab('wallet');
+});
 function openTelegramAdmin(action='general'){
   const messages={
     deposit:'Hello admin, I would like to make a deposit to my Habesha Keno wallet.',
