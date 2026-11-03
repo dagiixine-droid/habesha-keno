@@ -154,7 +154,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     </div>
   </section>
   <section id="kenoPanel" hidden>
-  <div class="notice" id="kenoModeNotice"><strong>PRACTICE STAKES:</strong> Stakes and winnings use virtual practice points with no cash value. Deposits, withdrawals, real-money betting, and cash prizes are not enabled.</div>
+  <div class="notice" id="kenoModeNotice"><strong>STAKES:</strong> Stakes and winnings use balance with cash value. Deposits, withdrawals, real-money betting, and cash prizes are enabled.</div>
   <section class="countdown-card" aria-live="polite">
     <div><div class="countdown-label">⏱ NEXT DRAW STARTS IN</div><div class="countdown-note" id="timerNote">Choose numbers and join during the countdown</div></div>
     <div class="countdown-time" id="countdown">01:00</div>
@@ -204,7 +204,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     </section>
     <section class="card">
       <h3>🥇 Top 12 leaderboard</h3>
-      <p class="sub">Fictional sample usernames only • daily practice points • no real-player accounts are shown.</p>
+      <p class="sub">Fictional sample usernames only • daily balance • no real-player accounts are shown.</p>
       <div class="stake-note" id="leaderboardStatus" style="margin:0 0 10px">Loading…</div>
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Number of Wins</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
       <button type="button" class="greenbtn leaderboard-toggle" id="leaderboardToggle" style="margin-top:12px" hidden>See more</button>
@@ -316,14 +316,12 @@ function setGameMode(mode) {
   if (msg) {
     msg.classList.toggle('real-preview', !demo);
     msg.textContent = demo
-      ? 'Demo Mode is active. Use your free practice balance.'
-      : 'Admin Points Mode is selected. These are non-redeemable practice points assigned by an administrator.';
+      : 'Admin Points Mode is selected. These are redeemable balance assigned by an administrator.';
   }
 
   if (notice) {
     notice.textContent = demo
-      ? 'DEMO MODE: Stake virtual practice points; they have no cash value.'
-      : 'REAL MODE: Stake virtual practice points; Have cash value or payouts.';
+      : 'REAL MODE: Stake balance; Have cash value or payouts.';
   }
 
   // Both signed-out demo mode and signed-in admin-points mode allow FREE practice play.
@@ -371,9 +369,9 @@ function renderModeBalance() {
   const amount = document.getElementById('homeBalance');
   const caption = document.querySelector('.balance-amount small');
   if (amount) amount.textContent = fmt(balance);
-  if (caption) caption.textContent = 'practice points';
+  if (caption) caption.textContent = 'balance';
   const stakeBalance = document.getElementById('stakeBalance');
-  if (stakeBalance) stakeBalance.textContent = 'Practice points: ' + fmt(balance);
+  if (stakeBalance) stakeBalance.textContent = 'Balance: ' + fmt(balance);
   if (typeof updateStakeUI === 'function') updateStakeUI();
 }
 
@@ -390,7 +388,7 @@ const PAYTABLE={
 function payoutMultiplier(picks,hits){return (PAYTABLE[picks]&&PAYTABLE[picks][hits])||0}
 let walletUserId=null;
 function activeBalance(){return balance}
-// ---- Online saving of practice points ----
+// ---- Online saving of balance ----
 // Every finished round is saved online through the settle_practice_round() database function (see the SQL file).
 // Unsent results are kept in this browser (localStorage) and retried, so nothing is lost if the player is offline or closes the app.
 const PENDING_KEY='habesha_keno_pending_settlements_v1';
@@ -441,7 +439,7 @@ async function flushSettlements(){
   if(dropped){const {data}=await supabaseClient.auth.getSession();if(data?.session)await loadPlayerWallet(data.session,true);}
   if(savedAny)refreshLeaderboard();
 }
-// Practice points (the balance shown on Home) are saved in this browser and, for signed-in players, online.
+// Balance (the balance shown on Home) are saved in this browser and, for signed-in players, online.
 const PENDING_DELTA_KEY='habesha_keno_pending_balance_delta_v1';
 function pendingTotal(uid){return pendingDelta(uid)+pendingNetForUser(uid)}
 function pendingDelta(uid){try{const o=JSON.parse(localStorage.getItem(PENDING_DELTA_KEY)||'{}');return Number(o[uid])||0}catch(_){return 0}}
@@ -480,7 +478,7 @@ async function flushBalanceDelta(){
       if(upd&&upd.length){setPendingDelta(uid,pendingDelta(uid)-delta);balance=Math.max(0,next+pendingTotal(uid));saveVirtualBalance();renderModeBalance();if(!pendingTotal(uid))setSync(true,'✓ Balance saved online — the admin sees this amount.');}
       // otherwise the balance changed meanwhile (for example by the admin): loop again with the fresh value
     }
-  }catch(err){console.error('Could not save practice points:',err);setSync(false,'⚠ Your balance is NOT saved online yet ('+(err?.message||'permission denied')+'). The admin will see the old amount until it saves. Run the SQL setup file, or allow players to update their own practice_wallets row.');}
+  }catch(err){console.error('Could not save Balance:',err);setSync(false,'⚠ Your balance is NOT saved online yet ('+(err?.message||'permission denied')+'). The admin will see the old amount until it saves. Run the SQL setup file, or allow players to update their own practice_wallets row.');}
   finally{flushingDelta=false;}
 }
 async function persistBalance(){saveVirtualBalance();return flushBalanceDelta();}
@@ -534,7 +532,7 @@ function updateStakeUI(){
   const picks=selected.size;
   const valid=Number.isFinite(stake)&&stake>0;
   const set=(id,t)=>{const el=document.getElementById(id);if(el)el.textContent=t};
-  set('stakeBalance','Practice points: '+fmt(balance));
+  set('stakeBalance','Balance: '+fmt(balance));
   renderEntries();
   set('stakeShown',valid?fmt(stake):'—');
   const row=PAYTABLE[picks];
@@ -554,9 +552,9 @@ function updateStakeUI(){
   
   const note=document.getElementById('stakeNote');
   if(note){
-    if(valid&&stake>availableBalance())note.textContent=queuedEntries.length?`Not enough available points (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:(balance<MIN_STAKE?'You do not have enough practice points to stake.':'Stake is higher than your practice points balance.');
+    if(valid&&stake>availableBalance())note.textContent=queuedEntries.length?`Not enough available points (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:(balance<MIN_STAKE?'You do not have enough balance to stake.':'Stake is higher than your balance.');
     else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} credits.`;
-    else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} credits per entry. Available to stake: ${fmt(availableBalance())}${pendingStake()?` (${fmt(pendingStake())} staked this round)`:''}. Your balance changes after the draw.`;
+    else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} stake per entry. Available to stake: ${fmt(availableBalance())}${pendingStake()?` (${fmt(pendingStake())} staked this round)`:''}. Your balance changes after the draw.`;
   }
 }
 const WALLET_HISTORY_KEY='habesha_keno_virtual_wallet_history_v1';
@@ -912,7 +910,7 @@ document.getElementById('playBtn').onclick=()=>{
  if(selected.size<1){status('Choose at least one number first.');return}
  const stake=readStake();
  if(!Number.isFinite(stake)||stake<MIN_STAKE||stake>MAX_STAKE||stake%10!==0){status(`Enter a stake between ${MIN_STAKE} and ${MAX_STAKE} points, in steps of 10.`);return}
- if(stake>availableBalance()){status(`Not enough practice points. Available: ${fmt(availableBalance())} (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`);return}
+ if(stake>availableBalance()){status(`Not enough balance. Available: ${fmt(availableBalance())} (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`);return}
  const picks=[...selected].sort((a,b)=>a-b);
  queuedEntries.push({id:++entrySeq,picks,stake,mode:'demo'});
  recordStakeOnline();
@@ -1082,7 +1080,7 @@ async function showAccountSession(session) {
 
     await loadPlayerWallet(session);
     loadWalletHistoryForPlayer();
-    // Signed-in players see only the administrator-assigned practice points.
+    // Signed-in players see only the administrator-assigned balance.
     setGameMode('real');
     const modeSwitch = document.querySelector('.mode-switch');
     if (modeSwitch) modeSwitch.hidden = true;
@@ -1200,7 +1198,7 @@ document.getElementById('signOutBtn').addEventListener('click',async()=>{
   else accountMessage('You have signed out.');
 });
 // ---------- Admin dashboard ----------
-// Shows every player's practice points (welcome points + admin-assigned points) and updates right after
+// Shows every player's balance (welcome points + admin-assigned points) and updates right after
 // an admin adds or deducts points. It also refreshes itself every 15 seconds while it is open.
 const adminState={players:[],transactions:[],search:'',sort:'points',flashId:null,updatedAt:null,loading:false,timer:null,changed:{},activity:[],stakeSeen:{},live:false};
 const escHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1213,7 +1211,7 @@ function renderAdminDashboard(){
   const totalAll=players.reduce((t,p)=>t+playerTotal(p),0);
   const totalAdmin=players.reduce((t,p)=>t+Number(p.admin_points||0),0);
   const games=players.reduce((t,p)=>t+Number(p.games_played||0),0);
-  const cards=[['Total Players',players.length],['Total Games Played',games],['All Players\' Practice Points',pts(totalAll)],['Average Per Player',pts(players.length?totalAll/players.length:0)]];
+  const cards=[['Total Players',players.length],['Total Games Played',games],['All Players\' Balance',pts(totalAll)],['Average Per Player',pts(players.length?totalAll/players.length:0)]];
   document.getElementById('adminSummary').innerHTML=cards.map(([k,v])=>`<div style="background:#252525;padding:15px;border-radius:10px;flex:1;min-width:140px"><h3 style="margin:0 0 6px;font-size:13px;color:#d9c47c">${k}</h3><h2 style="margin:0">${v}</h2></div>`).join('');
   const q=adminState.search.toLowerCase();
   const list=players.filter(p=>((p.username||'')+' '+(p.email||'')).toLowerCase().includes(q));
@@ -1225,11 +1223,11 @@ function renderAdminDashboard(){
       <strong>#${i+1} ${escHtml(player.username||'No username')}</strong>${(adminState.changed[player.id]&&adminState.changed[player.id].delta)?` <span style="font-size:12px;font-weight:800;color:${adminState.changed[player.id].delta>=0?'#19dc83':'#ff8a8a'}">${adminState.changed[player.id].delta>=0?'▲ +':'▼ −'}${pts(Math.abs(adminState.changed[player.id].delta))} • last result ${new Date(adminState.changed[player.id].at).toLocaleTimeString()}</span>`:''}
       <p style="margin:4px 0">${escHtml(player.email||'No email')}</p>
       <p style="margin:4px 0">Games Played: ${player.games_played??0}</p>
-      <p style="margin:4px 0;font-size:16px;color:#ffdf83">Practice Points: <b>${pts(player.practice_balance)}</b> <small style="color:#a8b4aa">(the balance this player stakes with)</small></p>
+      <p style="margin:4px 0;font-size:16px;color:#ffdf83">Balance: <b>${pts(player.practice_balance)}</b> <small style="color:#a8b4aa">(the balance this player stakes with)</small></p>
       ${Number(player.staked_now||0)>0?`<p style="margin:4px 0;color:#ffcf66;font-weight:800">🎟 Staked this round: ${pts(player.staked_now)} (${player.entries_now||0} entr${Number(player.entries_now)===1?'y':'ies'}) — balance changes after the draw. After this stake: ${pts(Math.max(0,Number(player.practice_balance||0)-Number(player.staked_now)))}</p>`:''}
       ${Number(player.admin_points||0)>0?`<p style="margin:4px 0;color:#a8b4aa"><small>Older admin-assigned points (not used for staking): ${pts(player.admin_points)}</small></p>`:''}
-      <button onclick="adjustAdminPoints('${escHtml(player.id)}','ADD')" style="background:#16834a;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;">+ Add Practice Points</button>
-      <button onclick="adjustAdminPoints('${escHtml(player.id)}','DEDUCT')" style="background:#a83232;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;margin-left:5px;">- Deduct Practice Points</button>
+      <button onclick="adjustAdminPoints('${escHtml(player.id)}','ADD')" style="background:#16834a;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;">+ Add Balance</button>
+      <button onclick="adjustAdminPoints('${escHtml(player.id)}','DEDUCT')" style="background:#a83232;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;margin-left:5px;">- Deduct Balance</button>
       <p style="margin:6px 0 0">Account Status: ${escHtml(player.account_status||'Registered')}</p>
       <small>Joined: ${player.created_at?new Date(player.created_at).toLocaleDateString():'—'}</small>
     </div>`).join('')||'<p>No players found.</p>';
@@ -1240,7 +1238,7 @@ function renderAdminDashboard(){
     const who=byId.get(t.auth_user_id);const add=t.transaction_type==='ADD';
     return `<div style="padding:12px;border-bottom:1px solid #555;">
       <strong>${add?'➕ Added':'➖ Deducted'}</strong>
-      <p style="margin:4px 0">Amount: ${pts(t.amount)} practice points</p>
+      <p style="margin:4px 0">Amount: ${pts(t.amount)} Balance</p>
       <p style="margin:4px 0">Player: ${escHtml(who?.username||t.auth_user_id)}</p>
       <p style="margin:4px 0">Reason: ${escHtml(t.reason||'No reason provided')}</p>
       <small>${new Date(t.created_at).toLocaleString()}</small></div>`;
@@ -1332,7 +1330,7 @@ async function loadAdminDashboard() {
         <h2 style="color:#c9a227;margin-top:25px;">Live player results</h2>
         <p style="margin:0 0 8px;color:#a8b4aa;font-size:12px">Balance changes seen while this dashboard is open: a player's wins and losses appear here within seconds.</p>
         <div id="liveActivity"></div>
-        <h2 style="color:#c9a227;margin-top:25px;">Practice Points Transaction History</h2>
+        <h2 style="color:#c9a227;margin-top:25px;">Balance Transaction History</h2>
         <div id="transactionList"></div>`;
       document.body.appendChild(dashboard);
       document.getElementById('playerSearch').addEventListener('input',e=>{adminState.search=e.target.value;renderAdminDashboard();});
@@ -1392,8 +1390,8 @@ async function adjustPracticeBalance(playerId, type) {
 
 async function adjustAdminPoints(playerId, type) {
   const amount = prompt(type === 'ADD'
-    ? 'Enter practice points to add:'
-    : 'Enter practice points to deduct:');
+    ? 'Enter Balance to add:'
+    : 'Enter Balance to deduct:');
   if (amount === null) return;
   const numericAmount = Number(amount);
   if (!Number.isFinite(numericAmount) || numericAmount <= 0 || numericAmount > 1000000) {
@@ -1402,7 +1400,7 @@ async function adjustAdminPoints(playerId, type) {
   }
   const reason = prompt('Reason for this adjustment (optional):') || '';
   try {
-    // Changes the practice points the player stakes with (and records the transaction).
+    // Changes the balance the player stakes with (and records the transaction).
     const { data, error } = await supabaseClient.rpc('adjust_practice_balance', {
       p_player_id: playerId,
       p_type: type,
@@ -1418,9 +1416,9 @@ async function adjustAdminPoints(playerId, type) {
     refreshAdminData(true);
     syncBalanceFromServer();
   } catch (error) {
-    console.error('Practice points adjustment failed:', error);
+    console.error('Balance adjustment failed:', error);
     const missing=error?.code==='PGRST202'||error?.code==='42883';
-    alert(missing?'The database function adjust_practice_balance() is not installed yet.':'Could not update practice points: ' + (error?.message || 'Unknown error'));
+    alert(missing?'The database function adjust_practice_balance() is not installed yet.':'Could not update balance: ' + (error?.message || 'Unknown error'));
   }
 }
 window.adjustAdminPoints = adjustAdminPoints;
