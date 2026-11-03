@@ -87,10 +87,6 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
       <div class="balance-amount"><span id="homeBalance">1,000</span><small>virtual credits</small></div>
       <div class="balance-foot"><span>🔒 Secure wallet</span><button class="refresh-btn" id="refreshBalance" type="button">↻ Refresh</button></div>
     </div>
-    <div class="payment-actions">
-      <button class="action-card deposit-action" id="depositBtn" type="button"><span class="action-icon">＋</span><span><strong>Deposit</strong><small>Contact admin on Telegram</small></span><span class="action-arrow">›</span></button>
-      <button class="action-card withdraw-action" id="withdrawBtn" type="button"><span class="action-icon">↗</span><span><strong>Withdraw</strong><small>Demo request only</small></span><span class="action-arrow">›</span></button>
-    </div>
     <section class="card how-to-card">
       <h3>🎮 How to play Habesha Keno</h3>
       <p class="sub" style="margin-top:-5px;line-height:1.5">Learn the basics in a few quick steps.</p>
@@ -102,12 +98,6 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
       </ol>
       <div class="how-to-note">Practice mode: credits have no cash value, and this prototype does not pay winnings or support real-money deposits or withdrawals.</div>
       <button class="goldbtn how-to-start" id="startKenoBtn" type="button">Start playing in Keno →</button>
-    </section>
-    <section class="card payment-card">
-      <div class="payment-heading"><div><h3>Payment options</h3><p class="sub">Preview payment methods for a future integration.</p></div><span class="soon-tag">COMING LATER</span></div>
-      <div class="payment-methods">
-        <button class="method" type="button" data-method="Telebirr"><span class="method-mark telebirr">T</span><span><strong>Telebirr</strong><small>Not connected</small></span><span class="method-arrow">›</span></button>
-      </div>
     </section>
   </section>
   <section id="walletPanel" hidden>
@@ -148,11 +138,11 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
   </section>
       </section>
       <section class="card payment-card" id="walletPaymentCard">
-        <div class="payment-heading"><div><h3>Payment options</h3><p class="sub">Available payment contact.</p></div></div>
-        <div class="payment-methods"><button class="method" type="button" id="walletTelebirrBtn"><span class="method-mark telebirr">T</span><span><strong>Telebirr</strong><small>Contact admin on Telegram</small></span><span class="method-arrow">›</span></button></div>
+        <div class="payment-heading"><div><h3>Payment methods</h3><p class="sub">Choose a method to deposit or request a withdrawal.</p></div><span class="soon-tag">WALLET</span></div>
+        <div class="payment-methods"><button class="method" type="button" id="walletTelebirrBtn"><span class="method-mark telebirr">T</span><span><strong>Telebirr</strong><small>Telebirr secure checkout</small></span><span class="method-arrow">›</span></button></div>
         <div class="payment-actions">
-          <button class="action-card deposit-action" id="walletDepositBtn" type="button"><span class="action-icon">＋</span><span><strong>Deposit</strong><small>Contact admin on Telegram</small></span><span class="action-arrow">›</span></button>
-          <button class="action-card withdraw-action" id="walletWithdrawBtn" type="button"><span class="action-icon">↗</span><span><strong>Withdraw</strong><small>Demo request only</small></span><span class="action-arrow">›</span></button>
+          <button class="action-card deposit-action" id="walletDepositBtn" type="button"><span class="action-icon">＋</span><span><strong>Deposit</strong><small>Add funds using Telebirr</small></span><span class="action-arrow">›</span></button>
+          <button class="action-card withdraw-action" id="walletWithdrawBtn" type="button"><span class="action-icon">↗</span><span><strong>Withdraw</strong><small>Request a withdrawal</small></span><span class="action-arrow">›</span></button>
         </div>
         <p class="payment-note">Demo only: no money is transferred or received.</p>
       </section>
@@ -980,8 +970,6 @@ function openPaymentScreen(action){
   setTimeout(()=>paymentAmount.focus(),60);
 }
 function closePaymentScreen(){paymentBackdrop.classList.remove('open');paymentBackdrop.setAttribute('aria-hidden','true')}
-document.getElementById('depositBtn').onclick=()=>openPaymentScreen('deposit');
-document.getElementById('withdrawBtn').onclick=()=>openPaymentScreen('withdraw');
 document.getElementById('closePaymentModal').onclick=closePaymentScreen;
 paymentBackdrop.addEventListener('click',e=>{if(e.target===paymentBackdrop)closePaymentScreen()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closePaymentScreen()});
