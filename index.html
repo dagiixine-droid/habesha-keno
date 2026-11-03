@@ -84,7 +84,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
   <section id="homePanel" class="home-panel">
     <div class="home-balance card">
       <div class="balance-top"><span class="eyebrow">YOUR AVAILABLE BALANCE</span><span class="demo-tag" id="modeBadge">DEMO MODE</span></div>
-      <div class="balance-amount"><span id="homeBalance">1,000</span><small>virtual credits</small></div>
+      <div class="balance-amount"><span id="homeBalance">1,000</span><small>practice points</small></div>
       <div class="balance-foot"><span>🔒 Secure wallet</span><button class="refresh-btn" id="refreshBalance" type="button">↻ Refresh</button></div>
     </div>
     <section class="card how-to-card">
@@ -146,7 +146,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
         </div>
         <p class="payment-note">Demo only: no money is transferred or received.</p>
       </section>
-      <section class="card" id="walletHistoryCard">
+      <section class="card" id="walletHistoryCard" hidden>
         <div class="payment-heading"><div><h3>Wallet activity</h3><p class="sub">Recent virtual-credit changes and requests.</p></div><button class="refresh-btn" id="clearWalletHistory" type="button">Clear history</button></div>
         <div id="walletHistoryList" aria-live="polite"><p class="payment-note">No wallet activity yet.</p></div>
         <p class="payment-note">History is saved in this browser only for now. It is not yet synced to your Supabase account.</p>
@@ -173,7 +173,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     </section>
     <aside class="stack">
       <section class="card">
-        <h3>🎟️ Stake <span class="stake-bal" id="stakeBalance">Balance: 0</span></h3>
+        <h3>🎟️ Stake <span class="stake-bal" id="stakeBalance">Practice points: 1,000</span></h3>
         <div class="field"><label for="bet">Stake amount (practice points)</label><input id="bet" type="number" min="10" max="500" step="10" value="50" inputmode="numeric"></div>
         <div class="quick"><button type="button" data-bet="10">10</button><button type="button" data-bet="50">50</button><button type="button" data-bet="100">100</button><button type="button" data-bet="250">250</button><button type="button" data-bet="500">500</button></div>
         <div class="stake-note" id="syncStatus" hidden style="font-weight:700"></div>
@@ -200,12 +200,14 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
       <h3>🏆 Recent demo games</h3>
       <p class="sub">Sample results only — usernames and winners below are fictional, not real player records.</p>
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:440px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">20 drawn numbers</th><th style="padding:10px 6px">Sample winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="3" style="padding:12px 6px;color:#9aaba5">No completed demo games yet. The first result will appear here.</td></tr></tbody></table></div>
+      <button type="button" class="greenbtn leaderboard-toggle" id="recentGamesToggle" style="margin-top:12px" hidden>See more</button>
     </section>
     <section class="card">
       <h3>🥇 Top 12 leaderboard</h3>
       <p class="sub">Fictional sample usernames only • daily practice points • no real-player accounts are shown.</p>
       <div class="stake-note" id="leaderboardStatus" style="margin:0 0 10px">Loading…</div>
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Practice points</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
+      <button type="button" class="greenbtn leaderboard-toggle" id="leaderboardToggle" style="margin-top:12px" hidden>See more</button>
     </section>
   </section>
   <div class="payment-modal-backdrop" id="paymentModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="paymentModalTitle" aria-hidden="true">
@@ -365,12 +367,13 @@ async function loadPlayerWallet(session,skipFlush){
   } else { balance=0; adminPointsBalance=0; renderModeBalance(); }
 }
 function renderModeBalance() {
+  // Both the Wallet card and the Keno stake display read from this one balance value.
   const amount = document.getElementById('homeBalance');
   const caption = document.querySelector('.balance-amount small');
   if (amount) amount.textContent = fmt(balance);
-  if (caption) caption.textContent = walletUserId
-    ? 'welcome practice points'
-    : 'free practice points';
+  if (caption) caption.textContent = 'practice points';
+  const stakeBalance = document.getElementById('stakeBalance');
+  if (stakeBalance) stakeBalance.textContent = 'Practice points: ' + fmt(balance);
   if (typeof updateStakeUI === 'function') updateStakeUI();
 }
 
@@ -531,7 +534,7 @@ function updateStakeUI(){
   const picks=selected.size;
   const valid=Number.isFinite(stake)&&stake>0;
   const set=(id,t)=>{const el=document.getElementById(id);if(el)el.textContent=t};
-  set('stakeBalance','Balance: '+fmt(balance));
+  set('stakeBalance','Practice points: '+fmt(balance));
   renderEntries();
   set('stakeShown',valid?fmt(stake):'—');
   const row=PAYTABLE[picks];
@@ -558,14 +561,28 @@ function updateStakeUI(){
 }
 const WALLET_HISTORY_KEY='habesha_keno_virtual_wallet_history_v1';
 let walletHistory=[];
-try{walletHistory=JSON.parse(localStorage.getItem(WALLET_HISTORY_KEY)||'[]');if(!Array.isArray(walletHistory))walletHistory=[];}catch(_){walletHistory=[];}
-function saveWalletHistory(){try{localStorage.setItem(WALLET_HISTORY_KEY,JSON.stringify(walletHistory.slice(0,50)));}catch(_){}}
+function walletHistoryStorageKey(){return walletUserId?`${WALLET_HISTORY_KEY}_${walletUserId}`:null;}
+function loadWalletHistoryForPlayer(){
+  walletHistory=[];
+  const key=walletHistoryStorageKey();
+  if(!key){renderWalletHistory();return;}
+  try{const saved=JSON.parse(localStorage.getItem(key)||'[]');walletHistory=Array.isArray(saved)?saved:[];}catch(_){walletHistory=[];}
+  renderWalletHistory();
+}
+function saveWalletHistory(){
+  const key=walletHistoryStorageKey();
+  if(!key)return;
+  try{localStorage.setItem(key,JSON.stringify(walletHistory.slice(0,50)));}catch(_){}
+}
 function addWalletActivity(type,amount,details){
+  // Wallet activity is private to the signed-in player; demo activity is not stored here.
+  if(!walletUserId)return;
   walletHistory.unshift({id:Date.now()+Math.random(),type,amount,details,balance,createdAt:new Date().toISOString()});
   walletHistory=walletHistory.slice(0,50);saveWalletHistory();renderWalletHistory();
 }
 function renderWalletHistory(){
   const host=document.getElementById('walletHistoryList');if(!host)return;
+  if(!walletUserId){host.innerHTML='';return;}
   if(!walletHistory.length){host.innerHTML='<p class="payment-note">No wallet activity yet.</p>';return;}
   host.innerHTML='';
   walletHistory.forEach(item=>{
@@ -703,77 +720,49 @@ function finishDraw(){
   document.getElementById('scheduledStatus').textContent=`Round #${roundSequence} complete — all 20 numbers revealed. The next entry window opens when the countdown reaches 00:00.`;
 }
 let showAllLeaderboard = false;
-
-function renderLeaderboard() {
-  const body = document.getElementById('leaderboardBody');
-  if (!body) return;
-
-  body.innerHTML = '';
-
-  // Use fictional sample players, not registered accounts.
-  const sortedPlayers = demoNames
-    .map((name, index) => ({
-      name,
-      points: Number(demoScores[index] || 0)
-    }))
-    .sort((a, b) =>
-      b.points - a.points || a.name.localeCompare(b.name)
-    );
-
-  const visiblePlayers = showAllLeaderboard
-    ? sortedPlayers
-    : sortedPlayers.slice(0, 12);
-
-  visiblePlayers.forEach((player, index) => {
-    const tr = document.createElement('tr');
-
-    [
-      String(index + 1),
-      player.name,
-      player.points.toLocaleString('en-US')
-    ].forEach((value, column) => {
-      const td = document.createElement('td');
-      td.style.padding = '10px 6px';
-      td.style.color = column === 0 ? '#ffdf83' : '#e9e5d5';
-      td.textContent = value;
-      tr.appendChild(td);
-    });
-
-    body.appendChild(tr);
-  });
-
-  const button = document.getElementById('leaderboardToggle');
-
-  if (button) {
-    button.hidden = sortedPlayers.length <= 12;
-    button.textContent = showAllLeaderboard ? 'See less' : 'See more';
-  }
-}
+let showAllRecentGames = false;
 
 // Attach explicitly to window so every game callback can access it reliably.
 window.renderRecentGames = function renderRecentGames(){
   const body=document.getElementById('recentGamesBody');
   if(!body)return;
   body.innerHTML='';
-  recentDemoGames.forEach(game=>{
+  const visibleGames = showAllRecentGames
+    ? recentDemoGames.slice(0,10)
+    : recentDemoGames.slice(0,3);
+  if(!visibleGames.length){
     const tr=document.createElement('tr');
-    tr.style.borderTop='1px solid #ffffff18';
-    const cells=[`#${game.round}`,game.numbers.join(', '),game.winner];
-    cells.forEach((value,i)=>{
-      const td=document.createElement('td');
-      td.style.padding='10px 6px';
-      td.style.verticalAlign='top';
-      td.style.color=i===2?'#ffdf83':'#e9e5d5';
-      td.textContent=value;
-      tr.appendChild(td);
+    const td=document.createElement('td');
+    td.colSpan=3;
+    td.style.cssText='padding:12px 6px;color:#9aaba5';
+    td.textContent='No completed demo games yet. The first result will appear here.';
+    tr.appendChild(td);body.appendChild(tr);
+  }else{
+    visibleGames.forEach(game=>{
+      const tr=document.createElement('tr');
+      tr.style.borderTop='1px solid #ffffff18';
+      const cells=[`#${game.round}`,game.numbers.join(', '),game.winner];
+      cells.forEach((value,i)=>{
+        const td=document.createElement('td');
+        td.style.padding='10px 6px';
+        td.style.verticalAlign='top';
+        td.style.color=i===2?'#ffdf83':'#e9e5d5';
+        td.textContent=value;
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
     });
-    body.appendChild(tr);
-  });
+  }
+  const button=document.getElementById('recentGamesToggle');
+  if(button){
+    button.hidden=recentDemoGames.length<=3;
+    button.textContent=showAllRecentGames?'See less':'See more';
+  }
 };
 
-document.getElementById('leaderboardToggle')?.addEventListener('click', () => {
-  showAllLeaderboard = !showAllLeaderboard;
-  renderLeaderboard();
+document.getElementById('recentGamesToggle')?.addEventListener('click',()=>{
+  showAllRecentGames=!showAllRecentGames;
+  window.renderRecentGames();
 });
 
 let leaderboardRows = null,
@@ -826,8 +815,8 @@ points: demoScores[index]
 })).sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
 
 const visiblePlayers = showAllLeaderboard
-? players
-: players.slice(0, 12);
+? players.slice(0, 12)
+: players.slice(0, 5);
 
 visiblePlayers.forEach((player, index) => {
 addRow(index + 1, player.name, player.points);
@@ -836,7 +825,7 @@ addRow(index + 1, player.name, player.points);
 const button = document.getElementById('leaderboardToggle');
 
 if(button){
-button.hidden = players.length <= 12;
+button.hidden = players.length <= 5;
 button.textContent = showAllLeaderboard ? 'See less' : 'See more';
 }
 
@@ -1068,7 +1057,9 @@ document.getElementById('loginTabBtn').addEventListener('click',()=>setAccountTa
 document.getElementById('registerTabBtn').addEventListener('click',()=>setAccountTab('register'));
 function accountMessage(message,isError=false){accountFeedback.textContent=message;accountFeedback.style.color=isError?'#ffb2a8':'#ffe29a';}
 async function showAccountSession(session) {
-  if(!session){walletUserId=null;adminPointsBalance=0;setSync(true,'');if(typeof renderModeBalance==='function')renderModeBalance();}
+  if(!session){walletUserId=null;adminPointsBalance=0;walletHistory=[];setSync(true,'');if(typeof renderModeBalance==='function')renderModeBalance();}
+  const walletHistoryCard=document.getElementById('walletHistoryCard');
+  if(walletHistoryCard)walletHistoryCard.hidden=!session;
   signedOutBox.hidden = !!session;
   signedInBox.hidden = !session;
 
@@ -1090,12 +1081,14 @@ async function showAccountSession(session) {
       `Signed in as ${username}. Your player profile is connected.`;
 
     await loadPlayerWallet(session);
+    loadWalletHistoryForPlayer();
     // Signed-in players see only the administrator-assigned practice points.
     setGameMode('real');
     const modeSwitch = document.querySelector('.mode-switch');
     if (modeSwitch) modeSwitch.hidden = true;
     await checkAdminAccess();
   } else {
+    renderWalletHistory();
     document.getElementById("accountStatus").textContent = "";
     const modeSwitch = document.querySelector('.mode-switch');
     if (modeSwitch) modeSwitch.hidden = false;
