@@ -84,7 +84,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
   <section id="homePanel" class="home-panel">
     <div class="home-balance card">
       <div class="balance-top"><span class="eyebrow">YOUR AVAILABLE BALANCE</span><span class="demo-tag" id="modeBadge">DEMO MODE</span></div>
-      <div class="balance-amount"><span id="homeBalance">1,000</span><small>practice points</small></div>
+      <div class="balance-amount"><span id="homeBalance">1,000</span><small>ETB</small></div>
       <div class="balance-foot"><span>🔒 Secure wallet</span><button class="refresh-btn" id="refreshBalance" type="button">↻ Refresh</button></div>
     </div>
     <section class="card how-to-card">
@@ -139,15 +139,15 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
       </section>
       <section class="card payment-card" id="walletPaymentCard">
         <div class="payment-heading"><div><h3>Payment methods</h3><p class="sub">Choose a method to deposit or request a withdrawal.</p></div><span class="soon-tag">WALLET</span></div>
-        <div class="payment-methods"><div class="method" id="walletTelebirrDisplay" role="note" aria-label="Telebirr payment method"><span class="method-mark telebirr">T</span><span><strong>Telebirr</strong><small>Available payment method</small></span></div></div>
+        <div class="payment-methods"><div class="method" id="walletTelebirrDisplay" role="note" aria-label="Telebirr payment method"><span class="method-mark telebirr">T</span><span><strong>Telebirr</strong><small>0911390259</small></span></div></div>
         <div class="payment-actions">
-          <button class="action-card deposit-action" id="walletDepositBtn" type="button"><span class="action-icon">＋</span><span><strong>Deposit</strong><small>Add funds using Telebirr</small></span><span class="action-arrow">›</span></button>
-          <button class="action-card withdraw-action" id="walletWithdrawBtn" type="button"><span class="action-icon">↗</span><span><strong>Withdraw</strong><small>Request a withdrawal</small></span><span class="action-arrow">›</span></button>
+          <button class="action-card deposit-action" id="walletDepositBtn" type="button"><span class="action-icon">＋</span><span><strong>Deposit</strong><small>Request a Deposit</small></span><span class="action-arrow">›</span></button>
+          <button class="action-card withdraw-action" id="walletWithdrawBtn" type="button"><span class="action-icon">↗</span><span><strong>Withdraw</strong><small>Request a Withdrawal</small></span><span class="action-arrow">›</span></button>
         </div>
         <p class="payment-note">Demo only: no money is transferred or received.</p>
       </section>
       <section class="card" id="walletHistoryCard" hidden>
-        <div class="payment-heading"><div><h3>Wallet activity</h3><p class="sub">Recent virtual-credit changes and requests.</p></div><button class="refresh-btn" id="clearWalletHistory" type="button">Clear history</button></div>
+        <div class="payment-heading"><div><h3>Wallet activity</h3><p class="sub">Recent changes and requests.</p></div><button class="refresh-btn" id="clearWalletHistory" type="button">Clear history</button></div>
         <div id="walletHistoryList" aria-live="polite"><p class="payment-note">No wallet activity yet.</p></div>
         <p class="payment-note">History is saved in this browser only for now. It is not yet synced to your Supabase account.</p>
       </section>
@@ -173,8 +173,8 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     </section>
     <aside class="stack">
       <section class="card">
-        <h3>🎟️ Stake <span class="stake-bal" id="stakeBalance">Practice points: 1,000</span></h3>
-        <div class="field"><label for="bet">Stake amount (practice points)</label><input id="bet" type="number" min="10" max="500" step="10" value="50" inputmode="numeric"></div>
+        <h3>🎟️ Stake <span class="stake-bal" id="stakeBalance">Balance: 1,000</span></h3>
+        <div class="field"><label for="bet">Stake amount </label><input id="bet" type="number" min="10" max="500" step="10" value="50" inputmode="numeric"></div>
         <div class="quick"><button type="button" data-bet="10">10</button><button type="button" data-bet="50">50</button><button type="button" data-bet="100">100</button><button type="button" data-bet="250">250</button><button type="button" data-bet="500">500</button></div>
         <div class="stake-note" id="syncStatus" hidden style="font-weight:700"></div>
         <div class="stake-note" id="stakeNote">Min 10 • Max 500 credits. Your balance changes after the draw: a win adds your profit, a loss removes your stake.</div>
@@ -197,16 +197,16 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
 
   <section id="leaderPanel" hidden>
     <section class="card" style="margin-bottom:14px">
-      <h3>🏆 Recent demo games</h3>
-      <p class="sub">Sample results only — usernames and winners below are fictional, not real player records.</p>
-      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:440px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">20 drawn numbers</th><th style="padding:10px 6px">Sample winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="3" style="padding:12px 6px;color:#9aaba5">No completed demo games yet. The first result will appear here.</td></tr></tbody></table></div>
+      <h3>🏆 Recent Keno Draw</h3>
+      <p class="sub">Results only — usernames, drawn numbers and winners below are fictional, real player records.</p>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:440px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">20 drawn numbers</th><th style="padding:10px 6px">Winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="3" style="padding:12px 6px;color:#9aaba5">No completed demo games yet. The first result will appear here.</td></tr></tbody></table></div>
       <button type="button" class="greenbtn leaderboard-toggle" id="recentGamesToggle" style="margin-top:12px" hidden>See more</button>
     </section>
     <section class="card">
       <h3>🥇 Top 12 leaderboard</h3>
       <p class="sub">Fictional sample usernames only • daily practice points • no real-player accounts are shown.</p>
       <div class="stake-note" id="leaderboardStatus" style="margin:0 0 10px">Loading…</div>
-      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Practice points</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Number of Wins</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
       <button type="button" class="greenbtn leaderboard-toggle" id="leaderboardToggle" style="margin-top:12px" hidden>See more</button>
     </section>
   </section>
@@ -323,7 +323,7 @@ function setGameMode(mode) {
   if (notice) {
     notice.textContent = demo
       ? 'DEMO MODE: Stake virtual practice points; they have no cash value.'
-      : 'PRACTICE MODE: Stake virtual practice points; no cash value or payouts.';
+      : 'REAL MODE: Stake virtual practice points; Have cash value or payouts.';
   }
 
   // Both signed-out demo mode and signed-in admin-points mode allow FREE practice play.
@@ -361,7 +361,7 @@ async function loadPlayerWallet(session,skipFlush){
   }
   if(data){
     const demoValue=Number(data.balance);
-    if(Number.isFinite(demoValue)&&demoValue>=0) balance=Math.max(0,demoValue+pendingTotal(session.user.id));if(!pendingTotal(session.user.id))setTimeout(()=>setSync(true,'✓ Balance saved online — the admin sees this amount.'),0);
+    if(Number.isFinite(demoValue)&&demoValue>=0) balance=Math.max(0,demoValue+pendingTotal(session.user.id));if(!pendingTotal(session.user.id))setTimeout(()=>setSync(true,''),0);
     adminPointsBalance=0;
     renderModeBalance();
   } else { balance=0; adminPointsBalance=0; renderModeBalance(); }
