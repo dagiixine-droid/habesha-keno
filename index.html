@@ -316,11 +316,13 @@ function setGameMode(mode) {
   if (msg) {
     msg.classList.toggle('real-preview', !demo);
     msg.textContent = demo
+      ? 'DEMO MODE: You are playing with free balance.'
       : 'Admin Points Mode is selected. These are redeemable balance assigned by an administrator.';
   }
 
   if (notice) {
     notice.textContent = demo
+      ? 'DEMO MODE: Balance have no cash value.'
       : 'REAL MODE: Stake balance; Have cash value or payouts.';
   }
 
