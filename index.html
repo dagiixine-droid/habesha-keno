@@ -790,7 +790,6 @@ const addRow = (rank, name, points) => {
 const tr = document.createElement('tr');
 tr.style.borderTop = '1px solid #ffffff18';
 
-```
 [String(rank), name, Number(points).toLocaleString('en-US')].forEach((value, j) => {
   const td = document.createElement('td');
   td.style.padding = '10px 6px';
@@ -800,7 +799,6 @@ tr.style.borderTop = '1px solid #ffffff18';
 });
 
 body.appendChild(tr);
-```
 
 };
 
