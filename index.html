@@ -84,7 +84,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
   <section id="homePanel" class="home-panel">
     <div class="home-balance card">
       <div class="balance-top"><span class="eyebrow">YOUR AVAILABLE BALANCE</span><span class="demo-tag" id="modeBadge">REAL MODE</span></div>
-      <div class="balance-amount"><span id="homeBalance">1,000</span><small>ETB</small></div>
+      <div class="balance-amount"><span id="homeBalance"></span><small>ETB</small></div>
       <div class="balance-foot"><span>🔒 Secure wallet</span><button class="refresh-btn" id="refreshBalance" type="button">↻ Refresh</button></div>
     </div>
     <section class="card how-to-card">
@@ -101,7 +101,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
   </section>
   <section id="walletPanel" hidden>
     <div class="stack">
-      <div id="walletBalanceSlot"></div>
+      <div id="walletBalanceSlot" hidden></div>
       <section id="walletAccountSlot">
   <section class="card account-card" id="accountCard" style="margin-top:14px">
     <div class="account-head"><div><h3>👤 Player account</h3><p class="sub" style="margin:0">Sign in or create your Habesha Keno account.</p></div><span class="soon-tag">ACCOUNT</span></div>
@@ -116,7 +116,6 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
           <label>Password<input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Your password" required></label>
           <button class="goldbtn" type="submit" id="loginBtn">Login</button>
         </form>
-        <p class="account-help">Username login is being connected through a secure server function. Your password is never stored in this browser as plain text.</p>
       </div>
       <div id="registerPanel" role="tabpanel" aria-labelledby="registerTabBtn" hidden>
         <form id="registerForm" class="account-form">
@@ -171,7 +170,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     </section>
     <aside class="stack">
       <section class="card">
-        <h3>🎟️ Stake <span class="stake-bal" id="stakeBalance">Balance: 1,000</span></h3>
+        <h3>🎟️ Stake <span class="stake-bal" id="stakeBalance" hidden></span></h3>
         <div class="field"><label for="bet">Stake amount </label><input id="bet" type="number" min="10" max="500" step="10" value="50" inputmode="numeric"></div>
         <div class="quick"><button type="button" data-bet="10">10</button><button type="button" data-bet="50">50</button><button type="button" data-bet="100">100</button><button type="button" data-bet="250">250</button><button type="button" data-bet="500">500</button></div>
         <div class="stake-note" id="syncStatus" hidden style="font-weight:700"></div>
@@ -251,7 +250,6 @@ const grid=document.getElementById('numberGrid');
 const selected=new Set();
 const WALLET_BALANCE_KEY='habesha_keno_virtual_wallet_balance_v1';
 let balance=1000;
-try{const savedBalance=localStorage.getItem(WALLET_BALANCE_KEY);if(savedBalance!==null&&Number.isFinite(Number(savedBalance))&&Number(savedBalance)>=0)balance=Number(savedBalance);}catch(_){}
 let rounds=0, wagered=0, totalMatches=0;
 let timerRemaining=60, timerInterval=null, revealInterval=null, lastDraw=new Set(), lastHits=new Set();
 let scheduledDrawNumbers=[], phase='syncing', revealCount=0, queuedEntries=[], entrySeq=0, roundSequence=0;
@@ -320,7 +318,7 @@ function setGameMode(mode) {
 
   if (notice) {
     notice.textContent = demo
-      ? 'DEMO MODE: Balance have no cash value.'
+      ? 'REAL MODE: Balance have cash value.'
       : 'REAL MODE: Stake balance; Have cash value or payouts.';
   }
 
@@ -341,7 +339,7 @@ function setGameMode(mode) {
 }
 const fmt=n=>Number(n).toLocaleString('en-US');
 function saveVirtualBalance(){try{localStorage.setItem(WALLET_BALANCE_KEY,String(balance));}catch(_){}}
-function syncHomeBalance(){saveVirtualBalance();const el=document.getElementById('homeBalance');if(el)el.textContent=fmt(balance)}
+function syncHomeBalance(){saveVirtualBalance();const el=document.getElementById('homeBalance');if(el)el.textContent=walletUserId?fmt(balance):''}
 let adminPointsBalance=0, currentUsername='';
 async function loadPlayerWallet(session,skipFlush){
   if(!supabaseClient || !session?.user?.id) return;
@@ -368,10 +366,10 @@ function renderModeBalance() {
   // Both the Wallet card and the Keno stake display read from this one balance value.
   const amount = document.getElementById('homeBalance');
   const caption = document.querySelector('.ETB-amount small');
-  if (amount) amount.textContent = fmt(balance);
+  if (amount) amount.textContent = walletUserId ? fmt(balance) : '';
   if (caption) caption.textContent = 'balance';
   const stakeBalance = document.getElementById('stakeBalance');
-  if (stakeBalance) stakeBalance.textContent = 'Balance: ' + fmt(balance);
+  if (stakeBalance) { stakeBalance.hidden = !walletUserId; stakeBalance.textContent = walletUserId ? 'Balance: ' + fmt(balance) : ''; }
   if (typeof updateStakeUI === 'function') updateStakeUI();
 }
 
@@ -532,7 +530,8 @@ function updateStakeUI(){
   const picks=selected.size;
   const valid=Number.isFinite(stake)&&stake>0;
   const set=(id,t)=>{const el=document.getElementById(id);if(el)el.textContent=t};
-  set('stakeBalance','Balance: '+fmt(balance));
+  set('stakeBalance',walletUserId?'Balance: '+fmt(balance):'');
+  const sbEl=document.getElementById('stakeBalance');if(sbEl)sbEl.hidden=!walletUserId;
   renderEntries();
   set('stakeShown',valid?fmt(stake):'—');
   const row=PAYTABLE[picks];
@@ -552,7 +551,12 @@ function updateStakeUI(){
   
   const note=document.getElementById('stakeNote');
   if(note){
-    if(valid&&stake>availableBalance())note.textContent=queuedEntries.length?`Not enough available points (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:(balance<MIN_STAKE?'You do not have enough balance to stake.':'Stake is higher than your balance.');
+    if(!walletUserId){
+      if(valid&&stake>availableBalance())note.textContent='Stake is higher than your available points.';
+      else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} credits.`;
+      else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} stake per entry. Log in to see your balance. Your balance changes after the draw.`;
+    }
+    else if(valid&&stake>availableBalance())note.textContent=queuedEntries.length?`Not enough available points (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:(balance<MIN_STAKE?'You do not have enough balance to stake.':'Stake is higher than your balance.');
     else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} credits.`;
     else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} stake per entry. Available to stake: ${fmt(availableBalance())}${pendingStake()?` (${fmt(pendingStake())} staked this round)`:''}. Your balance changes after the draw.`;
   }
@@ -774,7 +778,7 @@ async function refreshLeaderboard(){
     if(!supabaseClient) throw new Error('Supabase is not configured');
     const result=await supabaseClient.rpc('get_or_create_daily_sample_leaderboard');
     if(result.error) throw result.error;
-    leaderboardRows=(result.data||[]).slice(0,12);
+    leaderboardRows=(result.data||[]).slice(0,10);
     leaderboardOnline=true;leaderboardUpdatedAt=nowUTC();
   }catch(err){leaderboardOnline=false;console.error('Sample leaderboard load failed:',err);}
   leaderboardLoading=false;renderLeaderboard();
@@ -813,7 +817,7 @@ points: demoScores[index]
 })).sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
 
 const visiblePlayers = showAllLeaderboard
-? players.slice(0, 12)
+? players.slice(0, 10)
 : players.slice(0, 5);
 
 visiblePlayers.forEach((player, index) => {
@@ -836,6 +840,11 @@ statusEl.textContent = `Fictional sample players • daily points saved online �
 statusEl.textContent = 'Fictional players • local preview only.';
 }
 }
+
+document.getElementById('leaderboardToggle')?.addEventListener('click',()=>{
+  showAllLeaderboard=!showAllLeaderboard;
+  renderLeaderboard();
+});
 
 renderLeaderboard();
 window.renderRecentGames();
@@ -910,7 +919,7 @@ document.getElementById('playBtn').onclick=()=>{
  if(selected.size<1){status('Choose at least one number first.');return}
  const stake=readStake();
  if(!Number.isFinite(stake)||stake<MIN_STAKE||stake>MAX_STAKE||stake%10!==0){status(`Enter a stake between ${MIN_STAKE} and ${MAX_STAKE} points, in steps of 10.`);return}
- if(stake>availableBalance()){status(`Not enough balance. Available: ${fmt(availableBalance())} (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`);return}
+ if(stake>availableBalance()){status(walletUserId?`Not enough balance. Available: ${fmt(availableBalance())} (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:'Not enough balance for this stake. Log in to see your balance.');return}
  const picks=[...selected].sort((a,b)=>a-b);
  queuedEntries.push({id:++entrySeq,picks,stake,mode:'demo'});
  recordStakeOnline();
@@ -1059,7 +1068,7 @@ document.getElementById('loginTabBtn').addEventListener('click',()=>setAccountTa
 document.getElementById('registerTabBtn').addEventListener('click',()=>setAccountTab('register'));
 function accountMessage(message,isError=false){accountFeedback.textContent=message;accountFeedback.style.color=isError?'#ffb2a8':'#ffe29a';}
 async function showAccountSession(session) {
-  if(!session){walletUserId=null;adminPointsBalance=0;walletHistory=[];setSync(true,'');if(typeof renderModeBalance==='function')renderModeBalance();}
+  if(!session){walletUserId=null;adminPointsBalance=0;walletHistory=[];balance=1000;try{localStorage.removeItem(WALLET_BALANCE_KEY);}catch(_){}setSync(true,'');if(typeof renderModeBalance==='function')renderModeBalance();}
   const walletHistoryCard=document.getElementById('walletHistoryCard');
   if(walletHistoryCard)walletHistoryCard.hidden=!session;
   signedOutBox.hidden = !!session;
