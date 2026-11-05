@@ -80,6 +80,1456 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
   <header class="top">
     <div class="brand"><div class="badge">HK</div><div><h1>Habesha Keno</h1><small id="platformLabel">Telegram Mini App • Demo</small></div></div>
   </header>
+  <section class="hero" id="siteHero"><h2>HABESHA KENO</h2><p>✦ PLAY • MATCH • CELEBRATE ✦</p></section>
+  <section id="homePanel" class="home-panel">
+    <div class="home-balance card">
+      <div class="balance-top"><span class="eyebrow">YOUR AVAILABLE BALANCE</span><span class="demo-tag" id="modeBadge">REAL MODE</span></div>
+      <div class="balance-amount"><span id="homeBalance"></span><small>ETB</small></div>
+      <div class="balance-foot"><span>🔒 Secure wallet</span><button class="refresh-btn" id="refreshBalance" type="button">↻ Refresh</button></div>
+    </div>
+    <section class="card how-to-card">
+      <h3>🎮 How to play Habesha Keno</h3>
+      <p class="sub" style="margin-top:-5px;line-height:1.5">Learn the basics in a few quick steps.</p>
+      <ol class="how-to-list">
+        <li><span class="step-number">1</span><div><strong>Open Keno</strong><p>Tap <b>Keno</b> in the bottom navigation.</p></div></li>
+        <li><span class="step-number">2</span><div><strong>Pick your numbers</strong><p>Select 1–5 numbers from the grid numbered 1 to 80, or use <b>Random picks</b>.</p></div></li>
+        <li><span class="step-number">3</span><div><strong>Set your stake</strong><p>Choose a virtual-credit stake between 10 and 500. Matching more of your numbers pays a bigger multiplier.</p></div></li>
+        <li><span class="step-number">4</span><div><strong>Draw and compare</strong><p>Tap <b>Draw numbers</b>. The game draws 20 numbers and shows how many match yours.</p></div></li>
+      </ol>
+      <button class="goldbtn how-to-start" id="startKenoBtn" type="button">Start playing in Keno →</button>
+    </section>
+  </section>
+  <section id="walletPanel" hidden>
+    <div class="stack">
+      <div id="walletBalanceSlot" hidden></div>
+      <section id="walletAccountSlot">
+  <section class="card account-card" id="accountCard" style="margin-top:14px">
+    <div class="account-head"><div><h3>👤 Player account</h3><p class="sub" style="margin:0">Sign in or create your Habesha Keno account.</p></div><span class="soon-tag">ACCOUNT</span></div>
+    <div id="accountSignedOut">
+      <div class="account-tabs" role="tablist" aria-label="Account options">
+        <button type="button" class="account-tab active" id="loginTabBtn" role="tab" aria-selected="true" aria-controls="loginPanel">Login</button>
+        <button type="button" class="account-tab" id="registerTabBtn" role="tab" aria-selected="false" aria-controls="registerPanel">Registration</button>
+      </div>
+      <div id="loginPanel" role="tabpanel" aria-labelledby="loginTabBtn">
+        <form id="loginForm" class="account-form">
+          <label>Username<input id="loginUsername" name="username" minlength="3" maxlength="20" autocomplete="username" placeholder="Your username" required></label>
+          <label>Password<input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Your password" required></label>
+          <button class="goldbtn" type="submit" id="loginBtn">Login</button>
+        </form>
+      </div>
+      <div id="registerPanel" role="tabpanel" aria-labelledby="registerTabBtn" hidden>
+        <form id="registerForm" class="account-form">
+          <label>Username<input id="regUsername" name="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" autocomplete="username" placeholder="e.g. Abebe_12" required></label>
+          <label>Email address<input id="regEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label>
+          <label>Password<input id="regPassword" name="password" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" required></label>
+          <label>Confirm password<input id="regConfirm" name="confirm" type="password" minlength="8" autocomplete="new-password" placeholder="Enter password again" required></label>
+          <button class="goldbtn" type="submit" id="registerBtn">Create account</button>
+        </form>
+        <p class="account-help">Your email is used for account verification and recovery. Choose a username that does not reveal private information. Never reuse an important password.</p>
+      </div>
+    </div>
+    <div id="accountSignedIn" hidden>
+      <p class="account-status" id="accountStatus" aria-live="polite"></p>
+      <button class="pill" type="button" id="signOutBtn">Sign out</button>
+    </div>
+    <p class="account-feedback" id="accountFeedback" role="status" aria-live="polite"></p>
+  </section>
+      </section>
+      <section class="card payment-card" id="walletPaymentCard">
+        <div class="payment-heading"><div><h3>Payment methods</h3><p class="sub">Choose a method to deposit or request a withdrawal.</p></div><span class="soon-tag">WALLET</span></div>
+        <div class="payment-methods"><div class="method" id="walletTelebirrDisplay" role="note" aria-label="Telebirr payment method"><span class="method-mark telebirr">T</span><span><strong>Telebirr</strong><small>0911390259</small></span></div></div>
+        <div class="payment-actions">
+          <button class="action-card deposit-action" id="walletDepositBtn" type="button"><span class="action-icon">＋</span><span><strong>Deposit</strong><small>Request a Deposit</small></span><span class="action-arrow">›</span></button>
+          <button class="action-card withdraw-action" id="walletWithdrawBtn" type="button"><span class="action-icon">↗</span><span><strong>Withdraw</strong><small>Request a Withdrawal</small></span><span class="action-arrow">›</span></button>
+        </div>
+      </section>
+      <section class="card" id="walletHistoryCard" hidden>
+        <div class="payment-heading"><div><h3>Wallet activity</h3><p class="sub">Recent changes and requests.</p></div><button class="refresh-btn" id="clearWalletHistory" type="button">Clear history</button></div>
+        <div id="walletHistoryList" aria-live="polite"><p class="payment-note">No wallet activity yet.</p></div>
+        <p class="payment-note">History is saved in this browser only for now. It is not yet synced to your Supabase account.</p>
+      </section>
+    </div>
+  </section>
+  <section id="kenoPanel" hidden>
+  <section class="countdown-card" aria-live="polite">
+    <div><div class="countdown-label">⏱ NEXT DRAW STARTS IN</div><div class="countdown-note" id="timerNote">Choose numbers and join during the countdown</div></div>
+    <div class="countdown-time" id="countdown">01:00</div>
+  </section>
+  <section class="card" style="margin-bottom:14px">
+    <h3>🌐 Scheduled Keno draw <span style="float:right;color:#a8b4aa;font-size:12px">20 numbers • 1/sec</span></h3>
+    <div id="scheduledStatus" class="sub" aria-live="polite">The 60-second entry window is open. Join the next draw with your picks.</div>
+    <div class="drawballs" id="drawBalls" aria-live="polite" aria-label="Scheduled demo numbers revealed one at a time"></div>
+  </section>
+  <main class="layout" id="kenoGame">
+    <section class="card">
+      <h3>Choose your numbers <span style="float:right;color:#a8b4aa;font-size:12px" id="picked">0 / 5 selected</span></h3>
+      <div class="sub">Pick 1–5 numbers from 1 to 80.</div>
+      <div class="grid" id="numberGrid" aria-label="Keno number grid"></div>
+      <div class="controls"><span class="pill">Selected: <strong id="selectedList">—</strong></span><button class="pill" id="clearBtn">Clear selection</button><button class="pill" id="randomBtn">🎲 Random picks</button></div>
+    </section>
+    <aside class="stack">
+      <section class="card">
+        <h3>🎟️ Stake <span class="stake-bal" id="stakeBalance" hidden></span></h3>
+        <div class="field"><label for="bet">Stake amount </label><input id="bet" type="number" min="10" max="500" step="10" value="50" inputmode="numeric"></div>
+        <div class="quick"><button type="button" data-bet="10">10</button><button type="button" data-bet="50">50</button><button type="button" data-bet="100">100</button><button type="button" data-bet="250">250</button><button type="button" data-bet="500">500</button></div>
+        <div class="stake-note" id="syncStatus" hidden style="font-weight:700"></div>
+        <div class="stake-note" id="stakeNote">Min 10 • Max 500 credits. Your balance changes after the draw: a win adds your profit, a loss removes your stake.</div>
+        <div class="stat" style="margin-top:12px"><span>Numbers picked</span><strong id="pickCount">0</strong></div>
+        <div class="stat"><span>Your stake</span><strong id="stakeShown">50</strong></div>
+        <div class="stat"><span>Max possible win</span><strong id="maxWin">—</strong></div>
+        <div class="entries" id="entriesList" hidden></div>
+        <div class="paytable" id="paytable"></div>
+        <button class="greenbtn" id="playBtn" style="margin-top:14px">▶ Join next draw</button>
+      </section>
+      <section class="card">
+        <h3>✨ Draw results</h3>
+        <div id="drawStatus" style="font-size:13px;color:#aab5ad">Your latest draw will appear here.</div>
+        <div class="result" id="result"></div>
+      </section>
+    </aside>
+  </main>
+  </section>
+
+
+  <section id="leaderPanel" hidden>
+    <section class="card" style="margin-bottom:14px">
+      <h3>🏆 Recent Keno Draw</h3>
+      <p class="sub">Results only — usernames, drawn numbers and winners below are fictional, real player records.</p>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:440px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">20 drawn numbers</th><th style="padding:10px 6px">Winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="3" style="padding:12px 6px;color:#9aaba5">No completed demo games yet. The first result will appear here.</td></tr></tbody></table></div>
+      <button type="button" class="greenbtn leaderboard-toggle" id="recentGamesToggle" style="margin-top:12px" hidden>See more</button>
+    </section>
+    <section class="card">
+      <h3>🥇 Top 12 leaderboard</h3>
+      <p class="sub">Fictional sample usernames only • daily balance • real-player accounts are shown.</p>
+      <div class="stake-note" id="leaderboardStatus" style="margin:0 0 10px">Loading…</div>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Number of Wins</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
+      <button type="button" class="greenbtn leaderboard-toggle" id="leaderboardToggle" style="margin-top:12px" hidden>See more</button>
+    </section>
+  </section>
+  <div class="payment-modal-backdrop" id="paymentModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="paymentModalTitle" aria-hidden="true">
+    <section class="payment-modal">
+      <div class="payment-modal-head"><h3 id="paymentModalTitle">Telebirr payment</h3><button type="button" class="modal-close" id="closePaymentModal" aria-label="Close payment screen">×</button></div>
+      <p class="sub" id="paymentModalSubtitle">Start a secure Telebirr payment through the payment provider.</p>
+      <div class="payment-method-choice"><span class="method-mark">T</span><span><strong>Telebirr</strong><small>Secure checkout • Server connection required</small></span></div>
+      <label for="paymentAmount" id="paymentAmountLabel">Amount (ETB)</label>
+      <input id="paymentAmount" type="number" min="10" max="10000" step="1" value="100" inputmode="decimal">
+      <div class="amount-shortcuts"><button type="button" data-demo-amount="100">100 ETB</button><button type="button" data-demo-amount="500">500 ETB</button><button type="button" data-demo-amount="1000">1,000 ETB</button></div>
+      <div class="payment-demo-warning">SECURE PAYMENT NOTICE: payment details must be entered only on the official hosted Telebirr checkout. This page never collects your Telebirr PIN or password. The payment is not complete until the server verifies the provider callback.</div>
+      <button type="button" class="greenbtn" id="confirmDemoPayment">Continue to Telebirr</button>
+      <div class="payment-feedback" id="paymentFeedback" aria-live="polite"></div>
+    </section>
+  </div>
+
+  <nav class="nav"><button id="homeNav" class="active">⌂ Home</button><button id="kenoNav">▦ Keno</button><button id="walletNav">▣ Wallet</button><button id="leaderNav">♜ Leaderboard</button></nav>
+  <div class="foot">Habesha Keno • Local prototype • Virtual balance and activity are saved in this browser only</div>
+</div>
+<script>
+// Initialize Supabase before any account or admin code can reference it.
+const SUPABASE_URL = 'https://guynwdzhvyaakbmbmzcy.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable__E2dKaym14KVuzRHs-xSpg_2YLX8MEZ';
+// Required backend functions: create-telebirr-payment and request-telebirr-withdrawal.
+// Deploy these Supabase Edge Functions with provider credentials stored as server secrets.
+// The payment webhook must verify Telebirr's signature/status before crediting any wallet.
+var supabaseClient = (window.supabase && typeof window.supabase.createClient === 'function')
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+  : null;
+const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  try {
+    tg.setHeaderColor('#080d0c');
+    tg.setBackgroundColor('#070b0b');
+  } catch (e) {}
+  document.getElementById('platformLabel').textContent = 'Telegram Mini App • Keno Betting';
+} else {
+  document.getElementById('platformLabel').textContent = 'Browser preview • Virtual-credit demo';
+}
+const grid=document.getElementById('numberGrid');
+const selected=new Set();
+const WALLET_BALANCE_KEY='habesha_keno_virtual_wallet_balance_v1';
+let balance=1000;
+let rounds=0, wagered=0, totalMatches=0;
+let timerRemaining=60, timerInterval=null, revealInterval=null, lastDraw=new Set(), lastHits=new Set();
+let scheduledDrawNumbers=[], phase='syncing', revealCount=0, queuedEntries=[], entrySeq=0, roundSequence=0;
+const demoNames=["abebe_k94", "Tg.Hailu21", "dawit#1987", "sami_girma$", "Biniam-2003", "meto_7", "yonas@aa", "liyu_h0", "samuel.bekele99", "Edom*Tadesse", "fikru_abay88", "mulu.negash#5", "tsegaye-1991", "alzar_wolde$12", "henok_gebre_04", "beti.1", "natnael-tekle77", "alemu_2002", "tewodros#king", "mamo_89", "girma_wondimu!", "desta22", "mekonnen_abebe#", "yilma_96", "getachew.lulu$", "tsegaye01", "amanuel_zeleke7", "assefa_x", "yared#music", "g.15", "bereket-tilahun", "mulat_93", "eyob.kassa@23", "netsanet_bire_8", "haile#gebreselassie", "marta.worku_00", "mulugeta-1975", "birhane_kiros$", "zerihun.taye44", "assegid_*", "kaleab_demissie_6", "berhe#10", "lemma_megersa!", "tadesse-bekele_3", "getenet_z", "solomon.tefera$", "yohannes_ayele@7", "tilahun_05", "abel#weeknd_et", "getu_2001", "teddy_afro_fan#", "alem_19", "nahom-assefa_90", "zelalem.fikadu$", "haile_33", "ermias_negussie!", "dagim_tamene_11", "elias.worku#2", "belay_97", "mikias-desalegn", "mesfin_2004", "robel.kebede@5", "tonny_melaku$", "surafel_ayalew_8", "wondwosen#abera", "gashaw_14", "fitsum-berhane_6", "mekuria!", "million_belete_99", "bruk_h_07", "daniel.tsegaye*", "meskerem_ayana_3", "tamrat_desta#88", "alemayehu_shiferaw", "berhanu.nigatu_4", "chala_bekele$", "dereje-gudeta_72", "eshetu_amare@9", "fasil_demoz_2000", "gebre.mariam#1", "habtamu_wale_55", "ibsa_roba_1995", "jemal.ahmed$", "kassahun-tadele", "lensa_dinsa_24", "mohammed_kedir@8", "tesfu_17", "obsa#oromo_pride", "rediet_abera_2001", "wondimu*", "tariku_olana_13", "urgessa-fayisa", "workneh_alemu$4", "yeshi_mengistu_21", "zewdu.hailemichael", "addis_boy#251", "habesha_girl_92", "et_gamer_2005!", "lalibela.lover@", "ethio_coder_x7", "ras_dashen_climber", "sheger_fm_fan#1", "injera_lover_$", "buna.time_2024", "tej_master_et", "gojo_boy#09", "kitfo_king_88", "doro_wot.chef@", "shiro_queen_14", "tibs_hunter_99", "dire_dawa_kid!", "harar.hyena_07", "bahir.dar_lake$", "gonder_castle_12", "mekele_pride#6", "hawassa_girl_03", "jimma_coffee_boy", "adama_runner_5k", "arba.minch_fish", "sodo_soul@251", "habesha_vibes*", "ethiopia_1st_#", "tigray_star_21", "amhara.pride_44", "oromo_rise_$", "sidama_boy_01", "gurage_trader_7", "afar_nomad#10", "somali_et_88", "wolayta_king_9", "gamo_highland!", "hadiya_girl_22", "kambata_boy@5", "addis.nights_*", "bole_boy_251", "piassa_kid_#4", "merkato.hustler", "kazanchis_fan_2", "megenagna_man$", "lideta_girl_17", "abyssinia_lion", "lion.of.judah#1", "menelik_II_fan", "tewodros_heir_$", "haile.selassie_x", "adwa_victory_96", "yekatit_12_#", "meskel_square_27", "timkat_blessing!", "genna_2017_@", "enkutatash_new*", "fasika_feast_55", "buhe_boy_19", "ashenda_girl_$", "irreecha_spirit", "fichee_chambalala", "gadaa_legacy#", "selam.et_peace", "tena_yistilign_1", "ameseginalehu_$", "kenya_runner_et", "abebe.bikila_fan", "kenenisa_b_#5", "tirunesh_d_10k", "derartu_t_gold!", "haile_g_marathon", "meseret_d_1500", "genzebe_dibaba$", "almaz_ayana_27", "gelete_burka@", "addis_dev_404", "et_coder_#101", "py_habesha_3.14", "data.girl_addis", "tech_tigist_*", "web.wizard_ET", "app_dawit_2025", "code.selam_<3", "ai_ethiopia_$1", "cyber_hana_#0", "coffee_origin_ET", "kaffa_bean_$", "yirgacheffe_fan", "sidamo.roast_9", "buna_ceremony_#", "jebena_master_1", "nyala_mountain_x", "walia.ibex_14", "gelada_baboon!", "simien_trek_@6", "omo_valley_2", "danakil_hot_*", "erta.ale_fire$", "blue_nile_flow", "tis_abay_falls#", "lake_tana_07", "axum_stela_001", "harar.jugol_99", "konso_culture_!", "ethio_forever_251"];
+const demoScores=demoNames.map((_,i)=>Math.max(0,1200-i*4+(i*37)%83));
+const RECENT_GAMES_KEY='habesha_keno_recent_games_v1';
+const DEMO_SCORES_KEY='habesha_keno_demo_scores_v1';
+const recentDemoGames=[];
+try{
+  const savedGames=JSON.parse(localStorage.getItem(RECENT_GAMES_KEY)||'[]');
+  if(Array.isArray(savedGames)){
+    savedGames.slice(0,20).forEach(g=>{
+      if(g&&Number.isFinite(Number(g.round))&&Array.isArray(g.numbers)&&g.numbers.length===20&&g.numbers.every(n=>Number.isInteger(n)&&n>=1&&n<=80)&&typeof g.winner==='string'){
+        recentDemoGames.push({round:Number(g.round),numbers:g.numbers,winner:g.winner,completedAt:g.completedAt||null});
+      }
+    });
+  }
+}catch(_){}
+try{
+  const savedScores=JSON.parse(localStorage.getItem(DEMO_SCORES_KEY)||'null');
+  if(Array.isArray(savedScores)&&savedScores.length===demoNames.length&&savedScores.every(n=>Number.isFinite(Number(n)))){
+    savedScores.forEach((score,i)=>demoScores[i]=Number(score));
+  }
+}catch(_){}
+function saveRecentGameData(){
+  try{
+    localStorage.setItem(RECENT_GAMES_KEY,JSON.stringify(recentDemoGames.slice(0,20)));
+    localStorage.setItem(DEMO_SCORES_KEY,JSON.stringify(demoScores));
+  }catch(error){console.warn('Could not save recent practice results:',error);}
+}
+let gameMode='demo';
+function setGameMode(mode) {
+  gameMode = mode;
+
+  const demo = mode === 'demo';
+
+  const demoBtn = document.getElementById('demoModeBtn');
+  const realBtn = document.getElementById('realModeBtn');
+  const modeBadge = document.getElementById('modeBadge');
+  const msg = document.getElementById('modeMessage');
+  const notice = document.getElementById('kenoModeNotice');
+  const playBtn = document.getElementById('playBtn');
+
+  if (demoBtn) {
+    demoBtn.classList.toggle('active', demo);
+    demoBtn.setAttribute('aria-pressed', String(demo));
+  }
+
+  if (realBtn) {
+    realBtn.classList.toggle('active', !demo);
+    realBtn.setAttribute('aria-pressed', String(!demo));
+  }
+
+  if (modeBadge) {
+    modeBadge.textContent = demo
+      ? 'DEMO MODE'
+      : 'REAL';
+  }
+
+  if (msg) {
+    msg.classList.toggle('real-preview', !demo);
+    msg.textContent = demo
+      ? 'DEMO MODE: You are playing with free balance.'
+      : 'Admin Points Mode is selected. These are redeemable balance assigned by an administrator.';
+  }
+
+  if (notice) {
+    notice.textContent = demo
+      ? 'REAL MODE: Balance have cash value.'
+      : 'REAL MODE: Stake balance; Have cash value or payouts.';
+  }
+
+  // Both signed-out demo mode and signed-in admin-points mode allow FREE practice play.
+  // Admin-assigned points are displayed separately and are never spent to join a draw.
+  if (playBtn) {
+    playBtn.disabled = false;
+    playBtn.textContent = joinLabel();
+  }
+
+  document.querySelectorAll('#numberGrid .num, #clearBtn, #randomBtn').forEach(el => {
+    el.disabled = false;
+    el.removeAttribute('aria-disabled');
+    el.style.pointerEvents = 'auto';
+  });
+
+  renderModeBalance();
+}
+const fmt=n=>Number(n).toLocaleString('en-US');
+function saveVirtualBalance(){try{localStorage.setItem(WALLET_BALANCE_KEY,String(balance));}catch(_){}}
+function syncHomeBalance(){saveVirtualBalance();const el=document.getElementById('homeBalance');if(el)el.textContent=walletUserId?fmt(balance):''}
+let adminPointsBalance=0, currentUsername='';
+async function loadPlayerWallet(session,skipFlush){
+  if(!supabaseClient || !session?.user?.id) return;
+  walletUserId=session.user.id;
+  currentUsername=session.user.user_metadata?.username||'';
+  if(!skipFlush)await flushSettlements();
+  const {data,error}=await supabaseClient.from('practice_wallets')
+    .select('balance,admin_points')
+    .eq('auth_user_id',session.user.id).maybeSingle();
+  if(error){
+    console.error('Player wallet load failed:',error);
+    const msg=document.getElementById('modeMessage');
+    if(msg) msg.textContent='Could not load saved practice balances. Check practice_wallets Row Level Security policies.';
+    return;
+  }
+  if(data){
+    const demoValue=Number(data.balance);
+    if(Number.isFinite(demoValue)&&demoValue>=0) balance=Math.max(0,demoValue+pendingTotal(session.user.id));if(!pendingTotal(session.user.id))setTimeout(()=>setSync(true,''),0);
+    adminPointsBalance=0;
+    renderModeBalance();
+  } else { balance=0; adminPointsBalance=0; renderModeBalance(); }
+}
+function renderModeBalance() {
+  // Both the Wallet card and the Keno stake display read from this one balance value.
+  const amount = document.getElementById('homeBalance');
+  const caption = document.querySelector('.ETB-amount small');
+  if (amount) amount.textContent = walletUserId ? fmt(balance) : '';
+  if (caption) caption.textContent = 'balance';
+  const stakeBalance = document.getElementById('stakeBalance');
+  if (stakeBalance) { stakeBalance.hidden = !walletUserId; stakeBalance.textContent = walletUserId ? 'Balance: ' + fmt(balance) : ''; }
+  if (typeof updateStakeUI === 'function') updateStakeUI();
+}
+
+const MIN_STAKE=10, MAX_STAKE=500, MAX_PICKS=5;
+let totalWon=0;
+// Payout multipliers by numbers picked -> matches (multiplied by the stake). Virtual credits only.
+const PAYTABLE={
+  1:{1:3},
+  2:{2:5},
+  3:{2:1,3:15},
+  4:{3:5,4:20},
+  5:{3:2,4:15,5:100}
+};
+function payoutMultiplier(picks,hits){return (PAYTABLE[picks]&&PAYTABLE[picks][hits])||0}
+let walletUserId=null;
+function activeBalance(){return balance}
+// ---- Online saving of balance ----
+// Every finished round is saved online through the settle_practice_round() database function (see the SQL file).
+// Unsent results are kept in this browser (localStorage) and retried, so nothing is lost if the player is offline or closes the app.
+const PENDING_KEY='habesha_keno_pending_settlements_v1';
+let flushingSettlements=false;
+function loadPending(){try{const v=JSON.parse(localStorage.getItem(PENDING_KEY)||'[]');return Array.isArray(v)?v:[]}catch(_){return[]}}
+function savePending(list){try{localStorage.setItem(PENDING_KEY,JSON.stringify(list.slice(-200)))}catch(_){}}
+function pendingNetForUser(uid){return loadPending().filter(x=>x.user===uid).reduce((t,x)=>t+(x.payout-x.staked),0)}
+function queueSettlement(round,entries,staked,payout){
+  if(!walletUserId)return;
+  const list=loadPending();
+  if(!list.some(x=>x.user===walletUserId&&x.round===round))list.push({user:walletUserId,round,entries,staked,payout});
+  savePending(list);
+  flushSettlements();
+}
+async function flushSettlements(){
+  if(flushingSettlements||!supabaseClient||!walletUserId)return;
+  flushingSettlements=true;
+  let savedAny=false,lastServerBalance=null,dropped=false;
+  try{
+    for(let guard=0;guard<100;guard++){
+      const item=loadPending().find(x=>x.user===walletUserId);
+      if(!item)break;
+      const {data,error}=await supabaseClient.rpc('settle_practice_round',{p_round:item.round,p_entries:item.entries,p_staked:item.staked,p_payout:item.payout});
+      if(error){
+        const msg=String(error.message||'');
+        const network=!error.code&&/fetch|network|load failed|timeout/i.test(msg);
+        if(network){setSync(false,'⚠ Offline — your result will be saved online when you reconnect.');break;}                       // offline: keep it and retry later
+        if(error.code==='PGRST202'||error.code==='42883'){
+          // settle_practice_round() is not installed: fall back to updating the wallet row directly.
+          console.warn('settle_practice_round() is not installed - falling back to a direct wallet update.');
+          loadPending().filter(x=>x.user===walletUserId).forEach(x=>setPendingDelta(walletUserId,pendingDelta(walletUserId)+(x.payout-x.staked)));
+          savePending(loadPending().filter(x=>x.user!==walletUserId));
+          flushBalanceDelta();break;
+        }
+        console.error('Round could not be saved and was discarded:',error);
+        setSync(false,'⚠ A round could not be saved online ('+msg+'). Your balance was reset to the saved amount.');
+        savePending(loadPending().filter(x=>!(x.user===item.user&&x.round===item.round)));dropped=true;continue;
+      }
+      savePending(loadPending().filter(x=>!(x.user===item.user&&x.round===item.round)));
+      savedAny=true;lastServerBalance=Number(data);
+    }
+  }finally{flushingSettlements=false;}
+  if(savedAny&&!pendingTotal(walletUserId))setSync(true,'✓ Balance saved online — the admin sees this amount.');
+  if(lastServerBalance!==null&&Number.isFinite(lastServerBalance)){
+    // The server is the source of truth; add any results that are still waiting to be sent.
+    balance=Math.max(0,lastServerBalance+pendingTotal(walletUserId));saveVirtualBalance();renderModeBalance();
+  }
+  if(dropped){const {data}=await supabaseClient.auth.getSession();if(data?.session)await loadPlayerWallet(data.session,true);}
+  if(savedAny)refreshLeaderboard();
+}
+// Balance (the balance shown on Home) are saved in this browser and, for signed-in players, online.
+const PENDING_DELTA_KEY='habesha_keno_pending_balance_delta_v1';
+function pendingTotal(uid){return pendingDelta(uid)+pendingNetForUser(uid)}
+function pendingDelta(uid){try{const o=JSON.parse(localStorage.getItem(PENDING_DELTA_KEY)||'{}');return Number(o[uid])||0}catch(_){return 0}}
+function setPendingDelta(uid,v){try{const o=JSON.parse(localStorage.getItem(PENDING_DELTA_KEY)||'{}');if(v)o[uid]=v;else delete o[uid];localStorage.setItem(PENDING_DELTA_KEY,JSON.stringify(o))}catch(_){}}
+let flushingDelta=false;
+// Reports the player's currently staked points to the server right away, so the admin dashboard can show
+// them immediately ("staked this round"). The balance itself still changes only after the draw.
+async function recordStakeOnline(){
+  if(!supabaseClient||!walletUserId||currentRound===null)return;
+  try{
+    const {error}=await supabaseClient.rpc('record_practice_stake',{p_round:currentRound,p_entries:queuedEntries.length,p_staked:pendingStake()});
+    if(error&&error.code!=='PGRST202'&&error.code!=='42883')console.error('Could not record stake:',error);
+  }catch(_){}
+}
+// Shows signed-in players whether their balance is saved online (the balance the admin sees).
+function setSync(ok,msg){
+  const el=document.getElementById('syncStatus');if(!el)return;
+  if(!walletUserId){el.hidden=true;return}
+  el.hidden=false;el.textContent=msg;el.style.color=ok?'#19dc83':'#ffb86b';
+}
+// Wins and losses are sent to the server as CHANGES (+/-), applied on top of the current server balance,
+// so points an admin added or deducted in the meantime are never overwritten. Unsent changes are kept and retried.
+async function flushBalanceDelta(){
+  if(flushingDelta||!supabaseClient||!walletUserId)return;
+  const uid=walletUserId;
+  if(!pendingDelta(uid))return;
+  flushingDelta=true;
+  try{
+    for(let i=0;i<4;i++){
+      const delta=pendingDelta(uid);if(!delta)break;
+      const {data:row,error:e1}=await supabaseClient.from('practice_wallets').select('balance').eq('auth_user_id',uid).maybeSingle();
+      if(e1||!row)throw e1||new Error('Wallet row not found');
+      const next=Math.max(0,Number(row.balance)+delta);
+      const {data:upd,error:e2}=await supabaseClient.from('practice_wallets').update({balance:next}).eq('auth_user_id',uid).eq('balance',row.balance).select('balance');
+      if(e2)throw e2;
+      if(upd&&upd.length){setPendingDelta(uid,pendingDelta(uid)-delta);balance=Math.max(0,next+pendingTotal(uid));saveVirtualBalance();renderModeBalance();if(!pendingTotal(uid))setSync(true,'✓ Balance saved online — the admin sees this amount.');}
+      // otherwise the balance changed meanwhile (for example by the admin): loop again with the fresh value
+    }
+  }catch(err){console.error('Could not save Balance:',err);setSync(false,'⚠ Your balance is NOT saved online yet ('+(err?.message||'permission denied')+'). The admin will see the old amount until it saves. Run the SQL setup file, or allow players to update their own practice_wallets row.');}
+  finally{flushingDelta=false;}
+}
+async function persistBalance(){saveVirtualBalance();return flushBalanceDelta();}
+// Pulls the latest balance from the server (picks up admin add/deduct) after sending any unsent changes.
+async function syncBalanceFromServer(){
+  if(!supabaseClient||!walletUserId||flushingDelta)return;
+  await flushSettlements();
+  await flushBalanceDelta();
+  try{
+    const {data}=await supabaseClient.from('practice_wallets').select('balance').eq('auth_user_id',walletUserId).maybeSingle();
+    const v=Number(data?.balance);
+    if(data&&Number.isFinite(v)&&v>=0){const nb=Math.max(0,v+pendingTotal(walletUserId));if(nb!==balance){balance=nb;saveVirtualBalance();renderModeBalance();}}
+  }catch(_){}
+}
+function addToBalance(mode,delta){balance=Math.max(0,balance+delta);if(walletUserId)setPendingDelta(walletUserId,pendingDelta(walletUserId)+delta);renderModeBalance();persistBalance();}
+function pendingStake(mode){return queuedEntries.filter(e=>!mode||e.mode===mode).reduce((t,e)=>t+e.stake,0)}
+function availableBalance(){return Math.max(0,balance-pendingStake())}
+function joinLabel(){const n=queuedEntries.length;return n?`▶ Add another entry (${n} joined)`:'▶ Join next draw'}
+function renderEntries(){
+  const host=document.getElementById('entriesList');if(!host)return;
+  host.innerHTML='';
+  if(!queuedEntries.length){host.hidden=true;return}
+  host.hidden=false;
+  const head=document.createElement('div');head.className='entries-head';
+  head.innerHTML=`<span>YOUR ENTRIES (${queuedEntries.length})</span><span>${fmt(pendingStake())} pending</span>`;
+  host.appendChild(head);
+  queuedEntries.forEach((e,i)=>{
+    const row=document.createElement('div');row.className='entry-row';
+    const info=document.createElement('div');info.className='entry-info';
+    const t=document.createElement('strong');t.textContent=`#${i+1} • ${fmt(e.stake)} credits`;
+    const d=document.createElement('small');d.textContent=e.picks.join(', ');
+    info.append(t,d);row.appendChild(info);
+    if(phase==='countdown'){
+      const x=document.createElement('button');x.type='button';x.className='entry-x';x.textContent='✕';x.setAttribute('aria-label','Cancel entry '+(i+1));
+      x.onclick=()=>cancelEntry(e.id);row.appendChild(x);
+    }
+    host.appendChild(row);
+  });
+}
+function cancelEntry(id){
+  if(!inEntryWindow()){status('The draw has started — entries can no longer be cancelled.');return}
+  queuedEntries=queuedEntries.filter(e=>e.id!==id);
+  recordStakeOnline();
+  document.getElementById('playBtn').textContent=joinLabel();
+  updateStakeUI();status('Entry cancelled. Your balance was not changed.');
+}
+function readStake(){return Math.floor(Number(document.getElementById('bet').value))}
+function setStakeLocked(lock){/* stake stays editable so players can add several entries */}
+function updateStakeUI(){
+  const stake=readStake();
+  const picks=selected.size;
+  const valid=Number.isFinite(stake)&&stake>0;
+  const set=(id,t)=>{const el=document.getElementById(id);if(el)el.textContent=t};
+  set('stakeBalance',walletUserId?'Balance: '+fmt(balance):'');
+  const sbEl=document.getElementById('stakeBalance');if(sbEl)sbEl.hidden=!walletUserId;
+  renderEntries();
+  set('stakeShown',valid?fmt(stake):'—');
+  const row=PAYTABLE[picks];
+  const top=row?Math.max(...Object.values(row)):0;
+  set('maxWin',row&&valid?fmt(top*stake)+' credits':'—');
+  document.querySelectorAll('[data-bet]').forEach(b=>b.classList.toggle('on',valid&&Number(b.dataset.bet)===stake));
+  const pt=document.getElementById('paytable');
+  if(pt){
+    if(!row){pt.innerHTML='<div class="paytable-empty">Pick 1–5 numbers to see the payouts.</div>';}
+    else{
+      const lastHits=Object.keys(row).map(Number).sort((a,b)=>b-a);
+      pt.innerHTML='<div class="paytable-head"><span>MATCHES</span><span>PAYS</span></div>'+
+        lastHits.map(h=>`<div class="paytable-row"><span>${h} of ${picks}</span><b>${row[h]}x${valid?' = '+fmt(row[h]*stake):''}</b></div>`).join('');
+    }
+  }
+  const low=false;
+  
+  const note=document.getElementById('stakeNote');
+  if(note){
+    if(!walletUserId){
+      if(valid&&stake>availableBalance())note.textContent='Stake is higher than your available points.';
+      else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} credits.`;
+      else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} stake per entry. Log in to see your balance. Your balance changes after the draw.`;
+    }
+    else if(valid&&stake>availableBalance())note.textContent=queuedEntries.length?`Not enough available points (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:(balance<MIN_STAKE?'You do not have enough balance to stake.':'Stake is higher than your balance.');
+    else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} credits.`;
+    else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} stake per entry. Available to stake: ${fmt(availableBalance())}${pendingStake()?` (${fmt(pendingStake())} staked this round)`:''}. Your balance changes after the draw.`;
+  }
+}
+const WALLET_HISTORY_KEY='habesha_keno_virtual_wallet_history_v1';
+let walletHistory=[];
+function walletHistoryStorageKey(){return walletUserId?`${WALLET_HISTORY_KEY}_${walletUserId}`:null;}
+function loadWalletHistoryForPlayer(){
+  walletHistory=[];
+  const key=walletHistoryStorageKey();
+  if(!key){renderWalletHistory();return;}
+  try{const saved=JSON.parse(localStorage.getItem(key)||'[]');walletHistory=Array.isArray(saved)?saved:[];}catch(_){walletHistory=[];}
+  renderWalletHistory();
+}
+function saveWalletHistory(){
+  const key=walletHistoryStorageKey();
+  if(!key)return;
+  try{localStorage.setItem(key,JSON.stringify(walletHistory.slice(0,50)));}catch(_){}
+}
+function addWalletActivity(type,amount,details){
+  // Wallet activity is private to the signed-in player; demo activity is not stored here.
+  if(!walletUserId)return;
+  walletHistory.unshift({id:Date.now()+Math.random(),type,amount,details,balance,createdAt:new Date().toISOString()});
+  walletHistory=walletHistory.slice(0,50);saveWalletHistory();renderWalletHistory();
+}
+function renderWalletHistory(){
+  const host=document.getElementById('walletHistoryList');if(!host)return;
+  if(!walletUserId){host.innerHTML='';return;}
+  if(!walletHistory.length){host.innerHTML='<p class="payment-note">No wallet activity yet.</p>';return;}
+  host.innerHTML='';
+  walletHistory.forEach(item=>{
+    const row=document.createElement('div');row.style.cssText='display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:11px 0;border-top:1px solid #ffffff18;';
+    const left=document.createElement('div');left.style.minWidth='0';
+    const title=document.createElement('strong');title.style.cssText='display:block;color:#f5e7bd;font-size:13px';title.textContent=item.type;
+    const detail=document.createElement('small');detail.style.cssText='display:block;color:#9eaa9f;font-size:11px;margin-top:4px';detail.textContent=item.details+' · '+new Date(item.createdAt).toLocaleString();
+    left.append(title,detail);
+    const right=document.createElement('div');right.style.cssText='text-align:right;color:#ffdf83;font-weight:800;font-size:12px;white-space:nowrap';
+    right.textContent=(item.amount>0?'+':'')+fmt(item.amount)+' credits';
+    const bal=document.createElement('small');bal.style.cssText='display:block;color:#9eaa9f;font-weight:500;margin-top:4px';bal.textContent='Balance: '+fmt(item.balance);right.appendChild(bal);row.append(left,right);host.appendChild(row);
+  });
+}
+document.getElementById('clearWalletHistory')?.addEventListener('click',()=>{walletHistory=[];saveWalletHistory();renderWalletHistory();});
+for(let n=1;n<=80;n++){const b=document.createElement('button');b.type='button';b.className='num';b.textContent=n;b.setAttribute('aria-label','Select number '+n);b.disabled=false;b.addEventListener('click',(event)=>{event.preventDefault();toggle(n,b)});grid.appendChild(b)}
+// ---- Universal-time schedule (shared by every player) ----
+// Every 80 seconds (counted from the Unix epoch, UTC) one round runs: 60 s entry window, then 20 s draw (1 number/sec).
+// Round number, countdown and drawn numbers are all computed from the UTC clock, so every player sees the same thing.
+const ENTRY_MS=60000, DRAW_MS=20000, CYCLE_MS=ENTRY_MS+DRAW_MS;
+let clockOffset=0, clockSource='', lastSyncAt=0, clockReady=false, currentRound=null;
+function nowUTC(){return Date.now()+clockOffset}
+function inEntryWindow(){return clockReady&&(nowUTC()%CYCLE_MS)<ENTRY_MS}
+function pad2(n){return String(n).padStart(2,'0')}
+function paintCountdown(t,pos){
+  const cd=document.getElementById('countdown'),note=document.getElementById('timerNote'),label=document.querySelector('.countdown-label');
+  if(!clockReady){cd.textContent='--:--';if(note)note.textContent='Syncing with universal time (UTC)…';return}
+  const entry=pos<ENTRY_MS;
+  const remaining=Math.max(0,Math.ceil(((entry?ENTRY_MS:CYCLE_MS)-pos)/1000));
+  timerRemaining=remaining;
+  cd.textContent=`${pad2(Math.floor(remaining/60))}:${pad2(remaining%60)}`;
+  if(label)label.textContent=entry?'⏱ NEXT DRAW STARTS IN':'⏱ NEXT ENTRY WINDOW OPENS IN';
+  const d=new Date(t);
+  const utc=`${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}:${pad2(d.getUTCSeconds())}`;
+  const src=clockSource==='device clock'?'⚠ device clock (no time server reachable)':'✓ synced via '+clockSource;
+  if(note)note.textContent=(entry?'Choose numbers and join before time runs out':'Drawing numbers — next entry window opens at 00:00')+` • Round #${currentRound} • UTC ${utc} • ${src}`;
+}
+function parseUtc(str){let x=String(str).trim().replace(/(\.\d{3})\d+/,'$1');if(!/[zZ]|[+-]\d\d:?\d\d$/.test(x))x+='Z';return Date.parse(x)}
+async function timedFetch(url,opts){const c=new AbortController();const id=setTimeout(()=>c.abort(),4000);try{return await fetch(url,Object.assign({cache:'no-store',signal:c.signal},opts||{}))}finally{clearTimeout(id)}}
+const TIME_SOURCES=[
+  {name:'worldtimeapi.org',samples:3,get:async()=>{const r=await timedFetch('https://worldtimeapi.org/api/timezone/Etc/UTC');if(!r.ok)throw new Error('http');const j=await r.json();return parseUtc(j.utc_datetime)}},
+  {name:'timeapi.io',samples:3,get:async()=>{const r=await timedFetch('https://timeapi.io/api/time/current/zone?timeZone=UTC');if(!r.ok)throw new Error('http');const j=await r.json();return parseUtc(j.dateTime)}},
+  {name:'game server clock',samples:1,get:async()=>{const r=await timedFetch(SUPABASE_URL+'/rest/v1/',{headers:{apikey:SUPABASE_PUBLISHABLE_KEY}});const d=r.headers.get('date');if(!d)throw new Error('no date header');return Date.parse(d)}}
+];
+async function syncClock(){
+  for(const src of TIME_SOURCES){
+    try{
+      let best=null;
+      for(let i=0;i<src.samples;i++){
+        const t0=Date.now();const ms=await src.get();const t1=Date.now();
+        if(!Number.isFinite(ms))throw new Error('bad time');
+        const rtt=t1-t0;const off=ms-t0-rtt/2;
+        if(!best||rtt<best.rtt)best={rtt,off};
+      }
+      clockOffset=best.off;clockSource=src.name;lastSyncAt=Date.now();return true;
+    }catch(_){}
+  }
+  if(!lastSyncAt){clockOffset=0;clockSource='device clock';}
+  return false;
+}
+function getRoundDraw(roundId){
+  // Deterministic practice draw for this local demo round; a real shared draw needs a server.
+  let seed=(roundId ^ 0x9e3779b9)>>>0;
+  const rand=()=>{seed=(seed+0x6D2B79F5)>>>0;let t=seed;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};
+  const pool=Array.from({length:80},(_,i)=>i+1), result=[];
+  while(result.length<20){const idx=Math.floor(rand()*pool.length);result.push(pool.splice(idx,1)[0]);}
+  return result;
+}
+function revealOneNumber(){
+  if(revealCount>=20)return;
+  const n=scheduledDrawNumbers[revealCount];
+  const ball=document.createElement('span');ball.className='ball';ball.textContent=n;ball.title='Demo draw number '+n;
+  document.getElementById('drawBalls').appendChild(ball);
+  revealCount++;
+  document.getElementById('scheduledStatus').textContent=`Drawing in progress — ${revealCount} of 20 numbers revealed.`;
+  if(revealCount===20)finishDraw();
+}
+function finishDraw(){
+  const drawNumbers=scheduledDrawNumbers.slice();
+  // Practice-only leaderboard: every fictional account receives a small,
+  // deterministic score change after each completed draw. No points are staked.
+  let winnerIndex=0;
+  let highestGain=-1;
+  demoNames.forEach((name,index)=>{
+    let seed=(roundSequence*1009+index*9176+0x51f15e)>>>0;
+    seed=(Math.imul(seed^(seed>>>16),0x45d9f3b))>>>0;
+    seed=(Math.imul(seed^(seed>>>16),0x45d9f3b))>>>0;
+    seed=(seed^(seed>>>16))>>>0;
+    const gain=seed%21;
+    demoScores[index]+=gain;
+    if(gain>highestGain || (gain===highestGain && demoScores[index]>demoScores[winnerIndex])){
+      highestGain=gain;
+      winnerIndex=index;
+    }
+  });
+  const sampleWinner=demoNames[winnerIndex];
+  recentDemoGames.unshift({round:roundSequence,numbers:drawNumbers.slice(),winner:sampleWinner,completedAt:new Date(nowUTC()).toISOString()});
+  recentDemoGames.splice(20);
+  saveRecentGameData();
+  window.renderRecentGames();
+  renderLeaderboard();
+  document.getElementById('scheduledStatus').textContent='Draw complete — all 20 numbers have been revealed.';
+  if(queuedEntries.length){
+    const entries=queuedEntries;queuedEntries=[];
+    const netByMode={demo:0,real:0};
+    let totalStake=0,totalPayout=0,wins=0,bestHits=0;const rowsHtml=[];
+    entries.forEach((entry,i)=>{
+      const hits=entry.picks.filter(n=>drawNumbers.includes(n)).sort((a,b)=>a-b);
+      const mult=payoutMultiplier(entry.picks.length,hits.length);
+      const payout=entry.stake*mult;
+      netByMode[entry.mode]=(netByMode[entry.mode]||0)+(payout-entry.stake);
+      totalStake+=entry.stake;totalPayout+=payout;if(payout>entry.stake)wins++;bestHits=Math.max(bestHits,hits.length);
+      const diff=payout-entry.stake;
+      rowsHtml.push(`<div class="result-row"><strong>#${i+1}</strong> • ${entry.picks.join(', ')}<br>${hits.length} matched${hits.length?` (${hits.join(', ')})`:''} • stake ${fmt(entry.stake)} • ${diff>0?`<span class="win-line">+${fmt(diff)}</span>`:diff===0&&payout>0?'<span>returned</span>':`<span class="lose-line">${fmt(diff)}</span>`}</div>`);
+    });
+    const net=totalPayout-totalStake;
+    // Balance changes only now, once for the whole draw: profit is added and lost stakes are removed.
+    if(walletUserId){
+      // Signed-in player: update the balance now and save the round on the server (retried if offline).
+      balance=Math.max(0,balance+(totalPayout-totalStake));saveVirtualBalance();renderModeBalance();
+      queueSettlement(roundSequence,entries.length,totalStake,totalPayout);
+    }else{
+      addToBalance('demo',totalPayout-totalStake);
+    }
+    addWalletActivity(net>0?'Keno win':net<0?'Keno loss':'Keno draw result',net,`${entries.length} entr${entries.length===1?'y':'ies'} • staked ${fmt(totalStake)} • returned ${fmt(totalPayout)}`);
+    lastDraw=new Set(drawNumbers);lastHits=new Set();
+    status(`Round complete. ${entries.length} entr${entries.length===1?'y was':'ies were'} settled after all 20 numbers were drawn.`);
+    const r=document.getElementById('result');
+    r.innerHTML=`<strong>Round result</strong><br>Draw numbers: <strong>${drawNumbers.join(', ')}</strong><br>Entries: <strong>${entries.length}</strong> • Winning entries: <strong>${wins}</strong><br>Total staked: <strong>${fmt(totalStake)}</strong> • Returned: <strong>${fmt(totalPayout)}</strong><br>${net>0?`<span class="win-line">🎉 Balance +${fmt(net)}</span>`:net<0?`<span class="lose-line">Balance −${fmt(-net)}</span>`:'<span>Balance unchanged</span>'}<br>New balance: <strong>${fmt(activeBalance())}</strong><div class="result-list">${rowsHtml.join('')}</div>`;
+    r.classList.add('show');
+    totalMatches+=bestHits;totalWon+=totalPayout;wagered+=totalStake;
+  }else{
+    status('Draw complete. You did not join this round, so no personal result was recorded.');
+  }
+  document.getElementById('playBtn').textContent=joinLabel();updateStakeUI();
+  document.getElementById('scheduledStatus').textContent=`Round #${roundSequence} complete — all 20 numbers revealed. The next entry window opens when the countdown reaches 00:00.`;
+}
+let showAllLeaderboard = false;
+let showAllRecentGames = false;
+
+// Attach explicitly to window so every game callback can access it reliably.
+window.renderRecentGames = function renderRecentGames(){
+  const body=document.getElementById('recentGamesBody');
+  if(!body)return;
+  body.innerHTML='';
+  const visibleGames = showAllRecentGames
+    ? recentDemoGames.slice(0,10)
+    : recentDemoGames.slice(0,3);
+  if(!visibleGames.length){
+    const tr=document.createElement('tr');
+    const td=document.createElement('td');
+    td.colSpan=3;
+    td.style.cssText='padding:12px 6px;color:#9aaba5';
+    td.textContent='No completed demo games yet. The first result will appear here.';
+    tr.appendChild(td);body.appendChild(tr);
+  }else{
+    visibleGames.forEach(game=>{
+      const tr=document.createElement('tr');
+      tr.style.borderTop='1px solid #ffffff18';
+      const cells=[`#${game.round}`,game.numbers.join(', '),game.winner];
+      cells.forEach((value,i)=>{
+        const td=document.createElement('td');
+        td.style.padding='10px 6px';
+        td.style.verticalAlign='top';
+        td.style.color=i===2?'#ffdf83':'#e9e5d5';
+        td.textContent=value;
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+  }
+  const button=document.getElementById('recentGamesToggle');
+  if(button){
+    button.hidden=recentDemoGames.length<=3;
+    button.textContent=showAllRecentGames?'See less':'See more';
+  }
+};
+
+document.getElementById('recentGamesToggle')?.addEventListener('click',()=>{
+  showAllRecentGames=!showAllRecentGames;
+  window.renderRecentGames();
+});
+
+let leaderboardRows = null,
+    leaderboardUpdatedAt = null,
+    leaderboardOnline = false,
+    leaderboardLoading = false;
+async function refreshLeaderboard(){
+  if(leaderboardLoading)return;
+  leaderboardLoading=true;
+  try{
+    if(!supabaseClient) throw new Error('Supabase is not configured');
+    const result=await supabaseClient.rpc('get_or_create_daily_sample_leaderboard');
+    if(result.error) throw result.error;
+    leaderboardRows=(result.data||[]).slice(0,10);
+    leaderboardOnline=true;leaderboardUpdatedAt=nowUTC();
+  }catch(err){leaderboardOnline=false;console.error('Sample leaderboard load failed:',err);}
+  leaderboardLoading=false;renderLeaderboard();
+}
+function renderLeaderboard(){
+const body = document.getElementById('leaderboardBody');
+if(!body) return;
+body.innerHTML = '';
+
+const statusEl = document.getElementById('leaderboardStatus');
+
+const addRow = (rank, name, points) => {
+const tr = document.createElement('tr');
+tr.style.borderTop = '1px solid #ffffff18';
+
+[String(rank), name, Number(points).toLocaleString('en-US')].forEach((value, j) => {
+  const td = document.createElement('td');
+  td.style.padding = '10px 6px';
+  td.style.color = j === 0 ? '#ffdf83' : '#e9e5d5';
+  td.textContent = value;
+  tr.appendChild(td);
+});
+
+body.appendChild(tr);
+
+};
+
+const players = leaderboardOnline && leaderboardRows
+? leaderboardRows.map(r => ({
+name: r.username,
+points: r.practice_points
+}))
+: demoNames.map((name, index) => ({
+name,
+points: demoScores[index]
+})).sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
+
+const visiblePlayers = showAllLeaderboard
+? players.slice(0, 10)
+: players.slice(0, 5);
+
+visiblePlayers.forEach((player, index) => {
+addRow(index + 1, player.name, player.points);
+});
+
+const button = document.getElementById('leaderboardToggle');
+
+if(button){
+button.hidden = players.length <= 5;
+button.textContent = showAllLeaderboard ? 'See less' : 'See more';
+}
+
+if(leaderboardOnline && leaderboardUpdatedAt){
+const d = new Date(leaderboardUpdatedAt);
+if(statusEl){
+statusEl.textContent = `Fictional sample players • daily points saved online • updated ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())} UTC`;
+}
+} else if(statusEl){
+statusEl.textContent = 'Fictional players • local preview only.';
+}
+}
+
+document.getElementById('leaderboardToggle')?.addEventListener('click',()=>{
+  showAllLeaderboard=!showAllLeaderboard;
+  renderLeaderboard();
+});
+
+renderLeaderboard();
+window.renderRecentGames();
+refreshLeaderboard();
+setInterval(()=>{const lp=document.getElementById('leaderPanel');if(lp&&!lp.hidden&&!document.hidden)refreshLeaderboard();},15000);
+function resetRoundState(rid){
+  currentRound=rid;roundSequence=rid;
+  scheduledDrawNumbers=getRoundDraw(rid);revealCount=0;
+  document.getElementById('drawBalls').innerHTML='';
+}
+function tickDraw(){
+  if(!clockReady){paintCountdown(0,0);return}
+  const t=nowUTC(), rid=Math.floor(t/CYCLE_MS), pos=t-rid*CYCLE_MS;
+  if(currentRound===null){
+    resetRoundState(rid);phase=pos<ENTRY_MS?'countdown':'drawing';
+    document.getElementById('scheduledStatus').textContent=pos<ENTRY_MS?`Round #${rid}: the 60-second entry window is open. Join this draw with your picks.`:`Round #${rid}: draw in progress.`;
+    renderEntries();updateStakeUI();
+  }else if(rid!==currentRound){
+    // A new UTC round has started: settle anything left from the previous one, then open the new entry window.
+    while(revealCount<20)revealOneNumber();
+    resetRoundState(rid);phase='countdown';
+    document.getElementById('scheduledStatus').textContent=`Round #${rid}: the 60-second entry window is open. Join this draw with your picks.`;
+    document.getElementById('playBtn').textContent=joinLabel();
+    renderEntries();updateStakeUI();
+  }
+  if(pos>=ENTRY_MS){
+    if(phase!=='drawing'){
+      phase='drawing';
+      if(queuedEntries.length)rounds++; // every entry's stake stays reserved until all 20 numbers appear
+      document.getElementById('scheduledStatus').textContent=`Round #${rid}: draw starting — 20 numbers appear one per second.`;
+      renderEntries();
+    }
+    const target=Math.min(20,Math.floor((pos-ENTRY_MS)/1000)+1);
+    while(revealCount<target)revealOneNumber();
+  }
+  paintCountdown(t,pos);
+}
+// Save before the app is closed or hidden, and re-load the saved wallet when it comes back.
+window.addEventListener('pagehide',()=>{flushSettlements();});
+window.addEventListener('online',()=>{flushSettlements();});
+document.addEventListener('visibilitychange',async()=>{
+  if(!supabaseClient)return;
+  if(document.hidden){flushSettlements();return}
+  try{const {data}=await supabaseClient.auth.getSession();if(data?.session)await loadPlayerWallet(data.session);}catch(_){}
+  syncBalanceFromServer();
+});
+setInterval(()=>{if(!document.hidden)flushSettlements();},30000);
+setInterval(()=>{if(!document.hidden)syncBalanceFromServer();},15000);
+window.addEventListener('online',()=>{syncBalanceFromServer();});
+function startCountdown(){
+  if(timerInterval)clearInterval(timerInterval);
+  tickDraw();
+  timerInterval=setInterval(tickDraw,250);
+  if(!startCountdown.started){
+    startCountdown.started=true;
+    syncClock().then(()=>{clockReady=true;tickDraw();});
+    setInterval(syncClock,5*60*1000);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden){syncClock().then(tickDraw)}});
+  }
+}
+function toggle(n,b){if(selected.has(n)){selected.delete(n);b.classList.remove('selected')}else{if(selected.size>=MAX_PICKS){status(`You can select up to ${MAX_PICKS} numbers.`);return}selected.add(n);b.classList.add('selected')}updatePicks();document.getElementById('result').classList.remove('show')}
+function updatePicks(){document.getElementById('picked').textContent=`${selected.size} / ${MAX_PICKS} selected`;document.getElementById('pickCount').textContent=selected.size;document.getElementById('selectedList').textContent=[...selected].sort((a,b)=>a-b).join(', ')||'—';updateStakeUI()}
+function status(s){document.getElementById('drawStatus').textContent=s}
+document.getElementById('clearBtn').onclick=()=>{selected.clear();document.querySelectorAll('.num').forEach(b=>b.classList.remove('selected'));updatePicks();document.getElementById('result').classList.remove('show')};
+document.getElementById('randomBtn').onclick=()=>{selected.clear();while(selected.size<MAX_PICKS)selected.add(1+Math.floor(Math.random()*80));document.querySelectorAll('.num').forEach((b,i)=>b.classList.toggle('selected',selected.has(i+1)));updatePicks()};
+document.querySelectorAll('[data-bet]').forEach(b=>b.onclick=()=>{document.getElementById('bet').value=b.dataset.bet;updateStakeUI();});
+document.getElementById('bet').addEventListener('input',updateStakeUI);
+document.getElementById('bet').addEventListener('change',()=>{const v=readStake();document.getElementById('bet').value=v||MIN_STAKE;updateStakeUI();});
+document.getElementById('playBtn').onclick=()=>{
+ if(!clockReady){status('Syncing the practice draw… please try again shortly.');return}
+ if(!inEntryWindow()){status('The draw is in progress. Choose numbers for the next practice round.');return}
+ if(selected.size<1){status('Choose at least one number first.');return}
+ const stake=readStake();
+ if(!Number.isFinite(stake)||stake<MIN_STAKE||stake>MAX_STAKE||stake%10!==0){status(`Enter a stake between ${MIN_STAKE} and ${MAX_STAKE} points, in steps of 10.`);return}
+ if(stake>availableBalance()){status(walletUserId?`Not enough balance. Available: ${fmt(availableBalance())} (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:'Not enough balance for this stake. Log in to see your balance.');return}
+ const picks=[...selected].sort((a,b)=>a-b);
+ queuedEntries.push({id:++entrySeq,picks,stake,mode:'demo'});
+ recordStakeOnline();
+ document.getElementById('playBtn').textContent=joinLabel();
+ updateStakeUI();
+ status(`Entry #${queuedEntries.length} added: ${picks.length} number${picks.length===1?'':'s'}, ${fmt(stake)} points. Your balance changes after the draw. You can add more entries while you have available points.`);
+ document.getElementById('result').classList.remove('show');
+};
+updateStakeUI();
+startCountdown();
+const homePanel=document.getElementById('homePanel');
+const kenoPanel=document.getElementById('kenoPanel');
+const walletPanel=document.getElementById('walletPanel');
+// The account form is placed directly inside the Wallet tab.
+document.getElementById('walletBalanceSlot').appendChild(homePanel.querySelector('.home-balance'));
+
+// Telebirr is displayed as an informational payment method, not a clickable control.
+// Deposit and withdrawal actions open a Telegram chat with the administrator.
+document.getElementById('walletDepositBtn').onclick=()=>openTelegramAdmin('deposit');
+document.getElementById('walletWithdrawBtn').onclick=()=>openTelegramAdmin('withdraw');
+const navButtons=[document.getElementById('homeNav'),document.getElementById('kenoNav'),document.getElementById('walletNav'),document.getElementById('leaderNav')];
+function showTab(tab){
+  homePanel.hidden=tab!=='home';
+  kenoPanel.hidden=tab!=='keno';
+  const siteHero=document.getElementById('siteHero');if(siteHero)siteHero.hidden=tab==='keno';
+  walletPanel.hidden=tab!=='wallet';
+  document.getElementById('leaderPanel').hidden=tab!=='leader';
+  navButtons.forEach((b,i)=>b.classList.toggle('active',(tab==='home'&&i===0)||(tab==='keno'&&i===1)||(tab==='wallet'&&i===2)||(tab==='leader'&&i===3)));
+  if(tab==='wallet'){homePanel.hidden=true;kenoPanel.hidden=true;}
+  else if(tab==='leader'){homePanel.hidden=true;kenoPanel.hidden=true;renderLeaderboard();refreshLeaderboard();renderRecentGames();}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.getElementById('startKenoBtn').onclick=()=>showTab('keno');
+document.getElementById('homeNav').onclick=()=>showTab('home');
+document.getElementById('kenoNav').onclick=()=>showTab('keno');
+document.getElementById('walletNav').onclick=()=>showTab('wallet');
+document.getElementById('leaderNav').onclick=()=>showTab('leader');
+    // Always open the Wallet tab when Habesha Keno launches
+document.addEventListener('DOMContentLoaded', function () {
+  showTab('wallet');
+});
+function openTelegramAdmin(action='general'){
+  const messages={
+    deposit:'Hello admin, I would like to make a deposit to my Habesha Keno wallet.',
+    withdraw:'Hello admin, I would like to request a withdrawal from my Habesha Keno wallet.',
+    general:'Hello admin, I need help with Habesha Keno.'
+  };
+  const message=messages[action]||messages.general;
+  window.open('https://t.me/habesha_keno?text='+encodeURIComponent(message),'_blank','noopener');
+}
+let paymentAction='deposit';
+const paymentBackdrop=document.getElementById('paymentModalBackdrop');
+const paymentAmount=document.getElementById('paymentAmount');
+const paymentFeedback=document.getElementById('paymentFeedback');
+function openPaymentScreen(action){
+  paymentAction=action;
+  const isDeposit=action==='deposit';
+  document.getElementById('paymentModalTitle').textContent=isDeposit?'Telebirr — Deposit':'Telebirr — Withdrawal request';
+  document.getElementById('paymentModalSubtitle').textContent=isDeposit
+    ?'Enter an amount in ETB. You will continue to the provider-hosted checkout.'
+    :'Submit a withdrawal request for secure server-side review.';
+  document.getElementById('paymentAmountLabel').textContent='Amount (ETB)';
+  document.getElementById('confirmDemoPayment').textContent=isDeposit?'＋ Continue to Telebirr':'↗ Submit withdrawal request';
+  paymentAmount.value='100';
+  paymentAmount.max=isDeposit?'10000':String(Math.max(10,balance));
+  paymentAmount.step='1';
+  paymentFeedback.classList.remove('show');paymentFeedback.textContent='';
+  paymentBackdrop.classList.add('open');paymentBackdrop.setAttribute('aria-hidden','false');
+  setTimeout(()=>paymentAmount.focus(),60);
+}
+function closePaymentScreen(){paymentBackdrop.classList.remove('open');paymentBackdrop.setAttribute('aria-hidden','true')}
+document.getElementById('closePaymentModal').onclick=closePaymentScreen;
+paymentBackdrop.addEventListener('click',e=>{if(e.target===paymentBackdrop)closePaymentScreen()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePaymentScreen()});
+document.querySelectorAll('[data-demo-amount]').forEach(b=>b.onclick=()=>{paymentAmount.value=b.dataset.demoAmount});
+function showPaymentMessage(message,isError=false){
+  paymentFeedback.textContent=message;
+  paymentFeedback.style.borderColor=isError?'#a74747':'#167c4b';
+  paymentFeedback.style.background=isError?'#2a1111':'#092217';
+  paymentFeedback.style.color=isError?'#ffd0d0':'#c9ffe0';
+  paymentFeedback.classList.add('show');
+}
+document.getElementById('confirmDemoPayment').onclick=async()=>{
+  const amount=Number(paymentAmount.value);
+  if(!Number.isFinite(amount)||!Number.isInteger(amount)||amount<10||amount>10000){
+    showPaymentMessage('Enter a whole ETB amount between 10 and 10,000.',true);return;
+  }
+  if(!supabaseClient){showPaymentMessage('Payment service is not configured. Please contact the app administrator.',true);return;}
+  const button=document.getElementById('confirmDemoPayment');
+  button.disabled=true;
+  button.textContent='Connecting securely…';
+  try{
+    const {data:sessionData,error:sessionError}=await supabaseClient.auth.getSession();
+    if(sessionError)throw sessionError;
+    if(!sessionData?.session){
+      showPaymentMessage('Please sign in to your Habesha Keno account before making a payment.',true);return;
+    }
+    if(paymentAction==='deposit'){
+      // The Edge Function must create a provider checkout session using server-held credentials.
+      // It must NOT trust client-supplied balances or mark a deposit paid.
+      const {data,error}=await supabaseClient.functions.invoke('create-telebirr-payment',{
+        body:{amount_etb:amount,currency:'ETB'}
+      });
+      if(error)throw error;
+      const checkoutUrl=data?.checkout_url||data?.checkoutUrl||data?.url;
+      if(!checkoutUrl||!/^https:\/\//i.test(checkoutUrl))throw new Error('Payment server did not return a valid secure checkout URL.');
+      showPaymentMessage('Opening secure Telebirr checkout. Your wallet will update only after the server verifies payment.');
+      if(tg&&typeof tg.openLink==='function')tg.openLink(checkoutUrl);
+      else window.location.href=checkoutUrl;
+    }else{
+      // Withdrawal requests are recorded server-side; funds must only be sent after admin/provider review.
+      const {data,error}=await supabaseClient.functions.invoke('request-telebirr-withdrawal',{
+        body:{amount_etb:amount,currency:'ETB'}
+      });
+      if(error)throw error;
+      if(data?.success===false)throw new Error(data?.message||'The withdrawal request was not accepted.');
+      showPaymentMessage(data?.message||'Your withdrawal request was submitted for review. No money has been sent yet.');
+    }
+  }catch(error){
+    console.error('Telebirr payment request failed:',error);
+    showPaymentMessage(error?.message||'Could not connect to the payment service. Please try again later.',true);
+  }finally{
+    button.disabled=false;
+    button.textContent=paymentAction==='deposit'?'＋ Continue to Telebirr':'↗ Submit withdrawal request';
+  }
+};
+document.querySelectorAll('[data-method]').forEach(b=>b.onclick=()=>{if(b.dataset.method==='Telebirr')openPaymentScreen('deposit');});
+document.getElementById('refreshBalance').onclick=async()=>{const result=await supabaseClient.auth.getSession();if(result.data?.session)await loadPlayerWallet(result.data.session);syncHomeBalance();renderModeBalance();document.getElementById('refreshBalance').textContent='✓ Updated';setTimeout(()=>document.getElementById('refreshBalance').textContent='↻ Refresh',1200);};
+updatePicks();syncHomeBalance();renderWalletHistory();startCountdown();setGameMode('demo');
+
+// Supabase client was initialized at the start of this script.
+const accountFeedback=document.getElementById('accountFeedback');
+const signedOutBox=document.getElementById('accountSignedOut');
+const signedInBox=document.getElementById('accountSignedIn');
+const loginPanel=document.getElementById('loginPanel');
+const registerPanel=document.getElementById('registerPanel');
+function setAccountTab(tab){
+  const isLogin=tab==='login';
+  loginPanel.hidden=!isLogin; registerPanel.hidden=isLogin;
+  document.getElementById('loginTabBtn').classList.toggle('active',isLogin);
+  document.getElementById('registerTabBtn').classList.toggle('active',!isLogin);
+  document.getElementById('loginTabBtn').setAttribute('aria-selected',String(isLogin));
+  document.getElementById('registerTabBtn').setAttribute('aria-selected',String(!isLogin));
+  accountFeedback.textContent='';
+}
+document.getElementById('loginTabBtn').addEventListener('click',()=>setAccountTab('login'));
+document.getElementById('registerTabBtn').addEventListener('click',()=>setAccountTab('register'));
+function accountMessage(message,isError=false){accountFeedback.textContent=message;accountFeedback.style.color=isError?'#ffb2a8':'#ffe29a';}
+async function showAccountSession(session) {
+  if(!session){walletUserId=null;adminPointsBalance=0;walletHistory=[];balance=1000;try{localStorage.removeItem(WALLET_BALANCE_KEY);}catch(_){}setSync(true,'');if(typeof renderModeBalance==='function')renderModeBalance();}
+  const walletHistoryCard=document.getElementById('walletHistoryCard');
+  if(walletHistoryCard)walletHistoryCard.hidden=!session;
+  signedOutBox.hidden = !!session;
+  signedInBox.hidden = !session;
+
+  // Do not show the available-balance card in Wallet before the player signs in.
+  const walletBalanceSlot = document.getElementById('walletBalanceSlot');
+  if (walletBalanceSlot) walletBalanceSlot.hidden = !session;
+
+  // Keep the Home tab clean after login: hide demo-mode and wallet/payment actions.
+  const homePaymentActions = document.querySelector('#homePanel .payment-actions');
+  const homePaymentCard = document.querySelector('#homePanel .payment-card');
+  if (homePaymentActions) homePaymentActions.hidden = !!session;
+  if (homePaymentCard) homePaymentCard.hidden = !!session;
+
+  if (session) {
+    const username =
+      session.user.user_metadata?.username || "Player";
+
+    document.getElementById("accountStatus").textContent =
+      `Signed in as ${username}. Your player profile is connected.`;
+
+    await loadPlayerWallet(session);
+    loadWalletHistoryForPlayer();
+    // Signed-in players see only the administrator-assigned balance.
+    setGameMode('real');
+    const modeSwitch = document.querySelector('.mode-switch');
+    if (modeSwitch) modeSwitch.hidden = true;
+    await checkAdminAccess();
+  } else {
+    renderWalletHistory();
+    document.getElementById("accountStatus").textContent = "";
+    const modeSwitch = document.querySelector('.mode-switch');
+    if (modeSwitch) modeSwitch.hidden = false;
+    setGameMode('demo');
+    document.getElementById("adminButton")?.remove();
+  }
+}
+
+async function checkAdminAccess() {
+  document.getElementById("adminButton")?.remove();
+
+  try {
+    const { data, error } = await supabaseClient.functions.invoke(
+      "admin-players"
+    );
+
+    if (error || !Array.isArray(data?.players)) {
+      return;
+    }
+
+    const adminButton = document.createElement("button");
+
+    adminButton.id = "adminButton";
+    adminButton.textContent = "Admin Dashboard";
+
+    adminButton.style.cssText =
+      "position:fixed;bottom:20px;right:20px;padding:14px;background:#c9a227;color:#111;border:0;border-radius:10px;z-index:9999;cursor:pointer;";
+
+    adminButton.addEventListener("click", () => {
+      loadAdminDashboard();
+    });
+
+    document.body.appendChild(adminButton);
+
+  } catch (error) {
+    console.error("Admin access check failed:", error);
+  }
+}
+
+document.getElementById('loginForm').addEventListener('submit',async(event)=>{
+  event.preventDefault();
+  if(!supabaseClient){accountMessage('Account service is unavailable. Refresh and try again.',true);return;}
+  const username=document.getElementById('loginUsername').value.trim();
+  const password=document.getElementById('loginPassword').value;
+  if(!/^[A-Za-z0-9_]{3,20}$/.test(username)){accountMessage('Enter a valid username (3–20 letters, numbers, or underscores).',true);return;}
+  const button=document.getElementById('loginBtn');button.disabled=true;button.textContent='Checking…';
+  accountMessage('Signing in…');
+  try{
+    const {data,error}=await supabaseClient.functions.invoke('username-login',{body:{username,password}});
+    if(error) throw error;
+   const { data: sessionData, error: sessionError } =
+  await supabaseClient.auth.setSession({
+    access_token: data.access_token,
+    refresh_token: data.refresh_token
+  });
+
+if (sessionError) throw sessionError;
+
+accountMessage('Login successful.');
+showAccountSession(sessionData.session);
+event.target.reset();
+ } catch (error) {
+    console.error('Username login failed:', error);
+
+    if (error.context) {
+        console.error('HTTP status:', error.context.status);
+
+        try {
+            const responseBody = await error.context.clone().text();
+            console.error('Server response:', responseBody);
+        } catch (readError) {
+            console.error('Could not read server response:', readError);
+        }
+    }
+
+    accountMessage(
+        'Sign-in failed. Check the browser console for details.',
+        true
+    );
+  }finally{button.disabled=false;button.textContent='Login';}
+});
+document.getElementById('registerForm').addEventListener('submit',async(event)=>{
+  event.preventDefault();
+  if(!supabaseClient){accountMessage('Account service is unavailable. Refresh and try again.',true);return;}
+  const username=document.getElementById('regUsername').value.trim();
+  const email=document.getElementById('regEmail').value.trim();
+  const password=document.getElementById('regPassword').value;
+  const confirm=document.getElementById('regConfirm').value;
+  if(!/^[A-Za-z0-9_]{3,20}$/.test(username)){accountMessage('Username must be 3–20 characters: letters, numbers, and underscores only.',true);return;}
+  if(password.length<8){accountMessage('Choose a password with at least 8 characters.',true);return;}
+  if(password!==confirm){accountMessage('The passwords do not match.',true);return;}
+  const button=document.getElementById('registerBtn');button.disabled=true;button.textContent='Creating account…';
+  accountMessage('Creating your account…');
+  try{
+    const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{username}}});
+    if(error) throw error;
+    if(data.session){accountMessage('Account created successfully. Your profile is ready.');showAccountSession(data.session);}
+    else accountMessage('Registration received! Check your email for the verification link. After verifying, return here to sign in.');
+    event.target.reset();
+  }catch(error){
+    const message=String(error?.message||'Registration failed.');
+    accountMessage(message.toLowerCase().includes('duplicate')||message.toLowerCase().includes('unique')?'That username is already taken. Please choose another.':message,true);
+  }finally{button.disabled=false;button.textContent='Create account';}
+});
+document.getElementById('signOutBtn').addEventListener('click',async()=>{
+  if(!supabaseClient)return;
+  const {error}=await supabaseClient.auth.signOut();
+  if(error)accountMessage('Could not sign out. Please try again.',true);
+  else accountMessage('You have signed out.');
+});
+// ---------- Admin dashboard ----------
+// Shows every player's balance (welcome points + admin-assigned points) and updates right after
+// an admin adds or deducts points. It also refreshes itself every 15 seconds while it is open.
+const adminState={players:[],transactions:[],search:'',sort:'points',flashId:null,updatedAt:null,loading:false,timer:null,changed:{},activity:[],stakeSeen:{},live:false};
+const escHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pts=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:2});
+const playerTotal=p=>Number(p.practice_balance||0);
+
+function renderAdminDashboard(){
+  const dash=document.getElementById('adminDashboard');if(!dash)return;
+  const players=adminState.players, byId=new Map(players.map(p=>[p.id,p]));
+  const totalAll=players.reduce((t,p)=>t+playerTotal(p),0);
+  const totalAdmin=players.reduce((t,p)=>t+Number(p.admin_points||0),0);
+  const games=players.reduce((t,p)=>t+Number(p.games_played||0),0);
+  const cards=[['Total Players',players.length],['Total Games Played',games],['All Players\' Balance',pts(totalAll)],['Average Per Player',pts(players.length?totalAll/players.length:0)]];
+  document.getElementById('adminSummary').innerHTML=cards.map(([k,v])=>`<div style="background:#252525;padding:15px;border-radius:10px;flex:1;min-width:140px"><h3 style="margin:0 0 6px;font-size:13px;color:#d9c47c">${k}</h3><h2 style="margin:0">${v}</h2></div>`).join('');
+  const q=adminState.search.toLowerCase();
+  const list=players.filter(p=>((p.username||'')+' '+(p.email||'')).toLowerCase().includes(q));
+  if(adminState.sort==='points')list.sort((x,y)=>playerTotal(y)-playerTotal(x));
+  else if(adminState.sort==='name')list.sort((x,y)=>String(x.username||'').localeCompare(String(y.username||'')));
+  else list.sort((x,y)=>new Date(y.created_at||0)-new Date(x.created_at||0));
+  document.getElementById('playerList').innerHTML=list.map((player,i)=>`
+    <div style="padding:12px;border-bottom:1px solid #555;${(adminState.flashId===player.id||(adminState.changed[player.id]&&Date.now()-adminState.changed[player.id].at<8000))?'background:#10372a;transition:background .6s;':''}">
+      <strong>#${i+1} ${escHtml(player.username||'No username')}</strong>${(adminState.changed[player.id]&&adminState.changed[player.id].delta)?` <span style="font-size:12px;font-weight:800;color:${adminState.changed[player.id].delta>=0?'#19dc83':'#ff8a8a'}">${adminState.changed[player.id].delta>=0?'▲ +':'▼ −'}${pts(Math.abs(adminState.changed[player.id].delta))} • last result ${new Date(adminState.changed[player.id].at).toLocaleTimeString()}</span>`:''}
+      <p style="margin:4px 0">${escHtml(player.email||'No email')}</p>
+      <p style="margin:4px 0">Games Played: ${player.games_played??0}</p>
+      <p style="margin:4px 0;font-size:16px;color:#ffdf83">Balance: <b>${pts(player.practice_balance)}</b> <small style="color:#a8b4aa">(the balance this player stakes with)</small></p>
+      ${Number(player.staked_now||0)>0?`<p style="margin:4px 0;color:#ffcf66;font-weight:800">🎟 Staked this round: ${pts(player.staked_now)} (${player.entries_now||0} entr${Number(player.entries_now)===1?'y':'ies'}) — balance changes after the draw. After this stake: ${pts(Math.max(0,Number(player.practice_balance||0)-Number(player.staked_now)))}</p>`:''}
+      ${Number(player.admin_points||0)>0?`<p style="margin:4px 0;color:#a8b4aa"><small>Older admin-assigned points (not used for staking): ${pts(player.admin_points)}</small></p>`:''}
+      <button onclick="adjustAdminPoints('${escHtml(player.id)}','ADD')" style="background:#16834a;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;">+ Add Balance</button>
+      <button onclick="adjustAdminPoints('${escHtml(player.id)}','DEDUCT')" style="background:#a83232;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;margin-left:5px;">- Deduct Balance</button>
+      <p style="margin:6px 0 0">Account Status: ${escHtml(player.account_status||'Registered')}</p>
+      <small>Joined: ${player.created_at?new Date(player.created_at).toLocaleDateString():'—'}</small>
+    </div>`).join('')||'<p>No players found.</p>';
+  const la=document.getElementById('liveActivity');
+  if(la)la.innerHTML=adminState.activity.length?adminState.activity.map(a=>a.kind==='stake'?`<div style="padding:8px 0;border-bottom:1px solid #444;font-size:13px"><span style="color:#a8b4aa">${new Date(a.at).toLocaleTimeString()}</span> • <b>${escHtml(a.name)}</b> <span style="color:#ffcf66">staked ${pts(a.amount)}</span> (${a.entries} entr${a.entries===1?'y':'ies'}) — waiting for the draw</div>`:`<div style="padding:8px 0;border-bottom:1px solid #444;font-size:13px"><span style="color:#a8b4aa">${new Date(a.at).toLocaleTimeString()}</span> • <b>${escHtml(a.name)}</b> ${a.delta>=0?'<span style="color:#19dc83">gained +':'<span style="color:#ff8a8a">lost −'}${pts(Math.abs(a.delta))}</span> (${pts(a.from)} → ${pts(a.to)})</div>`).join(''):'<p style="color:#a8b4aa;font-size:13px">No changes yet — waiting for players to finish a draw.</p>';
+  const tx=adminState.transactions;
+  document.getElementById('transactionList').innerHTML=tx.length?tx.map(t=>{
+    const who=byId.get(t.auth_user_id);const add=t.transaction_type==='ADD';
+    return `<div style="padding:12px;border-bottom:1px solid #555;">
+      <strong>${add?'➕ Added':'➖ Deducted'}</strong>
+      <p style="margin:4px 0">Amount: ${pts(t.amount)} Balance</p>
+      <p style="margin:4px 0">Player: ${escHtml(who?.username||t.auth_user_id)}</p>
+      <p style="margin:4px 0">Reason: ${escHtml(t.reason||'No reason provided')}</p>
+      <small>${new Date(t.created_at).toLocaleString()}</small></div>`;
+  }).join(''):'<p>No transactions yet.</p>';
+  const ln=document.getElementById('adminLiveNote');
+  if(ln){ln.style.color=adminState.live?'#19dc83':'#ffb86b';ln.textContent=adminState.live?'✓ Live data: balances and stakes come straight from the database.':'⚠ Basic data only. For live balances and stakes, run supabase_practice_settlement.sql and add your admin account to keno_admins (see the SQL file).';}
+  const u=document.getElementById('adminUpdated');
+  if(u&&adminState.updatedAt){const d=new Date(adminState.updatedAt);u.textContent=`Updated ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;}
+}
+
+async function refreshAdminData(silent=true){
+  if(adminState.loading)return;
+  adminState.loading=true;
+  try{
+    const { data, error } = await supabaseClient.functions.invoke('admin-players');
+    if(error)throw error;
+    const fresh=data?.players??[];
+    // Live balances and open stakes straight from the database (needs the SQL setup); otherwise basic data only.
+    let live=null;
+    try{const r=await supabaseClient.rpc('admin_live_player_points');if(!r.error&&Array.isArray(r.data))live=r.data;}catch(_){}
+    adminState.live=!!live;
+    if(live){
+      const byId=new Map(fresh.map(x=>[x.id,x]));
+      live.forEach(l=>{
+        let x=byId.get(l.player_id);
+        if(!x){x={id:l.player_id,username:l.username,games_played:l.rounds_played,created_at:null};fresh.push(x);byId.set(x.id,x);}
+        x.practice_balance=Number(l.balance);x.staked_now=Number(l.staked_now||0);x.entries_now=Number(l.entries_now||0);
+      });
+    }
+    if(adminState.players.length){
+      fresh.forEach(x=>{
+        const now=Number(x.staked_now||0),before=Number(adminState.stakeSeen[x.id]||0);
+        if(now>before){
+          adminState.changed[x.id]=Object.assign({},adminState.changed[x.id]||{delta:0},{at:Date.now(),staked:now});
+          adminState.activity.unshift({kind:'stake',name:x.username||'Player',amount:now,entries:Number(x.entries_now||0),at:Date.now()});
+          adminState.activity.length=Math.min(adminState.activity.length,40);
+        }
+      });
+    }
+    fresh.forEach(x=>{adminState.stakeSeen[x.id]=Number(x.staked_now||0);});
+    const prev=new Map(adminState.players.map(x=>[x.id,Number(x.practice_balance||0)]));
+    if(adminState.players.length){
+      fresh.forEach(x=>{
+        const before=prev.get(x.id),now=Number(x.practice_balance||0);
+        if(before!==undefined&&now!==before){
+          const delta=now-before;
+          adminState.changed[x.id]={delta,at:Date.now()};
+          adminState.activity.unshift({name:x.username||'Player',from:before,to:now,delta,at:Date.now()});
+          adminState.activity.length=Math.min(adminState.activity.length,40);
+        }
+      });
+    }
+    adminState.players=fresh;
+    adminState.transactions=data?.transactions??[];
+    adminState.updatedAt=Date.now();
+    renderAdminDashboard();
+  }catch(error){
+    console.error('Admin refresh failed:',error);
+    if(!silent)alert('Admin error: '+(error?.message||'Unknown error'));
+  }finally{adminState.loading=false;}
+}
+
+async function loadAdminDashboard() {
+  try {
+    const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+    if (sessionError) throw sessionError;
+    if (!sessionData.session) { alert('Please log in first.'); return; }
+
+    if(!document.getElementById('adminDashboard')){
+      const dashboard=document.createElement('div');
+      dashboard.id='adminDashboard';
+      dashboard.style.cssText='position:fixed;inset:5%;background:#151515;color:white;padding:20px;border:2px solid #c9a227;border-radius:12px;z-index:10000;overflow:auto;';
+      dashboard.innerHTML=`
+        <button id="closeAdmin">Close ✕</button>
+        <h2 style="color:#c9a227">Admin Dashboard</h2>
+        <div id="adminSummary" style="display:flex;gap:12px;flex-wrap:wrap;margin:20px 0;"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:15px;">
+          <input id="playerSearch" placeholder="Search username or email..." style="padding:10px;flex:1;min-width:180px;">
+          <select id="playerSort" style="padding:10px;">
+            <option value="points">Sort: highest points</option>
+            <option value="name">Sort: name A–Z</option>
+            <option value="newest">Sort: newest</option>
+          </select>
+          <button id="adminRefresh" type="button" style="padding:10px;cursor:pointer;">↻ Refresh</button>
+          <small id="adminUpdated" style="color:#a8b4aa"></small>
+        </div>
+        <div id="adminLiveNote" style="font-size:12px;margin:-6px 0 12px"></div>
+        <div id="playerList"></div>
+        <h2 style="color:#c9a227;margin-top:25px;">Live player results</h2>
+        <p style="margin:0 0 8px;color:#a8b4aa;font-size:12px">Balance changes seen while this dashboard is open: a player's wins and losses appear here within seconds.</p>
+        <div id="liveActivity"></div>
+        <h2 style="color:#c9a227;margin-top:25px;">Balance Transaction History</h2>
+        <div id="transactionList"></div>`;
+      document.body.appendChild(dashboard);
+      document.getElementById('playerSearch').addEventListener('input',e=>{adminState.search=e.target.value;renderAdminDashboard();});
+      document.getElementById('playerSort').addEventListener('change',e=>{adminState.sort=e.target.value;renderAdminDashboard();});
+      document.getElementById('adminRefresh').addEventListener('click',()=>refreshAdminData(false));
+      document.getElementById('closeAdmin').addEventListener('click',()=>{dashboard.remove();clearInterval(adminState.timer);adminState.timer=null;});
+      clearInterval(adminState.timer);
+      adminState.timer=setInterval(()=>{if(!document.getElementById('adminDashboard')){clearInterval(adminState.timer);adminState.timer=null;return}if(!document.hidden)refreshAdminData(true);},5000);
+    }
+    await refreshAdminData(false);
+  } catch (error) {
+    console.error('Dashboard error:', error);
+    alert('Dashboard error: ' + error.message);
+  }
+}
+async function adjustPracticeBalance(playerId, type) {
+  const amount = prompt(
+    type === "ADD"
+      ? "Enter Practice ETB amount to add:"
+      : "Enter Practice ETB amount to deduct:"
+  );
+
+  if (amount === null) return;
+
+  const numericAmount = Number(amount);
+
+  if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+    alert("Please enter a valid positive amount.");
+    return;
+  }
+
+  const reason = prompt("Enter a reason for this adjustment:") || "";
+
+  try {
+    const { data, error } = await supabaseClient.rpc(
+      "adjust_practice_balance",
+      {
+        p_player_id: playerId,
+        p_type: type,
+        p_amount: numericAmount,
+        p_reason: reason
+      }
+    );
+
+    if (error) throw error;
+
+    alert("Practice balance updated successfully! New balance: " +
+      Number(data).toFixed(2) + " ETB");
+
+    await loadAdminDashboard();
+
+  } catch (error) {
+    console.error("Balance adjustment error:", error);
+    alert("Could not update balance: " + error.message);
+  }
+}
+
+async function adjustAdminPoints(playerId, type) {
+  const amount = prompt(type === 'ADD'
+    ? 'Enter Balance to add:'
+    : 'Enter Balance to deduct:');
+  if (amount === null) return;
+  const numericAmount = Number(amount);
+  if (!Number.isFinite(numericAmount) || numericAmount <= 0 || numericAmount > 1000000) {
+    alert('Enter a positive amount up to 1,000,000.');
+    return;
+  }
+  const reason = prompt('Reason for this adjustment (optional):') || '';
+  try {
+    // Changes the balance the player stakes with (and records the transaction).
+    const { data, error } = await supabaseClient.rpc('adjust_practice_balance', {
+      p_player_id: playerId,
+      p_type: type,
+      p_amount: numericAmount,
+      p_reason: reason
+    });
+    if (error) throw error;
+    // Show the new balance in the dashboard immediately, then confirm with fresh data from the server.
+    const row=adminState.players.find(x=>x.id===playerId);
+    if(row&&Number.isFinite(Number(data)))row.practice_balance=Number(data);
+    adminState.flashId=playerId;renderAdminDashboard();
+    setTimeout(()=>{if(adminState.flashId===playerId){adminState.flashId=null;renderAdminDashboard();}},4000);
+    refreshAdminData(true);
+    syncBalanceFromServer();
+  } catch (error) {
+    console.error('Balance adjustment failed:', error);
+    const missing=error?.code==='PGRST202'||error?.code==='42883';
+    alert(missing?'The database function adjust_practice_balance() is not installed yet.':'Could not update balance: ' + (error?.message || 'Unknown error'));
+  }
+}
+window.adjustAdminPoints = adjustAdminPoints;
+
+window.adjustPracticeBalance = adjustPracticeBalance;
+(async () => {
+  if (!supabaseClient) return;
+  try {
+    const { data, error } = await supabaseClient.auth.getSession();
+    if (error) throw error;
+    await showAccountSession(data.session);
+  } catch (error) {
+    console.error('Session restore failed:', error);
+  }
+})();
+</script>
+</body></html><!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#070b0b">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<title>Habesha Keno — Demo</title>
+<style>
+:root{--bg:#050707;--panel:#101817;--gold:#ffd35a;--gold2:#ff9d00;--green:#00e985;--blue:#42d9ff;--purple:#a77bff;--muted:#9aaba5;--line:#5c4815}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% -12%,#263626 0,#0a100e 38%,#050707 75%);color:#f7f4e8;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;min-height:100vh}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.13;background-image:linear-gradient(30deg,transparent 48%,#ffd35a 49%,transparent 50%),linear-gradient(150deg,transparent 48%,#42d9ff 49%,transparent 50%);background-size:74px 74px;mask-image:linear-gradient(to bottom,black,transparent 70%);z-index:-1}
+    button{transition:transform .18s ease,filter .18s ease,border-color .18s ease,box-shadow .18s ease}button:active{transform:scale(.97)}@keyframes goldPulse{0%,100%{box-shadow:0 0 12px #ffb00024, inset 0 1px #fff2}50%{box-shadow:0 0 24px #ffb00058, inset 0 1px #fff7}}@keyframes riseIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes ballPop{0%{opacity:0;transform:scale(.35) rotate(-25deg)}75%{transform:scale(1.13) rotate(4deg)}100%{opacity:1;transform:scale(1) rotate(0)}}@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:100vh;padding:14px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1px solid #5b481c;border-radius:18px;background:linear-gradient(120deg,#101612,#070b0a);box-shadow:0 8px 32px #0008,0 0 24px #ffb00012;position:relative;overflow:hidden}.top:after{content:'';position:absolute;left:0;top:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),var(--blue),transparent)}
+.top .balance{display:none!important}
+.brand{display:flex;align-items:center;gap:12px}.badge{width:46px;height:46px;border:2px solid var(--gold);border-radius:50%;display:grid;place-items:center;color:var(--gold);font-weight:900;font-size:19px;text-shadow:0 0 12px #ffb000;background:radial-gradient(circle,#42320e,#090d0b 72%);box-shadow:0 0 18px #ffb00024,inset 0 0 10px #ffb00020;flex-shrink:0}.brand h1{font-size:19px;margin:0;color:#ffdc78}.brand small{display:block;color:var(--muted);font-size:12px}.balance{border:1px solid #8b681f;padding:10px 14px;border-radius:12px;color:var(--gold);font-weight:850;background:linear-gradient(135deg,#2b210b,#0b100e);box-shadow:0 0 18px #ffb00017;white-space:nowrap}
+.hero{text-align:center;padding:26px 12px 22px;margin:14px 0;border-radius:20px;border:1px solid #5b481c;background:radial-gradient(ellipse at 50% 0%,#29311c 0,#101713 45%,#090c0b 100%);position:relative;overflow:hidden;box-shadow:inset 0 1px #fff1,0 12px 30px #0006}.hero:after{content:'';position:absolute;inset:auto -20% -70% -20%;height:100%;background:radial-gradient(ellipse,#ffb00018,transparent 65%);pointer-events:none}
+.hero:before{content:"✦  ETHIOPIA  ✦";letter-spacing:8px;color:#7d6a2b;font-size:10px}.hero h2{margin:10px 0 2px;font-size:clamp(32px,7vw,62px);line-height:1;color:var(--gold);background:linear-gradient(100deg,#fff1a7,#ffbd26,#fff0a0,#ff9d00);background-size:200% auto;background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 28px #ffb00030;font-weight:1000;letter-spacing:2px;animation:shimmer 5s linear infinite}.hero p{margin:8px 0 0;color:#d9c78d;letter-spacing:2px;font-size:13px}
+.notice{padding:10px 12px;background:#241b08;border:1px solid #8c671c;border-radius:12px;color:#f5d98b;font-size:12px;line-height:1.5;margin-bottom:14px}
+.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.8fr);gap:14px}.card{background:linear-gradient(145deg,#131b17eF,#080d0cf5);border:1px solid #4c3b16;border-radius:17px;padding:15px;box-shadow:0 10px 28px #0005,0 0 18px #ffb0000b;backdrop-filter:blur(8px);animation:riseIn .45s ease both}.card:nth-child(2){animation-delay:.06s}.card:nth-child(3){animation-delay:.12s}.card h3{margin:0 0 13px;color:#ffdc78;font-size:16px}.sub{font-size:12px;color:var(--muted);margin-top:-7px;margin-bottom:13px}
+.grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}.num{min-width:0;aspect-ratio:1.22;border:1px solid #65501c;border-radius:8px;background:linear-gradient(#17211d,#0b100f);color:#f6f0d9;font-weight:750;font-size:clamp(11px,2vw,16px);box-shadow:inset 0 1px #ffffff0a;transition:.12s}.num:hover{border-color:var(--gold);filter:brightness(1.25);transform:translateY(-1px)}.num.selected{background:linear-gradient(145deg,#fff0a0,#ffbd26 62%,#e58b00);color:#201400;border-color:#fff4b8;box-shadow:0 0 12px #ffb000,0 0 25px #ffb00055,inset 0 1px #fff8c8;animation:goldPulse 1.8s ease-in-out infinite;font-weight:950}
+.controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:13px;flex-wrap:wrap}.pill{border:1px solid #4d401e;border-radius:10px;padding:8px 10px;background:#0b1110;color:#f6e6b0;font-size:13px}.goldbtn{border:0;border-radius:12px;padding:12px 16px;background:linear-gradient(135deg,#fff0a0,#ffbd26 60%,#dc8100);color:#241700;font-weight:900;box-shadow:0 0 14px #ffb00035}.goldbtn:hover,.greenbtn:hover{filter:brightness(1.08);box-shadow:0 0 24px #ffb00055}.goldbtn:disabled{opacity:.45;cursor:not-allowed}.greenbtn{width:100%;border:1px solid #a8ffca;border-radius:13px;padding:15px;background:linear-gradient(120deg,#27ff91,#00bf68,#00914d);background-size:180% 180%;color:#001b0d;font-weight:950;font-size:17px;box-shadow:0 0 20px #00db7840;animation:shimmer 5s linear infinite}.stack{display:grid;gap:14px}.field{display:flex;align-items:center;justify-content:space-between;gap:10px}.field label{color:#d9d2bb;font-size:13px}.field input{width:110px;background:#060a09;border:1px solid #55451c;border-radius:9px;padding:10px;color:#fff;text-align:right;font-weight:800}.quick{display:flex;gap:6px;margin-top:9px}.quick button{flex:1;padding:8px 2px;border:1px solid #7b5a1b;border-radius:8px;background:#2b210c;color:#ffdb78;font-weight:800;font-size:12px}.stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #ffffff10;font-size:13px}.stat:last-child{border:0}.stat strong{color:var(--gold)}.drawballs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.countdown-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;margin-bottom:14px;border:1px solid #7b5b1b;border-radius:14px;background:linear-gradient(120deg,#211a09,#0c1210)}.countdown-label{font-size:11px;color:#c9b979;letter-spacing:1px;font-weight:800}.countdown-time{font-size:27px;font-weight:1000;color:var(--gold);font-variant-numeric:tabular-nums;text-shadow:0 0 14px #ffb00040}.countdown-note{font-size:11px;color:#9eaaa0;margin-top:3px}.draw-diagram{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px;margin-top:12px}.diagram-num{aspect-ratio:1;border:1px solid #39443a;border-radius:7px;background:#0b100e;color:#aab7ab;font-size:12px;font-weight:800;display:grid;place-items:center}.diagram-num.picked{border-color:#b98c25;background:#30240b;color:#ffdf83}.diagram-num.drawn{border-color:#16c779;background:linear-gradient(145deg,#b8ffd7,#19d17c);color:#002313;box-shadow:0 0 9px #00df7930}.diagram-num.hit{border-color:#fff0a0;background:linear-gradient(145deg,#fff2a7,#ffb000);color:#201400;box-shadow:0 0 12px #ffb00080}.diagram-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;color:#aab5ad;font-size:10px}.legend-dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px}.draw-diagram-wrap{margin-top:12px;padding-top:12px;border-top:1px solid #ffffff12}.draw-diagram-title{font-size:12px;color:#d8d0b5;font-weight:800}.ball{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 25%,#fff0a4,#ffb000 65%,#8d4d00);color:#201400;font-weight:900;font-size:12px;box-shadow:0 0 10px #ffb00035;animation:ballPop .35s cubic-bezier(.2,.8,.2,1) both}.result{padding:11px;border-radius:10px;background:#092217;border:1px solid #087b43;color:#c9ffe0;font-size:13px;line-height:1.6;display:none}.result.show{display:block;animation:riseIn .35s ease both}.nav{display:flex;gap:8px;margin-top:14px}.nav button{flex:1;padding:11px 4px;border:1px solid #3c351e;border-radius:11px;background:#0b100f;color:#c9c4b4;font-size:12px}.nav button.active{border-color:var(--gold);color:var(--gold);background:linear-gradient(135deg,#2b210c,#0b100f);box-shadow:0 0 12px #ffb00020}.nav button:hover{border-color:#8a6a24;color:#ffe29a}.foot{text-align:center;color:#73827a;font-size:11px;margin:16px 0 8px}.notice{box-shadow:inset 0 1px #fff1}.field input:focus{outline:1px solid var(--gold);border-color:var(--gold);box-shadow:0 0 12px #ffb00020}::selection{background:#ffca45;color:#201400}
+.how-to-card h3{margin-bottom:8px}.how-to-list{list-style:none;padding:0;margin:14px 0;display:grid;gap:14px}.how-to-list li{display:flex;align-items:flex-start;gap:11px}.step-number{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:linear-gradient(135deg,#fff0a0,#ffbd26);color:#241700;font-weight:950}.how-to-list strong{font-size:13px;color:#fff0bf}.how-to-list p{margin:3px 0 0;color:#aeb9ae;font-size:12px;line-height:1.5}.how-to-note{padding:10px 11px;border:1px solid #3f482b;border-radius:10px;background:#10180f;color:#c8d3b4;font-size:11px;line-height:1.55}.how-to-start{margin-top:13px;width:100%}
+.mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px;border:1px solid #4c3b16;border-radius:14px;background:#090e0c}.mode-btn{min-height:44px;border:1px solid #344037;border-radius:10px;background:#111814;color:#c3cbbf;font-weight:850}.mode-btn.active{border-color:var(--gold);background:linear-gradient(135deg,#3b2b0b,#17170e);color:#ffdf83;box-shadow:0 0 14px #ffb0001c}.mode-btn.real.active{border-color:#a77bff;color:#ddccff;background:linear-gradient(135deg,#28183e,#111018)}.mode-message{padding:11px 12px;border-radius:11px;border:1px solid #8a6926;background:#241b08;color:#f5d98b;font-size:12px;line-height:1.5}.mode-message.real-preview{border-color:#7754b5;background:#1a1228;color:#e1d3ff}.home-panel{display:grid;gap:13px;margin:14px 0}.home-balance{padding:18px;background:radial-gradient(ellipse at 90% 0%,#5a4318 0,transparent 46%),linear-gradient(130deg,#171e17,#090d0b 72%);border-color:#8a6926;position:relative;overflow:hidden}.balance-top,.balance-foot,.payment-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}.eyebrow{font-size:11px;letter-spacing:1.7px;color:#d6c58d;font-weight:800}.demo-tag,.soon-tag{font-size:10px;letter-spacing:1px;font-weight:900;color:#ffdf83;border:1px solid #8a6926;background:#30240d;padding:6px 8px;border-radius:999px;white-space:nowrap}.ETB-amount{display:flex;align-items:baseline;gap:10px;margin:13px 0 12px;color:#ffda68;font-size:clamp(36px,8vw,54px);font-weight:1000;letter-spacing:-1px;text-shadow:0 0 18px #ffb00030}.ETB-amount small{font-size:12px;letter-spacing:0;color:#c5b987;font-weight:650;text-shadow:none}.balance-foot{font-size:11px;color:#9aa99d;border-top:1px solid #ffffff12;padding-top:11px}.refresh-btn{border:1px solid #5b481c;background:#0a100d;color:#ffda68;border-radius:9px;padding:7px 10px;font-size:12px}.payment-actions{display:grid;grid-template-columns:1fr 1fr;gap:11px}.action-card{display:flex;align-items:center;gap:10px;text-align:left;padding:14px 12px;border-radius:15px;border:1px solid #6c531e;background:linear-gradient(135deg,#2c230d,#10130e);color:#fff0bf;min-width:0;box-shadow:0 8px 20px #0004}.deposit-action{border-color:#a47b27;background:linear-gradient(135deg,#42300b,#17150b)}.withdraw-action{border-color:#315e51;background:linear-gradient(135deg,#10372a,#0c1511)}.action-icon{width:38px;height:38px;display:grid;place-items:center;flex-shrink:0;border-radius:12px;background:#ffcf4a;color:#241800;font-size:24px;font-weight:900;box-shadow:0 0 15px #ffb00028}.withdraw-action .action-icon{background:#19dc83;color:#002313;box-shadow:0 0 15px #00db7830}.action-card strong,.method strong{display:block;font-size:14px}.action-card small,.method small{display:block;font-size:10px;color:#aeb6a9;margin-top:3px}.action-arrow{margin-left:auto;color:#ffdb76;font-size:25px}.payment-card h3{margin-bottom:6px}.payment-heading{align-items:flex-start}.payment-heading .sub{margin:0;line-height:1.4}.soon-tag{font-size:9px;color:#b8e7d0;border-color:#245742;background:#0c2118}.payment-methods{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin-top:15px}.method{display:flex;align-items:center;gap:8px;min-width:0;text-align:left;padding:10px 8px;border:1px solid #344037;border-radius:12px;background:linear-gradient(145deg,#151d18,#0a0e0c);color:#f7f1dc}.method-mark{width:30px;height:30px;flex-shrink:0;display:grid;place-items:center;border-radius:9px;font-weight:1000;color:#07120b;background:linear-gradient(135deg,#b8f7d2,#20c87d)}.method-mark.cbe{background:linear-gradient(135deg,#c9eaff,#6bb5f3)}.method-mark.bank{background:linear-gradient(135deg,#f5df9c,#caa84a)}.method strong{font-size:11px}.method small{font-size:9px}.method-arrow{display:none}.payment-note{font-size:10px;color:#8e9b90;line-height:1.5;margin:12px 0 0}.action-card:hover,.method:hover{transform:translateY(-2px);filter:brightness(1.12);border-color:var(--gold)}#kenoGame{scroll-margin-top:12px}#kenoPanel[hidden],#homePanel[hidden]{display:none!important}#kenoPanel{animation:riseIn .3s ease both}#homePanel{animation:riseIn .3s ease both}
+@media(max-width:700px){.app{padding:9px}.layout{grid-template-columns:1fr}.hero{padding:18px 8px}.grid{gap:4px}.num{border-radius:6px;aspect-ratio:1.08}.card{padding:12px}.top{padding:10px}.balance{font-size:12px;padding:8px}.brand{gap:8px}.brand h1{font-size:16px}.badge{width:40px;height:40px;font-size:16px}.nav{gap:5px}.nav button{font-size:11px;padding:10px 2px}.home-balance{padding:15px}.payment-methods{grid-template-columns:1fr}.method{padding:10px}.method-arrow{display:block;margin-left:auto;color:#d9bd68;font-size:20px}.action-card{padding:12px 10px}.action-card strong{font-size:13px}.payment-heading{flex-direction:column;gap:8px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}}
+
+.payment-modal-backdrop{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;background:#000b;backdrop-filter:blur(8px)}.payment-modal-backdrop.open{display:flex;animation:riseIn .2s ease both}.payment-modal{width:min(100%,460px);max-height:90vh;overflow:auto;padding:18px;border:1px solid #8a6926;border-radius:20px;background:radial-gradient(ellipse at 100% 0%,#3a2c10 0,transparent 48%),linear-gradient(145deg,#121a16,#070b09);box-shadow:0 24px 80px #000b}.payment-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.payment-modal-head h3{margin:0;color:#ffdc78;font-size:20px}.modal-close{width:38px;height:38px;border-radius:10px;border:1px solid #4a503e;background:#0b100e;color:#fff;font-size:22px}.payment-method-choice{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid #3d5946;border-radius:13px;background:#0b1711;margin:12px 0 16px}.payment-method-choice .method-mark{width:40px;height:40px;font-size:18px}.payment-method-choice strong{display:block;color:#f6e8b8}.payment-method-choice small{display:block;color:#9ba99f;margin-top:3px}.payment-modal label{display:block;color:#d8d0b5;font-size:13px;margin:12px 0 7px}.payment-modal input{width:100%;padding:13px;border:1px solid #5b4a20;border-radius:11px;background:#050908;color:#fff;font:inherit;font-weight:800}.amount-shortcuts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:9px}.amount-shortcuts button{padding:9px 5px;border:1px solid #6b521e;border-radius:9px;background:#211a0a;color:#ffdc78;font-weight:800}.payment-demo-warning{padding:11px;border:1px solid #6a501e;border-radius:11px;background:#211908;color:#f2d995;font-size:11px;line-height:1.55;margin:14px 0}.payment-feedback{display:none;padding:11px;border:1px solid #167c4b;border-radius:10px;background:#092217;color:#c9ffe0;font-size:12px;line-height:1.5;margin-top:12px}.payment-feedback.show{display:block}.payment-modal .greenbtn{font-size:15px;padding:13px}.payment-modal .sub{line-height:1.5;margin-bottom:10px}
+
+
+.account-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.account-tab{padding:11px;border:1px solid #51421f;border-radius:10px;background:#0b100f;color:#d8cfb7;font-weight:800}.account-tab.active{border-color:var(--gold);color:var(--gold);background:linear-gradient(135deg,#2b210c,#0b100f);box-shadow:0 0 12px #ffb00020}.account-card{margin-bottom:13px}.account-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.account-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.account-form label{display:grid;gap:6px;color:#d9d2bb;font-size:12px}.account-form input{width:100%;min-width:0;background:#060a09;border:1px solid #55451c;border-radius:9px;padding:11px;color:#fff;font:inherit}.account-form input:focus{outline:1px solid var(--gold);border-color:var(--gold)}.account-form button{grid-column:1/-1}.account-help{font-size:11px;color:#9eaaa0;line-height:1.5;margin:11px 0 0}.account-feedback{font-size:12px;line-height:1.5;color:#ffe29a;margin:9px 0 0;min-height:0}.account-feedback:empty{display:none}.account-status{color:#c9ffe0;font-size:13px;line-height:1.5}@media(max-width:560px){.account-form{grid-template-columns:1fr}}
+#homePanel .home-balance{display:none!important}
+
+/* Recent draw and leaderboard visual cards */
+#recentGamesBody tr{background:linear-gradient(100deg,#10251b,#101714);border-top:1px solid #286044!important}
+#recentGamesBody td{padding:12px 8px!important;vertical-align:middle!important}
+#recentGamesBody td:first-child{color:#ffdf83!important;font-weight:900;white-space:nowrap}
+#recentGamesBody td:last-child{color:#a8ffd0!important;font-weight:800}
+.draw-number-list{display:flex;flex-wrap:wrap;gap:5px;min-width:210px}
+.draw-number-chip{width:29px;height:29px;display:inline-grid;place-items:center;border-radius:50%;background:radial-gradient(circle at 32% 25%,#fff1ad,#ffc02e 58%,#9a5700);border:1px solid #ffe18a;color:#241700;font-size:11px;font-weight:950;box-shadow:0 2px 7px #0007,0 0 8px #ffb00035}
+#leaderboardBody tr{background:linear-gradient(100deg,#14231a,#0c1210);border-top:1px solid #344b37!important}
+#leaderboardBody tr:nth-child(1){background:linear-gradient(100deg,#49360d,#201a0d);outline:1px solid #c99b32}
+#leaderboardBody tr:nth-child(2){background:linear-gradient(100deg,#26343a,#11191c)}
+#leaderboardBody tr:nth-child(3){background:linear-gradient(100deg,#3c281b,#17110d)}
+#leaderboardBody td{padding:12px 9px!important;vertical-align:middle!important}
+#leaderboardBody td:first-child{font-weight:1000;color:#ffdf83!important;width:42px}
+#leaderboardBody td:nth-child(2){font-weight:800;color:#f3f0df!important}
+#leaderboardBody td:last-child{font-weight:950;color:#a8ffd0!important;text-align:right}
+#recentGamesBody tr:hover,#leaderboardBody tr:hover{filter:brightness(1.18)}
+
+
+.stake-bal{float:right;color:#ffdf83;font-size:12px;font-weight:800}
+.stake-note{font-size:11px;color:#9eaa9f;line-height:1.45;margin-top:6px}
+.quick button.on{border-color:var(--gold);color:#ffdf83;background:#2a210b}
+.paytable{margin-top:12px;border:1px solid #4d401e;border-radius:12px;background:#0b1110;overflow:hidden}
+.paytable-head{display:flex;justify-content:space-between;padding:8px 10px;font-size:11px;color:#d9c47c;letter-spacing:.6px;font-weight:800;background:#17170e}
+.paytable-row{display:flex;justify-content:space-between;padding:7px 10px;font-size:12px;border-top:1px solid #ffffff12;color:#e9e5d5}
+.paytable-row b{color:#ffdf83}
+.paytable-row.hit{background:#10372a;color:#b8f7d2}
+.paytable-empty{padding:10px;font-size:11px;color:#9eaa9f}
+.topup-btn{display:none;width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid #315e51;background:#10372a;color:#b8f7d2;font-weight:800}
+.topup-btn.show{display:block}
+.win-line{color:#19dc83;font-weight:900}.lose-line{color:#ff8a8a;font-weight:800}
+.entries{margin-top:12px;border:1px solid #315e51;border-radius:12px;background:#0a1511;overflow:hidden}
+.entries-head{display:flex;justify-content:space-between;padding:8px 10px;font-size:11px;color:#b8f7d2;letter-spacing:.6px;font-weight:800;background:#10372a}
+.entries>.entry-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-top:1px solid #ffffff12}
+.entries{max-height:240px;overflow-y:auto}
+.entry-info{min-width:0}.entry-info strong{display:block;font-size:12px;color:#ffdf83}.entry-info small{display:block;font-size:10px;color:#9eaa9f;margin-top:2px;overflow-wrap:anywhere}
+.entry-x{flex-shrink:0;width:30px;height:30px;border-radius:8px;border:1px solid #6b3a3a;background:#2a1313;color:#ff9a9a;font-weight:900}
+.result-list{max-height:220px;overflow-y:auto;margin-top:8px;border-top:1px solid #ffffff18}
+.result-row{padding:7px 0;border-bottom:1px solid #ffffff10;font-size:12px}
+
+/* Payment UI is visible; actual payment processing requires the secure Supabase Edge Functions described in the setup notes. */
+#stakeNote{font-size:12px;color:#b8f7d2}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><div class="badge">HK</div><div><h1>Habesha Keno</h1><small id="platformLabel">Telegram Mini App • Demo</small></div></div>
+  </header>
   <section class="hero"><h2>HABESHA KENO</h2><p>✦ PLAY • MATCH • CELEBRATE ✦</p></section>
   <section id="homePanel" class="home-panel">
     <div class="home-balance card">
