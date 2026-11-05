@@ -9,7 +9,7 @@
 <title>Habesha Keno — Demo</title>
 <style>
 :root{--bg:#050707;--panel:#101817;--gold:#ffd35a;--gold2:#ff9d00;--green:#00e985;--blue:#42d9ff;--purple:#a77bff;--muted:#9aaba5;--line:#5c4815}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% -12%,#263626 0,#0a100e 38%,#050707 75%);color:#f7f4e8;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;min-height:100vh}
+[hidden]{display:none!important}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% -12%,#263626 0,#0a100e 38%,#050707 75%);color:#f7f4e8;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;min-height:100vh}
     body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.13;background-image:linear-gradient(30deg,transparent 48%,#ffd35a 49%,transparent 50%),linear-gradient(150deg,transparent 48%,#42d9ff 49%,transparent 50%);background-size:74px 74px;mask-image:linear-gradient(to bottom,black,transparent 70%);z-index:-1}
     button{transition:transform .18s ease,filter .18s ease,border-color .18s ease,box-shadow .18s ease}button:active{transform:scale(.97)}@keyframes goldPulse{0%,100%{box-shadow:0 0 12px #ffb00024, inset 0 1px #fff2}50%{box-shadow:0 0 24px #ffb00058, inset 0 1px #fff7}}@keyframes riseIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes ballPop{0%{opacity:0;transform:scale(.35) rotate(-25deg)}75%{transform:scale(1.13) rotate(4deg)}100%{opacity:1;transform:scale(1) rotate(0)}}@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
 button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:100vh;padding:14px}
@@ -81,7 +81,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     <div class="brand"><div class="badge">HK</div><div><h1>Habesha Keno</h1><small id="platformLabel">Telegram Mini App • Demo</small></div></div>
   </header>
   <section class="hero" id="siteHero"><h2>HABESHA KENO</h2><p>✦ PLAY • MATCH • CELEBRATE ✦</p></section>
-  <section id="homePanel" class="home-panel">
+  <section id="homePanel" class="home-panel" hidden>
     <div class="home-balance card">
       <div class="balance-top"><span class="eyebrow">YOUR AVAILABLE BALANCE</span><span class="demo-tag" id="modeBadge">REAL MODE</span></div>
       <div class="balance-amount"><span id="homeBalance"></span><small>ETB</small></div>
@@ -99,7 +99,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
       <button class="goldbtn how-to-start" id="startKenoBtn" type="button">Start playing in Keno →</button>
     </section>
   </section>
-  <section id="walletPanel" hidden>
+  <section id="walletPanel">
     <div class="stack">
       <div id="walletBalanceSlot" hidden></div>
       <section id="walletAccountSlot">
@@ -220,7 +220,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     </section>
   </div>
 
-  <nav class="nav"><button id="homeNav" class="active">⌂ Home</button><button id="kenoNav">▦ Keno</button><button id="walletNav">▣ Wallet</button><button id="leaderNav">♜ Leaderboard</button></nav>
+  <nav class="nav"><button id="homeNav">⌂ Home</button><button id="kenoNav">▦ Keno</button><button id="walletNav" class="active">▣ Wallet</button><button id="leaderNav">♜ Leaderboard</button></nav>
   <div class="foot">Habesha Keno • Local prototype • Virtual balance and activity are saved in this browser only</div>
 </div>
 <script>
@@ -1246,7 +1246,9 @@ function renderAdminDashboard(){
     </div>`).join('')||'<p>No players found.</p>';
   const la=document.getElementById('liveActivity');
   if(la)la.innerHTML=adminState.activity.length?adminState.activity.map(a=>a.kind==='stake'?`<div style="padding:8px 0;border-bottom:1px solid #444;font-size:13px"><span style="color:#a8b4aa">${new Date(a.at).toLocaleTimeString()}</span> • <b>${escHtml(a.name)}</b> <span style="color:#ffcf66">staked ${pts(a.amount)}</span> (${a.entries} entr${a.entries===1?'y':'ies'}) — waiting for the draw</div>`:`<div style="padding:8px 0;border-bottom:1px solid #444;font-size:13px"><span style="color:#a8b4aa">${new Date(a.at).toLocaleTimeString()}</span> • <b>${escHtml(a.name)}</b> ${a.delta>=0?'<span style="color:#19dc83">gained +':'<span style="color:#ff8a8a">lost −'}${pts(Math.abs(a.delta))}</span> (${pts(a.from)} → ${pts(a.to)})</div>`).join(''):'<p style="color:#a8b4aa;font-size:13px">No changes yet — waiting for players to finish a draw.</p>';
-  const tx=adminState.transactions;
+  const txCut=getTxClearedAt();
+  const tx=txCut?adminState.transactions.filter(t=>new Date(t.created_at).getTime()>txCut):adminState.transactions;
+  const clearBtn=document.getElementById('clearTxHistoryBtn');if(clearBtn)clearBtn.hidden=!tx.length;
   document.getElementById('transactionList').innerHTML=tx.length?tx.map(t=>{
     const who=byId.get(t.auth_user_id);const add=t.transaction_type==='ADD';
     return `<div style="padding:12px;border-bottom:1px solid #555;">
@@ -1314,6 +1316,33 @@ async function refreshAdminData(silent=true){
   }finally{adminState.loading=false;}
 }
 
+const TX_CLEARED_KEY='habesha_keno_admin_tx_cleared_at_v1';
+function getTxClearedAt(){try{return Number(localStorage.getItem(TX_CLEARED_KEY))||0;}catch(_){return 0;}}
+async function clearAdminTransactionHistory(){
+  if(!confirm('Clear the whole balance transaction history? This cannot be undone. Player balances are NOT changed.'))return;
+  const btn=document.getElementById('clearTxHistoryBtn');if(btn)btn.disabled=true;
+  try{
+    const {error}=await supabaseClient.rpc('admin_clear_balance_history');
+    if(error)throw error;
+    try{localStorage.removeItem(TX_CLEARED_KEY);}catch(_){}
+    adminState.transactions=[];
+    renderAdminDashboard();
+    alert('Transaction history cleared.');
+  }catch(error){
+    const missing=error?.code==='PGRST202'||error?.code==='42883';
+    if(missing){
+      // Database function not installed yet: hide the current history on this device only.
+      try{localStorage.setItem(TX_CLEARED_KEY,String(Date.now()));}catch(_){}
+      renderAdminDashboard();
+      alert('History hidden on this device only. To delete it permanently, run supabase_clear_balance_history.sql in Supabase.');
+    }else{
+      console.error('Clear history failed:',error);
+      alert('Could not clear history: '+(error?.message||'Unknown error'));
+    }
+  }finally{if(btn)btn.disabled=false;}
+}
+window.clearAdminTransactionHistory=clearAdminTransactionHistory;
+
 async function loadAdminDashboard() {
   try {
     const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
@@ -1343,8 +1372,11 @@ async function loadAdminDashboard() {
         <h2 style="color:#c9a227;margin-top:25px;">Live player results</h2>
         <p style="margin:0 0 8px;color:#a8b4aa;font-size:12px">Balance changes seen while this dashboard is open: a player's wins and losses appear here within seconds.</p>
         <div id="liveActivity"></div>
-        <h2 style="color:#c9a227;margin-top:25px;">Balance Transaction History</h2>
-        <div id="transactionList"></div>`;
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:25px">
+          <h2 style="color:#c9a227;margin:0">Balance Transaction History</h2>
+          <button id="clearTxHistoryBtn" type="button" onclick="clearAdminTransactionHistory()" style="background:#a83232;color:white;padding:8px 12px;border:0;border-radius:6px;cursor:pointer">🗑 Clear history</button>
+        </div>
+        <div id="transactionList" style="margin-top:8px"></div>`;
       document.body.appendChild(dashboard);
       document.getElementById('playerSearch').addEventListener('input',e=>{adminState.search=e.target.value;renderAdminDashboard();});
       document.getElementById('playerSort').addEventListener('change',e=>{adminState.sort=e.target.value;renderAdminDashboard();});
