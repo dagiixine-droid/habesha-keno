@@ -120,7 +120,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
       </div>
       <div id="loginPanel" role="tabpanel" aria-labelledby="loginTabBtn">
         <form id="loginForm" class="account-form">
-          <label>Username or phone<input id="loginUsername" name="username" minlength="3" maxlength="20" autocomplete="username" placeholder="Username or phone number" required></label>
+          <label>Username<input id="loginUsername" name="username" minlength="3" maxlength="20" autocomplete="username" placeholder="Your username" required></label>
           <label>Password<input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Your password" required></label>
           <button class="goldbtn" type="submit" id="loginBtn">Login</button>
         </form>
@@ -128,22 +128,12 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
       <div id="registerPanel" role="tabpanel" aria-labelledby="registerTabBtn" hidden>
         <form id="registerForm" class="account-form">
           <label>Username<input id="regUsername" name="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" autocomplete="username" placeholder="e.g. Abebe_12" required></label>
-          <div class="account-tabs" style="grid-column:1/-1;margin:0" role="tablist" aria-label="Register with">
-            <button type="button" class="account-tab active" id="regMethodEmail" role="tab" aria-selected="true">✉ Email</button>
-            <button type="button" class="account-tab" id="regMethodPhone" role="tab" aria-selected="false">📱 Phone</button>
-          </div>
-          <label id="regEmailLabel">Email address<input id="regEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label>
-          <label id="regPhoneLabel" hidden>Phone number<input id="regPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+251911234567 or 0911234567"></label>
+          <label>Email address<input id="regEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label>
           <label>Password<input id="regPassword" name="password" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" required></label>
           <label>Confirm password<input id="regConfirm" name="confirm" type="password" minlength="8" autocomplete="new-password" placeholder="Enter password again" required></label>
           <button class="goldbtn" type="submit" id="registerBtn">Create account</button>
         </form>
-        <form id="phoneOtpForm" class="account-form" hidden>
-          <label style="grid-column:1/-1">SMS verification code<input id="phoneOtpCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="Enter the code sent to your phone" required></label>
-          <button class="goldbtn" type="submit" id="phoneOtpBtn">Verify phone</button>
-          <button class="pill" type="button" id="phoneOtpResend" style="grid-column:1/-1">Resend code</button>
-        </form>
-        <p class="account-help">Your email or phone number is used for account verification and recovery. Choose a username that does not reveal private information. Never reuse an important password.</p>
+        <p class="account-help">Your email is used for account verification and recovery. Choose a username that does not reveal private information. Never reuse an important password.</p>
       </div>
     </div>
     <div id="accountSignedIn" hidden>
@@ -1162,23 +1152,7 @@ document.getElementById('loginForm').addEventListener('submit',async(event)=>{
   if(!supabaseClient){accountMessage('Account service is unavailable. Refresh and try again.',true);return;}
   const username=document.getElementById('loginUsername').value.trim();
   const password=document.getElementById('loginPassword').value;
-  const loginPhone=normalizePhone(username);
-  if(loginPhone){
-    const pbtn=document.getElementById('loginBtn');pbtn.disabled=true;pbtn.textContent='Checking…';
-    accountMessage('Signing in…');
-    try{
-      const {data:pd,error:pe}=await supabaseClient.auth.signInWithPassword({phone:loginPhone,password});
-      if(pe)throw pe;
-      accountMessage('Login successful.');
-      showAccountSession(pd.session);
-      event.target.reset();
-    }catch(err){
-      console.error('Phone login failed:',err);
-      accountMessage(/not confirmed/i.test(String(err?.message))?'Phone not verified yet. Register again to get a new code.':'Sign-in failed. Check your phone number and password.',true);
-    }finally{pbtn.disabled=false;pbtn.textContent='Login';}
-    return;
-  }
-  if(!/^[A-Za-z0-9_]{3,20}$/.test(username)){accountMessage('Enter a valid username (3–20 letters, numbers, or underscores) or a phone number like +251911234567.',true);return;}
+  if(!/^[A-Za-z0-9_]{3,20}$/.test(username)){accountMessage('Enter a valid username (3–20 letters, numbers, or underscores).',true);return;}
   const button=document.getElementById('loginBtn');button.disabled=true;button.textContent='Checking…';
   accountMessage('Signing in…');
   try{
@@ -1215,80 +1189,19 @@ event.target.reset();
     );
   }finally{button.disabled=false;button.textContent='Login';}
 });
-// ---- Phone registration helpers ----
-let regMethod='email', pendingPhone=null;
-// Accepts +251911234567, 251911234567, 0911234567 or 911234567 (Ethiopia default); returns E.164 or null.
-function normalizePhone(raw){
-  let v=String(raw||'').replace(/[\s\-().]/g,'');
-  if(!/^\+?\d{9,15}$/.test(v))return null;
-  if(v.startsWith('+'))return /^\+[1-9]\d{8,14}$/.test(v)?v:null;
-  if(/^0\d{9}$/.test(v))return '+251'+v.slice(1);
-  if(/^[79]\d{8}$/.test(v))return '+251'+v;
-  if(/^251\d{9}$/.test(v))return '+'+v;
-  return null;
-}
-function setRegMethod(m){
-  regMethod=m;const phone=m==='phone';
-  document.getElementById('regEmailLabel').hidden=phone;
-  document.getElementById('regPhoneLabel').hidden=!phone;
-  document.getElementById('regEmail').required=!phone;
-  document.getElementById('regPhone').required=phone;
-  document.getElementById('regMethodEmail').classList.toggle('active',!phone);
-  document.getElementById('regMethodPhone').classList.toggle('active',phone);
-  document.getElementById('regMethodEmail').setAttribute('aria-selected',String(!phone));
-  document.getElementById('regMethodPhone').setAttribute('aria-selected',String(phone));
-  accountFeedback.textContent='';
-}
-document.getElementById('regMethodEmail').addEventListener('click',()=>setRegMethod('email'));
-document.getElementById('regMethodPhone').addEventListener('click',()=>setRegMethod('phone'));
-document.getElementById('phoneOtpForm').addEventListener('submit',async(event)=>{
-  event.preventDefault();
-  if(!supabaseClient||!pendingPhone)return;
-  const token=document.getElementById('phoneOtpCode').value.trim();
-  const btn=document.getElementById('phoneOtpBtn');btn.disabled=true;btn.textContent='Verifying…';
-  try{
-    const {data,error}=await supabaseClient.auth.verifyOtp({phone:pendingPhone,token,type:'sms'});
-    if(error)throw error;
-    accountMessage('Phone verified. Your account is ready.');
-    document.getElementById('phoneOtpForm').hidden=true;
-    document.getElementById('registerForm').hidden=false;
-    document.getElementById('registerForm').reset();setRegMethod('email');
-    event.target.reset();pendingPhone=null;
-    showAccountSession(data.session);
-  }catch(err){
-    console.error('OTP verify failed:',err);
-    accountMessage('That code is wrong or has expired. Check the SMS or tap Resend code.',true);
-  }finally{btn.disabled=false;btn.textContent='Verify phone';}
-});
-document.getElementById('phoneOtpResend').addEventListener('click',async()=>{
-  if(!supabaseClient||!pendingPhone)return;
-  const {error}=await supabaseClient.auth.resend({type:'sms',phone:pendingPhone});
-  accountMessage(error?'Could not resend the code: '+error.message:'A new code was sent to '+pendingPhone+'.',!!error);
-});
 document.getElementById('registerForm').addEventListener('submit',async(event)=>{
   event.preventDefault();
   if(!supabaseClient){accountMessage('Account service is unavailable. Refresh and try again.',true);return;}
   const username=document.getElementById('regUsername').value.trim();
   const email=document.getElementById('regEmail').value.trim();
-  const phone=regMethod==='phone'?normalizePhone(document.getElementById('regPhone').value):null;
   const password=document.getElementById('regPassword').value;
   const confirm=document.getElementById('regConfirm').value;
   if(!/^[A-Za-z0-9_]{3,20}$/.test(username)){accountMessage('Username must be 3–20 characters: letters, numbers, and underscores only.',true);return;}
   if(password.length<8){accountMessage('Choose a password with at least 8 characters.',true);return;}
   if(password!==confirm){accountMessage('The passwords do not match.',true);return;}
-  if(regMethod==='phone'&&!phone){accountMessage('Enter a valid phone number, e.g. +251911234567 or 0911234567.',true);return;}
   const button=document.getElementById('registerBtn');button.disabled=true;button.textContent='Creating account…';
   accountMessage('Creating your account…');
   try{
-    if(regMethod==='phone'){
-      const {error:pErr}=await supabaseClient.auth.signUp({phone,password,options:{data:{username}}});
-      if(pErr)throw pErr;
-      pendingPhone=phone;
-      document.getElementById('registerForm').hidden=true;
-      document.getElementById('phoneOtpForm').hidden=false;
-      accountMessage('We sent a verification code by SMS to '+phone+'. Enter it below.');
-      return;
-    }
     const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{username},emailRedirectTo:window.location.origin+window.location.pathname}});
     if(error) throw error;
     if(data.session){accountMessage('Account created successfully. Your profile is ready.');showAccountSession(data.session);}
