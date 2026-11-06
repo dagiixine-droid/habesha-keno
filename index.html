@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#07050d">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<title>Keno X — Demo</title>
+<title>Keno X — Free Practice Game</title>
 <style>
 :root{--bg:#050309;--panel:#100b1d;--gold:#5aeeff;--gold2:#00e5ff;--green:#00e985;--blue:#42d9ff;--purple:#a77bff;--muted:#9aaba5;--line:#2f155c}
 [hidden]{display:none!important}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% -12%,#263626 0,#0a0713 38%,#050309 75%);color:#e2fbfd;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;min-height:100vh}
@@ -23,7 +23,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
 .grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}.num{min-width:0;aspect-ratio:1.22;border:1px solid #671a61;border-radius:8px;background:linear-gradient(#160f29,#0a0714);color:#d2f8fd;font-weight:750;font-size:clamp(11px,2vw,16px);box-shadow:inset 0 1px #ffffff0a;transition:.12s}.num:hover{border-color:var(--gold);filter:brightness(1.25);transform:translateY(-1px)}.num.selected{background:linear-gradient(145deg,#a0f5ff,#26e9ff 62%,#e500d2);color:#080020;border-color:#b8f8ff;box-shadow:0 0 12px #00e5ff,0 0 25px #00e5ff55,inset 0 1px #c8f9ff;animation:goldPulse 1.8s ease-in-out infinite;font-weight:950}
 .controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:13px;flex-wrap:wrap}.pill{border:1px solid #2e1b50;border-radius:10px;padding:8px 10px;background:#0b0814;color:#abf3fb;font-size:13px}.goldbtn{border:0;border-radius:12px;padding:12px 16px;background:linear-gradient(135deg,#a0f5ff,#26e9ff 60%,#dc00ca);color:#090024;font-weight:900;box-shadow:0 0 14px #00e5ff35}.goldbtn:hover,.greenbtn:hover{filter:brightness(1.08);box-shadow:0 0 24px #00e5ff55}.goldbtn:disabled{opacity:.45;cursor:not-allowed}.greenbtn{width:100%;border:1px solid #a8ffca;border-radius:13px;padding:15px;background:linear-gradient(120deg,#27ff91,#00bf68,#00914d);background-size:180% 180%;color:#07001b;font-weight:950;font-size:17px;box-shadow:0 0 20px #00db7840;animation:shimmer 5s linear infinite}.stack{display:grid;gap:14px}.field{display:flex;align-items:center;justify-content:space-between;gap:10px}.field label{color:#9af0fa;font-size:13px}.field input{width:110px;background:#06040c;border:1px solid #311c55;border-radius:9px;padding:10px;color:#fff;text-align:right;font-weight:800}.quick{display:flex;gap:6px;margin-top:9px}.quick button{flex:1;padding:8px 2px;border:1px solid #7b1b73;border-radius:8px;background:#140c2b;color:#78f1ff;font-weight:800;font-size:12px}.stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #ffffff10;font-size:13px}.stat:last-child{border:0}.stat strong{color:var(--gold)}.drawballs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.countdown-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;margin-bottom:14px;border:1px solid #7b1b73;border-radius:14px;background:linear-gradient(120deg,#0f0921,#0c0816)}.countdown-label{font-size:11px;color:#4ce5f6;letter-spacing:1px;font-weight:800}.countdown-time{font-size:27px;font-weight:1000;color:var(--gold);font-variant-numeric:tabular-nums;text-shadow:0 0 14px #00e5ff40}.countdown-note{font-size:11px;color:#9eaaa0;margin-top:3px}.draw-diagram{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px;margin-top:12px}.diagram-num{aspect-ratio:1;border:1px solid #39443a;border-radius:7px;background:#0a0714;color:#aab7ab;font-size:12px;font-weight:800;display:grid;place-items:center}.diagram-num.picked{border-color:#b925ad;background:#140b30;color:#83f3ff}.diagram-num.drawn{border-color:#16c779;background:linear-gradient(145deg,#b8ffd7,#19d17c);color:#090023;box-shadow:0 0 9px #00df7930}.diagram-num.hit{border-color:#a0f5ff;background:linear-gradient(145deg,#a7f6ff,#00e5ff);color:#080020;box-shadow:0 0 12px #00e5ff80}.diagram-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;color:#aab5ad;font-size:10px}.legend-dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px}.draw-diagram-wrap{margin-top:12px;padding-top:12px;border-top:1px solid #ffffff12}.draw-diagram-title{font-size:12px;color:#94eff9;font-weight:800}.ball{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 25%,#a4f6ff,#00e5ff 65%,#8d0081);color:#080020;font-weight:900;font-size:12px;box-shadow:0 0 10px #00e5ff35;animation:ballPop .35s cubic-bezier(.2,.8,.2,1) both}.result{padding:11px;border-radius:10px;background:#0f0922;border:1px solid #087b43;color:#c9ffe0;font-size:13px;line-height:1.6;display:none}.result.show{display:block;animation:riseIn .35s ease both}.nav{display:flex;gap:8px;margin-top:14px}.nav button{flex:1;padding:11px 4px;border:1px solid #271743;border-radius:11px;background:#0a0714;color:#c9c4b4;font-size:12px}.nav button.active{border-color:var(--gold);color:var(--gold);background:linear-gradient(135deg,#140c2b,#0a0714);box-shadow:0 0 12px #00e5ff20}.nav button:hover{border-color:#8b2383;color:#9af5ff}.foot{text-align:center;color:#73827a;font-size:11px;margin:16px 0 8px}.notice{box-shadow:inset 0 1px #fff1}.field input:focus{outline:1px solid var(--gold);border-color:var(--gold);box-shadow:0 0 12px #00e5ff20}::selection{background:#45ecff;color:#080020}
 .how-to-card h3{margin-bottom:8px}.how-to-list{list-style:none;padding:0;margin:14px 0;display:grid;gap:14px}.how-to-list li{display:flex;align-items:flex-start;gap:11px}.step-number{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:linear-gradient(135deg,#a0f5ff,#26e9ff);color:#090024;font-weight:950}.how-to-list strong{font-size:13px;color:#bff9ff}.how-to-list p{margin:3px 0 0;color:#aeb9ae;font-size:12px;line-height:1.5}.how-to-note{padding:10px 11px;border:1px solid #3f482b;border-radius:10px;background:#0f0b1c;color:#c8d3b4;font-size:11px;line-height:1.55}.how-to-start{margin-top:13px;width:100%}
-.mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px;border:1px solid #2a164c;border-radius:14px;background:#090611}.mode-btn{min-height:44px;border:1px solid #344037;border-radius:10px;background:#100b1e;color:#c3cbbf;font-weight:850}.mode-btn.active{border-color:var(--gold);background:linear-gradient(135deg,#170b3b,#0e0a1b);color:#83f3ff;box-shadow:0 0 14px #00e5ff1c}.mode-btn.real.active{border-color:#a77bff;color:#ddccff;background:linear-gradient(135deg,#28183e,#100b1d)}.mode-message{padding:11px 12px;border-radius:11px;border:1px solid #8d2384;background:#0f0824;color:#87edf9;font-size:12px;line-height:1.5}.mode-message.real-preview{border-color:#7754b5;background:#16102a;color:#e1d3ff}.home-panel{display:grid;gap:13px;margin:14px 0}.home-balance{padding:18px;background:radial-gradient(ellipse at 90% 0%,#30185a 0,transparent 46%),linear-gradient(130deg,#150f26,#090610 72%);border-color:#8d2384;position:relative;overflow:hidden}.balance-top,.balance-foot,.payment-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}.eyebrow{font-size:11px;letter-spacing:1.7px;color:#6ce9f7;font-weight:800}.demo-tag,.soon-tag{font-size:10px;letter-spacing:1px;font-weight:900;color:#83f3ff;border:1px solid #8d2384;background:#160d30;padding:6px 8px;border-radius:999px;white-space:nowrap}.ETB-amount{display:flex;align-items:baseline;gap:10px;margin:13px 0 12px;color:#68f0ff;font-size:clamp(36px,8vw,54px);font-weight:1000;letter-spacing:-1px;text-shadow:0 0 18px #00e5ff30}.ETB-amount small{font-size:12px;letter-spacing:0;color:#56e6f6;font-weight:650;text-shadow:none}.balance-foot{font-size:11px;color:#9aa99d;border-top:1px solid #ffffff12;padding-top:11px}.refresh-btn{border:1px solid #331c5b;background:#0a0713;color:#68f0ff;border-radius:9px;padding:7px 10px;font-size:12px}.payment-actions{display:grid;grid-template-columns:1fr 1fr;gap:11px}.action-card{display:flex;align-items:center;gap:10px;text-align:left;padding:14px 12px;border-radius:15px;border:1px solid #6e1c68;background:linear-gradient(135deg,#150d2c,#0d0918);color:#bff9ff;min-width:0;box-shadow:0 8px 20px #0004}.deposit-action{border-color:#a4279a;background:linear-gradient(135deg,#190b42,#0d0919)}.withdraw-action{border-color:#315e51;background:linear-gradient(135deg,#1a1037,#0d0918)}.action-icon{width:38px;height:38px;display:grid;place-items:center;flex-shrink:0;border-radius:12px;background:#4aedff;color:#090024;font-size:24px;font-weight:900;box-shadow:0 0 15px #00e5ff28}.withdraw-action .action-icon{background:#19dc83;color:#090023;box-shadow:0 0 15px #00db7830}.action-card strong,.method strong{display:block;font-size:14px}.action-card small,.method small{display:block;font-size:10px;color:#aeb6a9;margin-top:3px}.action-arrow{margin-left:auto;color:#76f1ff;font-size:25px}.payment-card h3{margin-bottom:6px}.payment-heading{align-items:flex-start}.payment-heading .sub{margin:0;line-height:1.4}.soon-tag{font-size:9px;color:#b8e7d0;border-color:#245742;background:#110c21}.payment-methods{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin-top:15px}.method{display:flex;align-items:center;gap:8px;min-width:0;text-align:left;padding:10px 8px;border:1px solid #344037;border-radius:12px;background:linear-gradient(145deg,#130e24,#090711);color:#d6f9fd}.method-mark{width:30px;height:30px;flex-shrink:0;display:grid;place-items:center;border-radius:9px;font-weight:1000;color:#0a0712;background:linear-gradient(135deg,#b8f7d2,#20c87d)}.method-mark.cbe{background:linear-gradient(135deg,#c9eaff,#6bb5f3)}.method-mark.bank{background:linear-gradient(135deg,#97f0fa,#21def3)}.method strong{font-size:11px}.method small{font-size:9px}.method-arrow{display:none}.payment-note{font-size:10px;color:#8e9b90;line-height:1.5;margin:12px 0 0}.action-card:hover,.method:hover{transform:translateY(-2px);filter:brightness(1.12);border-color:var(--gold)}#kenoGame{scroll-margin-top:12px}#kenoPanel[hidden],#homePanel[hidden]{display:none!important}#kenoPanel{animation:riseIn .3s ease both}#homePanel{animation:riseIn .3s ease both}
+.mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px;border:1px solid #2a164c;border-radius:14px;background:#090611}.mode-btn{min-height:44px;border:1px solid #344037;border-radius:10px;background:#100b1e;color:#c3cbbf;font-weight:850}.mode-btn.active{border-color:var(--gold);background:linear-gradient(135deg,#170b3b,#0e0a1b);color:#83f3ff;box-shadow:0 0 14px #00e5ff1c}.mode-btn.real.active{border-color:#a77bff;color:#ddccff;background:linear-gradient(135deg,#28183e,#100b1d)}.mode-message{padding:11px 12px;border-radius:11px;border:1px solid #8d2384;background:#0f0824;color:#87edf9;font-size:12px;line-height:1.5}.mode-message.real-preview{border-color:#7754b5;background:#16102a;color:#e1d3ff}.home-panel{display:grid;gap:13px;margin:14px 0}.home-balance{padding:18px;background:radial-gradient(ellipse at 90% 0%,#30185a 0,transparent 46%),linear-gradient(130deg,#150f26,#090610 72%);border-color:#8d2384;position:relative;overflow:hidden}.balance-top,.balance-foot,.payment-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}.eyebrow{font-size:11px;letter-spacing:1.7px;color:#6ce9f7;font-weight:800}.demo-tag,.soon-tag{font-size:10px;letter-spacing:1px;font-weight:900;color:#83f3ff;border:1px solid #8d2384;background:#160d30;padding:6px 8px;border-radius:999px;white-space:nowrap}.points-amount{display:flex;align-items:baseline;gap:10px;margin:13px 0 12px;color:#68f0ff;font-size:clamp(36px,8vw,54px);font-weight:1000;letter-spacing:-1px;text-shadow:0 0 18px #00e5ff30}.points-amount small{font-size:12px;letter-spacing:0;color:#56e6f6;font-weight:650;text-shadow:none}.balance-foot{font-size:11px;color:#9aa99d;border-top:1px solid #ffffff12;padding-top:11px}.refresh-btn{border:1px solid #331c5b;background:#0a0713;color:#68f0ff;border-radius:9px;padding:7px 10px;font-size:12px}.payment-actions{display:grid;grid-template-columns:1fr 1fr;gap:11px}.action-card{display:flex;align-items:center;gap:10px;text-align:left;padding:14px 12px;border-radius:15px;border:1px solid #6e1c68;background:linear-gradient(135deg,#150d2c,#0d0918);color:#bff9ff;min-width:0;box-shadow:0 8px 20px #0004}.deposit-action{border-color:#a4279a;background:linear-gradient(135deg,#190b42,#0d0919)}.withdraw-action{border-color:#315e51;background:linear-gradient(135deg,#1a1037,#0d0918)}.action-icon{width:38px;height:38px;display:grid;place-items:center;flex-shrink:0;border-radius:12px;background:#4aedff;color:#090024;font-size:24px;font-weight:900;box-shadow:0 0 15px #00e5ff28}.withdraw-action .action-icon{background:#19dc83;color:#090023;box-shadow:0 0 15px #00db7830}.action-card strong,.method strong{display:block;font-size:14px}.action-card small,.method small{display:block;font-size:10px;color:#aeb6a9;margin-top:3px}.action-arrow{margin-left:auto;color:#76f1ff;font-size:25px}.payment-card h3{margin-bottom:6px}.payment-heading{align-items:flex-start}.payment-heading .sub{margin:0;line-height:1.4}.soon-tag{font-size:9px;color:#b8e7d0;border-color:#245742;background:#110c21}.payment-methods{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin-top:15px}.method{display:flex;align-items:center;gap:8px;min-width:0;text-align:left;padding:10px 8px;border:1px solid #344037;border-radius:12px;background:linear-gradient(145deg,#130e24,#090711);color:#d6f9fd}.method-mark{width:30px;height:30px;flex-shrink:0;display:grid;place-items:center;border-radius:9px;font-weight:1000;color:#0a0712;background:linear-gradient(135deg,#b8f7d2,#20c87d)}.method-mark.cbe{background:linear-gradient(135deg,#c9eaff,#6bb5f3)}.method-mark.bank{background:linear-gradient(135deg,#97f0fa,#21def3)}.method strong{font-size:11px}.method small{font-size:9px}.method-arrow{display:none}.payment-note{font-size:10px;color:#8e9b90;line-height:1.5;margin:12px 0 0}.action-card:hover,.method:hover{transform:translateY(-2px);filter:brightness(1.12);border-color:var(--gold)}#kenoGame{scroll-margin-top:12px}#kenoPanel[hidden],#homePanel[hidden]{display:none!important}#kenoPanel{animation:riseIn .3s ease both}#homePanel{animation:riseIn .3s ease both}
 @media(max-width:700px){.app{padding:9px}.layout{grid-template-columns:1fr}.hero{padding:18px 8px}.grid{gap:4px}.num{border-radius:6px;aspect-ratio:1.08}.card{padding:12px}.top{padding:10px}.balance{font-size:12px;padding:8px}.brand{gap:8px}.brand h1{font-size:16px}.badge{width:40px;height:40px;font-size:16px}.nav{gap:5px}.nav button{font-size:11px;padding:10px 2px}.home-balance{padding:15px}.payment-methods{grid-template-columns:1fr}.method{padding:10px}.method-arrow{display:block;margin-left:auto;color:#4be5f6;font-size:20px}.action-card{padding:12px 10px}.action-card strong{font-size:13px}.payment-heading{flex-direction:column;gap:8px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}}
 
 .payment-modal-backdrop{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;background:#000b;backdrop-filter:blur(8px)}.payment-modal-backdrop.open{display:flex;animation:riseIn .2s ease both}.payment-modal{width:min(100%,460px);max-height:90vh;overflow:auto;padding:18px;border:1px solid #8d2384;border-radius:20px;background:radial-gradient(ellipse at 100% 0%,#1b103a 0,transparent 48%),linear-gradient(145deg,#110c20,#07050d);box-shadow:0 24px 80px #000b}.payment-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.payment-modal-head h3{margin:0;color:#78f1ff;font-size:20px}.modal-close{width:38px;height:38px;border-radius:10px;border:1px solid #4a503e;background:#0a0714;color:#fff;font-size:22px}.payment-method-choice{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid #3d5946;border-radius:13px;background:#0d0919;margin:12px 0 16px}.payment-method-choice .method-mark{width:40px;height:40px;font-size:18px}.payment-method-choice strong{display:block;color:#b3f4fb}.payment-method-choice small{display:block;color:#9ba99f;margin-top:3px}.payment-modal label{display:block;color:#94eff9;font-size:13px;margin:12px 0 7px}.payment-modal input{width:100%;padding:13px;border:1px solid #351f5c;border-radius:11px;background:#05040a;color:#fff;font:inherit;font-weight:800}.amount-shortcuts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:9px}.amount-shortcuts button{padding:9px 5px;border:1px solid #6e1b67;border-radius:9px;background:#100a21;color:#78f1ff;font-weight:800}.payment-demo-warning{padding:11px;border:1px solid #6d1b66;border-radius:11px;background:#0e0821;color:#8eeef9;font-size:11px;line-height:1.55;margin:14px 0}.payment-feedback{display:none;padding:11px;border:1px solid #167c4b;border-radius:10px;background:#0f0922;color:#c9ffe0;font-size:12px;line-height:1.5;margin-top:12px}.payment-feedback.show{display:block}.payment-modal .greenbtn{font-size:15px;padding:13px}.payment-modal .sub{line-height:1.5;margin-bottom:10px}
@@ -98,26 +98,28 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
 @keyframes hitPop{0%{transform:scale(1)}40%{transform:scale(1.3) rotate(-4deg)}100%{transform:scale(1.08)}}
 @keyframes hitGlow{from{box-shadow:0 0 12px #fff,0 0 26px #3df2ff,0 0 44px #ff3df0}to{box-shadow:0 0 18px #fff,0 0 40px #3df2ff,0 0 72px #ff3df0}}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+#kenoPanel:not(.is-registered)>.countdown-card,
+#kenoPanel:not(.is-registered)> .card:not(#registrationGate),
+#kenoPanel:not(.is-registered) #kenoGame{display:none!important}
+#registrationGate{margin:14px 0}
+#kenoPanel.is-registered #registrationGate{display:none!important}
+#adminAccessPanel{margin:14px 0}
+#adminAccessPanel .admin-login-form{display:grid;gap:10px}
+#adminAccessPanel input{width:100%;padding:11px;border:1px solid #311c55;border-radius:9px;background:#06040c;color:#fff}
+#adminAccessToggle{border:0;background:transparent;color:#7defff;text-decoration:underline;font-size:11px;padding:4px}
 </style>
 </head>
 <body>
 <div class="app">
-  <div id="emailConfirmedBanner" role="status" aria-live="polite" hidden style="position:fixed;inset:0;z-index:20000;display:none;align-items:center;justify-content:center;padding:20px;background:#000c;backdrop-filter:blur(8px)">
-    <div style="max-width:420px;width:100%;text-align:center;padding:28px 22px;border:1px solid #167c4b;border-radius:20px;background:linear-gradient(145deg,#160f2a,#07050d);box-shadow:0 24px 80px #000b">
-      <div style="font-size:54px;line-height:1">✅</div>
-      <h2 style="margin:12px 0 8px;color:#a8ffd0;font-size:22px">Your email confirmation is done successfully</h2>
-      <p style="margin:0 0 18px;color:#c9d6cc;font-size:14px;line-height:1.5">Thank you! Your Keno X account is now verified. You can sign in and start playing.</p>
-      <button type="button" id="emailConfirmedBtn" class="goldbtn" style="width:100%">Continue to Login</button>
-    </div>
-  </div>
   <header class="top">
-    <div class="brand"><div class="badge">KX</div><div><h1>Keno X</h1><small id="platformLabel">Telegram Mini App • Demo</small></div></div>
+    <div class="brand"><div class="badge">KX</div><div><h1>Keno X</h1><small id="platformLabel">Telegram Mini App • Free Practice</small></div></div>
   </header>
   <section class="hero" id="siteHero"><h2>KENO X</h2><p>✦ PLAY • MATCH • CELEBRATE ✦</p></section>
   <section id="homePanel" class="home-panel" hidden>
     <div class="home-balance card">
-      <div class="balance-top"><span class="eyebrow">YOUR AVAILABLE BALANCE</span><span class="demo-tag" id="modeBadge">REAL MODE</span></div>
-      <div class="balance-amount"><span id="homeBalance"></span><small>ETB</small></div>
+      <div class="balance-top"><span class="eyebrow">YOUR AVAILABLE BALANCE</span><span class="demo-tag" id="modeBadge">PRACTICE POINTS</span></div>
+      <div class="balance-amount"><span id="homeBalance"></span><small>points</small></div>
       <div class="balance-foot"><span>🔒 Secure wallet</span><button class="refresh-btn" id="refreshBalance" type="button">↻ Refresh</button></div>
     </div>
     <section class="card how-to-card">
@@ -135,55 +137,21 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
   <section id="walletPanel">
     <div class="stack">
       <div id="walletBalanceSlot" hidden></div>
-      <section id="walletAccountSlot">
-  <section class="card account-card" id="accountCard" style="margin-top:14px">
-    <div class="account-head"><div><h3>👤 Player account</h3><p class="sub" style="margin:0">Sign in or create your Keno X account.</p></div><span class="soon-tag">ACCOUNT</span></div>
-    <div id="accountSignedOut">
-      <div class="account-tabs" role="tablist" aria-label="Account options">
-        <button type="button" class="account-tab active" id="loginTabBtn" role="tab" aria-selected="true" aria-controls="loginPanel">Login</button>
-        <button type="button" class="account-tab" id="registerTabBtn" role="tab" aria-selected="false" aria-controls="registerPanel">Registration</button>
-      </div>
-      <div id="loginPanel" role="tabpanel" aria-labelledby="loginTabBtn">
-        <form id="loginForm" class="account-form">
-          <label>Username<input id="loginUsername" name="username" minlength="3" maxlength="20" autocomplete="username" placeholder="Your username" required></label>
-          <label>Password<input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Your password" required></label>
-          <button class="goldbtn" type="submit" id="loginBtn">Login</button>
-        </form>
-      </div>
-      <div id="registerPanel" role="tabpanel" aria-labelledby="registerTabBtn" hidden>
-        <form id="registerForm" class="account-form">
-          <label>Username<input id="regUsername" name="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" autocomplete="username" placeholder="e.g. Abebe_12" required></label>
-          <label id="regPhoneLabel">Phone number (optional)<input id="regPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0911234567"></label>
-          <label>Password<input id="regPassword" name="password" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" required></label>
-          <label>Confirm password<input id="regConfirm" name="confirm" type="password" minlength="8" autocomplete="new-password" placeholder="Enter password again" required></label>
-          <button class="goldbtn" type="submit" id="registerBtn">Create account</button>
-        </form>
-        <p class="account-help">Choose a username that does not reveal private information, and a strong password you do not use anywhere else. There is no password recovery, so keep it safe. Your phone number is optional and is not verified.</p>
-      </div>
-    </div>
-    <div id="accountSignedIn" hidden>
-      <p class="account-status" id="accountStatus" aria-live="polite"></p>
-      <button class="pill" type="button" id="signOutBtn">Sign out</button>
-    </div>
-    <p class="account-feedback" id="accountFeedback" role="status" aria-live="polite"></p>
-  </section>
-      </section>
-      <section class="card payment-card" id="walletPaymentCard">
-        <div class="payment-heading"><div><h3>Payment methods</h3><p class="sub">Choose a method to deposit or request a withdrawal.</p></div><span class="soon-tag">WALLET</span></div>
-        <div class="payment-methods"><div class="method" id="walletTelebirrDisplay" role="note" aria-label="Telebirr payment method"><span class="method-mark telebirr">T</span><span><strong>Telebirr</strong><small>0911390259</small></span></div></div>
-        <div class="payment-actions">
-          <button class="action-card deposit-action" id="walletDepositBtn" type="button"><span class="action-icon">＋</span><span><strong>Deposit</strong><small>Request a Deposit</small></span><span class="action-arrow">›</span></button>
-          <button class="action-card withdraw-action" id="walletWithdrawBtn" type="button"><span class="action-icon">↗</span><span><strong>Withdraw</strong><small>Request a Withdrawal</small></span><span class="action-arrow">›</span></button>
-        </div>
-      </section>
-      <section class="card" id="walletHistoryCard" hidden>
-        <div class="payment-heading"><div><h3>Wallet activity</h3><p class="sub">Recent changes and requests.</p></div><button class="refresh-btn" id="clearWalletHistory" type="button">Clear history</button></div>
-        <div id="walletHistoryList" aria-live="polite"><p class="payment-note">No wallet activity yet.</p></div>
-        <p class="payment-note">History is saved in this browser only for now. It is not yet synced to your Supabase account.</p>
+      <section class="card" id="telegramRegistrationCard">
+        <h3>👤 Telegram account</h3>
+        <p id="telegramRegistrationStatus" class="account-status" role="status" aria-live="polite">Checking your Telegram registration…</p>
+        <p class="payment-note">Register through the Keno X Telegram bot by sharing your own contact. Keno X is a free practice game. Points are virtual, have no cash value, and cannot be deposited or withdrawn.</p>
       </section>
     </div>
   </section>
   <section id="kenoPanel" hidden>
+  <section class="card" id="registrationGate">
+    <h3>🔒 Registration required</h3>
+    <p class="sub" style="line-height:1.6;margin:0">
+      To play, open the Keno X Telegram bot, send <b>/start</b>, and share your own contact.
+      Return here using the Play button the bot sends after registration.
+    </p>
+  </section>
   <section class="countdown-card" aria-live="polite">
     <div><div class="countdown-label">⏱ NEXT DRAW STARTS IN</div><div class="countdown-note" id="timerNote">Choose numbers and join during the countdown</div></div>
     <div class="countdown-time" id="countdown">01:00</div>
@@ -191,7 +159,7 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
   <section class="card" style="margin-bottom:14px">
     <h3>🌐 Scheduled Keno draw <span style="float:right;color:#a8b4aa;font-size:12px">20 numbers • 1/sec</span></h3>
     <div id="scheduledStatus" class="sub" aria-live="polite">The 60-second entry window is open. Join the next draw with your picks.</div>
-    <div class="drawballs" id="drawBalls" aria-live="polite" aria-label="Scheduled demo numbers revealed one at a time"></div>
+    <div class="drawballs" id="drawBalls" aria-live="polite" aria-label="Scheduled practice numbers revealed one at a time"></div>
   </section>
   <main class="layout" id="kenoGame">
     <section class="card">
@@ -206,7 +174,7 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
         <div class="field"><label for="bet">Stake amount </label><input id="bet" type="number" min="10" max="500" step="10" value="50" inputmode="numeric"></div>
         <div class="quick"><button type="button" data-bet="10">10</button><button type="button" data-bet="50">50</button><button type="button" data-bet="100">100</button><button type="button" data-bet="250">250</button><button type="button" data-bet="500">500</button></div>
         <div class="stake-note" id="syncStatus" hidden style="font-weight:700"></div>
-        <div class="stake-note" id="stakeNote">Min 10 • Max 500 credits. Your balance changes after the draw: a win adds your profit, a loss removes your stake.</div>
+        <div class="stake-note" id="stakeNote">Min 10 • Max 500 virtual points. Your balance changes after the draw: a win adds your profit, a loss removes your stake.</div>
         <div class="stat" style="margin-top:12px"><span>Numbers picked</span><strong id="pickCount">0</strong></div>
         <div class="stat"><span>Your stake</span><strong id="stakeShown">50</strong></div>
         <div class="stat"><span>Max possible win</span><strong id="maxWin">—</strong></div>
@@ -227,42 +195,38 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
   <section id="leaderPanel" hidden>
     <section class="card" style="margin-bottom:14px">
       <h3>🏆 Recent Keno Draw</h3>
-      <p class="sub">Results only — usernames, drawn numbers and winners below are fictional, real player records.</p>
-      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:440px"><thead><tr style="color:#5ee7f7;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">20 drawn numbers</th><th style="padding:10px 6px">Winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="3" style="padding:12px 6px;color:#9aaba5">No completed demo games yet. The first result will appear here.</td></tr></tbody></table></div>
+      <p class="sub">Practice results only. Sample names are illustrative.</p>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:440px"><thead><tr style="color:#5ee7f7;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">20 drawn numbers</th><th style="padding:10px 6px">Winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="3" style="padding:12px 6px;color:#9aaba5">No completed practice games yet. The first result will appear here.</td></tr></tbody></table></div>
       <button type="button" class="greenbtn leaderboard-toggle" id="recentGamesToggle" style="margin-top:12px" hidden>See more</button>
     </section>
     <section class="card">
       <h3>🥇 Top 12 leaderboard</h3>
-      <p class="sub">Fictional sample usernames only • daily balance • real-player accounts are shown.</p>
+      <p class="sub">Sample leaderboard • practice points only.</p>
       <div class="stake-note" id="leaderboardStatus" style="margin:0 0 10px">Loading…</div>
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#5ee7f7;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Number of Wins</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
       <button type="button" class="greenbtn leaderboard-toggle" id="leaderboardToggle" style="margin-top:12px" hidden>See more</button>
     </section>
   </section>
-  <div class="payment-modal-backdrop" id="paymentModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="paymentModalTitle" aria-hidden="true">
-    <section class="payment-modal">
-      <div class="payment-modal-head"><h3 id="paymentModalTitle">Telebirr payment</h3><button type="button" class="modal-close" id="closePaymentModal" aria-label="Close payment screen">×</button></div>
-      <p class="sub" id="paymentModalSubtitle">Start a secure Telebirr payment through the payment provider.</p>
-      <div class="payment-method-choice"><span class="method-mark">T</span><span><strong>Telebirr</strong><small>Secure checkout • Server connection required</small></span></div>
-      <label for="paymentAmount" id="paymentAmountLabel">Amount (ETB)</label>
-      <input id="paymentAmount" type="number" min="10" max="10000" step="1" value="100" inputmode="decimal">
-      <div class="amount-shortcuts"><button type="button" data-demo-amount="100">100 ETB</button><button type="button" data-demo-amount="500">500 ETB</button><button type="button" data-demo-amount="1000">1,000 ETB</button></div>
-      <div class="payment-demo-warning">SECURE PAYMENT NOTICE: payment details must be entered only on the official hosted Telebirr checkout. This page never collects your Telebirr PIN or password. The payment is not complete until the server verifies the provider callback.</div>
-      <button type="button" class="greenbtn" id="confirmDemoPayment">Continue to Telebirr</button>
-      <div class="payment-feedback" id="paymentFeedback" aria-live="polite"></div>
-    </section>
-  </div>
 
+
+  <section id="adminAccessPanel" class="card" hidden>
+    <h3>🔐 Administrator sign-in</h3>
+    <p class="sub">This sign-in is only for authorized Keno X administrators.</p>
+    <form id="adminLoginForm" class="admin-login-form">
+      <input id="adminLoginUsername" autocomplete="username" placeholder="Administrator username" required>
+      <input id="adminLoginPassword" type="password" autocomplete="current-password" placeholder="Password" required>
+      <button class="goldbtn" id="adminLoginBtn" type="submit">Sign in</button>
+    </form>
+    <p id="adminLoginFeedback" class="account-feedback" role="status" aria-live="polite"></p>
+    <button id="adminSignOutBtn" class="pill" type="button" hidden>Sign out</button>
+  </section>
   <nav class="nav"><button id="homeNav">⌂ Home</button><button id="kenoNav">▦ Keno</button><button id="walletNav" class="active">▣ Wallet</button><button id="leaderNav">♜ Leaderboard</button></nav>
-  <div class="foot">Keno X • Local prototype • Virtual balance and activity are saved in this browser only</div>
+  <div class="foot">Keno X • Free practice game • Virtual points have no cash value</div>
 </div>
 <script>
 // Initialize Supabase before any account or admin code can reference it.
 const SUPABASE_URL = 'https://guynwdzhvyaakbmbmzcy.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable__E2dKaym14KVuzRHs-xSpg_2YLX8MEZ';
-// Required backend functions: create-telebirr-payment and request-telebirr-withdrawal.
-// Deploy these Supabase Edge Functions with provider credentials stored as server secrets.
-// The payment webhook must verify Telebirr's signature/status before crediting any wallet.
 var supabaseClient = (window.supabase && typeof window.supabase.createClient === 'function')
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
   : null;
@@ -274,9 +238,9 @@ if (tg) {
     tg.setHeaderColor('#08060f');
     tg.setBackgroundColor('#07050d');
   } catch (e) {}
-  document.getElementById('platformLabel').textContent = 'Telegram Mini App • Keno Betting';
+  document.getElementById('platformLabel').textContent = 'Telegram Mini App • Free Practice Game';
 } else {
-  document.getElementById('platformLabel').textContent = 'Browser preview • Virtual-credit demo';
+  document.getElementById('platformLabel').textContent = 'Browser preview • Free practice';
 }
 const grid=document.getElementById('numberGrid');
 const selected=new Set();
@@ -313,10 +277,13 @@ function saveRecentGameData(){
   }catch(error){console.warn('Could not save recent practice results:',error);}
 }
 let gameMode='demo';
+let isTelegramRegistered = false;
+let telegramPlayer = null;
 function setGameMode(mode) {
   gameMode = mode;
 
-  const demo = mode === 'demo';
+  const demo = true;
+  gameMode = 'practice';
 
   const demoBtn = document.getElementById('demoModeBtn');
   const realBtn = document.getElementById('realModeBtn');
@@ -336,26 +303,19 @@ function setGameMode(mode) {
   }
 
   if (modeBadge) {
-    modeBadge.textContent = demo
-      ? 'DEMO MODE'
-      : 'REAL';
+    modeBadge.textContent = 'PRACTICE MODE';
   }
 
   if (msg) {
-    msg.classList.toggle('real-preview', !demo);
-    msg.textContent = demo
-      ? 'DEMO MODE: You are playing with free balance.'
-      : 'Admin Points Mode is selected. These are redeemable balance assigned by an administrator.';
+    msg.classList.remove('real-preview');
+    msg.textContent = 'Free practice game using virtual points. Points have no cash value.';
   }
 
   if (notice) {
-    notice.textContent = demo
-      ? 'REAL MODE: Balance have cash value.'
-      : 'REAL MODE: Stake balance; Have cash value or payouts.';
+    notice.textContent = 'Virtual practice points only — no cash value.';
   }
 
-  // Both signed-out demo mode and signed-in admin-points mode allow FREE practice play.
-  // Admin-assigned points are displayed separately and are never spent to join a draw.
+  // Keno X is free practice only. There is no real-money mode or cash-out feature.
   if (playBtn) {
     playBtn.disabled = false;
     playBtn.textContent = joinLabel();
@@ -370,8 +330,8 @@ function setGameMode(mode) {
   renderModeBalance();
 }
 const fmt=n=>Number(n).toLocaleString('en-US');
-function saveVirtualBalance(){try{localStorage.setItem(WALLET_BALANCE_KEY,String(balance));}catch(_){}}
-function syncHomeBalance(){saveVirtualBalance();const el=document.getElementById('homeBalance');if(el)el.textContent=walletUserId?fmt(balance):''}
+function saveVirtualBalance(){try{const id=telegramPlayer?.telegram_id;const key=id?'keno_x_telegram_points_'+String(id):WALLET_BALANCE_KEY;localStorage.setItem(key,String(balance));}catch(_){}}
+function syncHomeBalance(){saveVirtualBalance();const el=document.getElementById('homeBalance');if(el)el.textContent=isTelegramRegistered?fmt(balance):''}
 let adminPointsBalance=0, currentUsername='';
 async function loadPlayerWallet(session,skipFlush){
   if(!supabaseClient || !session?.user?.id) return;
@@ -397,17 +357,17 @@ async function loadPlayerWallet(session,skipFlush){
 function renderModeBalance() {
   // Both the Wallet card and the Keno stake display read from this one balance value.
   const amount = document.getElementById('homeBalance');
-  const caption = document.querySelector('.ETB-amount small');
-  if (amount) amount.textContent = walletUserId ? fmt(balance) : '';
+  const caption = document.querySelector('.points-amount small');
+  if (amount) amount.textContent = isTelegramRegistered ? fmt(balance) : '';
   if (caption) caption.textContent = 'balance';
   const stakeBalance = document.getElementById('stakeBalance');
-  if (stakeBalance) { stakeBalance.hidden = !walletUserId; stakeBalance.textContent = walletUserId ? 'Balance: ' + fmt(balance) : ''; }
+  if (stakeBalance) { stakeBalance.hidden = !isTelegramRegistered; stakeBalance.textContent = isTelegramRegistered ? 'Practice points: ' + fmt(balance) : ''; }
   if (typeof updateStakeUI === 'function') updateStakeUI();
 }
 
 const MIN_STAKE=10, MAX_STAKE=500, MAX_PICKS=5;
 let totalWon=0;
-// Payout multipliers by numbers picked -> matches (multiplied by the stake). Virtual credits only.
+// Payout multipliers by numbers picked -> matches (multiplied by the stake). Virtual virtual points only.
 const PAYTABLE={
   1:{1:3},
   2:{2:5},
@@ -538,7 +498,7 @@ function renderEntries(){
   queuedEntries.forEach((e,i)=>{
     const row=document.createElement('div');row.className='entry-row';
     const info=document.createElement('div');info.className='entry-info';
-    const t=document.createElement('strong');t.textContent=`#${i+1} • ${fmt(e.stake)} credits`;
+    const t=document.createElement('strong');t.textContent=`#${i+1} • ${fmt(e.stake)} virtual points`;
     const d=document.createElement('small');d.textContent=e.picks.join(', ');
     info.append(t,d);row.appendChild(info);
     if(phase==='countdown'){
@@ -562,13 +522,13 @@ function updateStakeUI(){
   const picks=selected.size;
   const valid=Number.isFinite(stake)&&stake>0;
   const set=(id,t)=>{const el=document.getElementById(id);if(el)el.textContent=t};
-  set('stakeBalance',walletUserId?'Balance: '+fmt(balance):'');
-  const sbEl=document.getElementById('stakeBalance');if(sbEl)sbEl.hidden=!walletUserId;
+  set('stakeBalance',isTelegramRegistered?'Practice points: '+fmt(balance):'');
+  const sbEl=document.getElementById('stakeBalance');if(sbEl)sbEl.hidden=!isTelegramRegistered;
   renderEntries();
   set('stakeShown',valid?fmt(stake):'—');
   const row=PAYTABLE[picks];
   const top=row?Math.max(...Object.values(row)):0;
-  set('maxWin',row&&valid?fmt(top*stake)+' credits':'—');
+  set('maxWin',row&&valid?fmt(top*stake)+' virtual points':'—');
   document.querySelectorAll('[data-bet]').forEach(b=>b.classList.toggle('on',valid&&Number(b.dataset.bet)===stake));
   const pt=document.getElementById('paytable');
   if(pt){
@@ -585,11 +545,11 @@ function updateStakeUI(){
   if(note){
     if(!walletUserId){
       if(valid&&stake>availableBalance())note.textContent='Stake is higher than your available points.';
-      else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} credits.`;
-      else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} stake per entry. Log in to see your balance. Your balance changes after the draw.`;
+      else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} virtual points.`;
+      else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} stake per entry. Register through Telegram to play. Your virtual points change after the draw.`;
     }
     else if(valid&&stake>availableBalance())note.textContent=queuedEntries.length?`Not enough available points (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:(balance<MIN_STAKE?'You do not have enough balance to stake.':'Stake is higher than your balance.');
-    else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} credits.`;
+    else if(valid&&(stake<MIN_STAKE||stake>MAX_STAKE))note.textContent=`Stake must be between ${MIN_STAKE} and ${MAX_STAKE} virtual points.`;
     else note.textContent=`Min ${MIN_STAKE} • Max ${MAX_STAKE} stake per entry. Available to stake: ${fmt(availableBalance())}${pendingStake()?` (${fmt(pendingStake())} staked this round)`:''}. Your balance changes after the draw.`;
   }
 }
@@ -626,7 +586,7 @@ function renderWalletHistory(){
     const detail=document.createElement('small');detail.style.cssText='display:block;color:#9eaa9f;font-size:11px;margin-top:4px';detail.textContent=item.details+' · '+new Date(item.createdAt).toLocaleString();
     left.append(title,detail);
     const right=document.createElement('div');right.style.cssText='text-align:right;color:#83f3ff;font-weight:800;font-size:12px;white-space:nowrap';
-    right.textContent=(item.amount>0?'+':'')+fmt(item.amount)+' credits';
+    right.textContent=(item.amount>0?'+':'')+fmt(item.amount)+' virtual points';
     const bal=document.createElement('small');bal.style.cssText='display:block;color:#9eaa9f;font-weight:500;margin-top:4px';bal.textContent='Balance: '+fmt(item.balance);right.appendChild(bal);row.append(left,right);host.appendChild(row);
   });
 }
@@ -769,7 +729,7 @@ window.renderRecentGames = function renderRecentGames(){
     const td=document.createElement('td');
     td.colSpan=3;
     td.style.cssText='padding:12px 6px;color:#9aaba5';
-    td.textContent='No completed demo games yet. The first result will appear here.';
+    td.textContent='No completed practice games yet. The first result will appear here.';
     tr.appendChild(td);body.appendChild(tr);
   }else{
     visibleGames.forEach(game=>{
@@ -951,7 +911,7 @@ document.getElementById('playBtn').onclick=()=>{
  if(selected.size<1){status('Choose at least one number first.');return}
  const stake=readStake();
  if(!Number.isFinite(stake)||stake<MIN_STAKE||stake>MAX_STAKE||stake%10!==0){status(`Enter a stake between ${MIN_STAKE} and ${MAX_STAKE} points, in steps of 10.`);return}
- if(stake>availableBalance()){status(walletUserId?`Not enough balance. Available: ${fmt(availableBalance())} (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:'Not enough balance for this stake. Log in to see your balance.');return}
+ if(stake>availableBalance()){status(walletUserId?`Not enough balance. Available: ${fmt(availableBalance())} (${fmt(pendingStake())} already staked on ${queuedEntries.length} entr${queuedEntries.length===1?'y':'ies'}).`:'Not enough virtual points for this stake.');return}
  const picks=[...selected].sort((a,b)=>a-b);
  queuedEntries.push({id:++entrySeq,picks,stake,mode:'demo'});
  recordStakeOnline();
@@ -965,309 +925,185 @@ startCountdown();
 const homePanel=document.getElementById('homePanel');
 const kenoPanel=document.getElementById('kenoPanel');
 const walletPanel=document.getElementById('walletPanel');
-// The account form is placed directly inside the Wallet tab.
-document.getElementById('walletBalanceSlot').appendChild(homePanel.querySelector('.home-balance'));
+// Keep the hidden balance container empty in Wallet; points are shown only in the Keno stake area after registration.
 
-// Telebirr is displayed as an informational payment method, not a clickable control.
-// Deposit and withdrawal actions open a Telegram chat with the administrator.
-document.getElementById('walletDepositBtn').onclick=()=>openTelegramAdmin('deposit');
-document.getElementById('walletWithdrawBtn').onclick=()=>openTelegramAdmin('withdraw');
-const navButtons=[document.getElementById('homeNav'),document.getElementById('kenoNav'),document.getElementById('walletNav'),document.getElementById('leaderNav')];
-function showTab(tab){
-  homePanel.hidden=tab!=='home';
-  kenoPanel.hidden=tab!=='keno';
-  const siteHero=document.getElementById('siteHero');if(siteHero)siteHero.hidden=tab==='keno';
-  walletPanel.hidden=tab!=='wallet';
-  document.getElementById('leaderPanel').hidden=tab!=='leader';
-  navButtons.forEach((b,i)=>b.classList.toggle('active',(tab==='home'&&i===0)||(tab==='keno'&&i===1)||(tab==='wallet'&&i===2)||(tab==='leader'&&i===3)));
-  if(tab==='wallet'){homePanel.hidden=true;kenoPanel.hidden=true;}
-  else if(tab==='leader'){homePanel.hidden=true;kenoPanel.hidden=true;renderLeaderboard();refreshLeaderboard();renderRecentGames();}
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-document.getElementById('startKenoBtn').onclick=()=>showTab('keno');
-document.getElementById('homeNav').onclick=()=>showTab('home');
-document.getElementById('kenoNav').onclick=()=>showTab('keno');
-document.getElementById('walletNav').onclick=()=>showTab('wallet');
-document.getElementById('leaderNav').onclick=()=>showTab('leader');
-    // Always open the Wallet tab when Keno X launches
-document.addEventListener('DOMContentLoaded', function () {
-  showTab('wallet');
-});
-function openTelegramAdmin(action='general'){
-  const messages={
-    deposit:'Hello admin, I would like to make a deposit to my Keno X wallet.',
-    withdraw:'Hello admin, I would like to request a withdrawal from my Keno X wallet.',
-    general:'Hello admin, I need help with Keno X.'
-  };
-  const message=messages[action]||messages.general;
-  window.open('https://t.me/habesha_keno?text='+encodeURIComponent(message),'_blank','noopener');
-}
-let paymentAction='deposit';
-const paymentBackdrop=document.getElementById('paymentModalBackdrop');
-const paymentAmount=document.getElementById('paymentAmount');
-const paymentFeedback=document.getElementById('paymentFeedback');
-function openPaymentScreen(action){
-  paymentAction=action;
-  const isDeposit=action==='deposit';
-  document.getElementById('paymentModalTitle').textContent=isDeposit?'Telebirr — Deposit':'Telebirr — Withdrawal request';
-  document.getElementById('paymentModalSubtitle').textContent=isDeposit
-    ?'Enter an amount in ETB. You will continue to the provider-hosted checkout.'
-    :'Submit a withdrawal request for secure server-side review.';
-  document.getElementById('paymentAmountLabel').textContent='Amount (ETB)';
-  document.getElementById('confirmDemoPayment').textContent=isDeposit?'＋ Continue to Telebirr':'↗ Submit withdrawal request';
-  paymentAmount.value='100';
-  paymentAmount.max=isDeposit?'10000':String(Math.max(10,balance));
-  paymentAmount.step='1';
-  paymentFeedback.classList.remove('show');paymentFeedback.textContent='';
-  paymentBackdrop.classList.add('open');paymentBackdrop.setAttribute('aria-hidden','false');
-  setTimeout(()=>paymentAmount.focus(),60);
-}
-function closePaymentScreen(){paymentBackdrop.classList.remove('open');paymentBackdrop.setAttribute('aria-hidden','true')}
-document.getElementById('closePaymentModal').onclick=closePaymentScreen;
-paymentBackdrop.addEventListener('click',e=>{if(e.target===paymentBackdrop)closePaymentScreen()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closePaymentScreen()});
-document.querySelectorAll('[data-demo-amount]').forEach(b=>b.onclick=()=>{paymentAmount.value=b.dataset.demoAmount});
-function showPaymentMessage(message,isError=false){
-  paymentFeedback.textContent=message;
-  paymentFeedback.style.borderColor=isError?'#a74747':'#167c4b';
-  paymentFeedback.style.background=isError?'#17102b':'#0f0922';
-  paymentFeedback.style.color=isError?'#ffd0d0':'#c9ffe0';
-  paymentFeedback.classList.add('show');
-}
-document.getElementById('confirmDemoPayment').onclick=async()=>{
-  const amount=Number(paymentAmount.value);
-  if(!Number.isFinite(amount)||!Number.isInteger(amount)||amount<10||amount>10000){
-    showPaymentMessage('Enter a whole ETB amount between 10 and 10,000.',true);return;
+// Free-to-play game: no deposits, withdrawals, or payment processing.
+updatePicks();syncHomeBalance();startCountdown();setGameMode('demo');
+
+
+// Telegram contact registration is completed in the bot. This Edge Function
+// verifies Telegram's signed initData before the game is enabled.
+function updateTelegramRegistrationUI(registered, message) {
+  isTelegramRegistered = !!registered;
+  const kenoPanel = document.getElementById('kenoPanel');
+  if (kenoPanel) kenoPanel.classList.toggle('is-registered', isTelegramRegistered);
+  document.querySelectorAll('#numberGrid .num, #clearBtn, #randomBtn, #bet, [data-bet]').forEach(el => { el.disabled = !isTelegramRegistered; });
+  const status = document.getElementById('telegramRegistrationStatus');
+  if (status) {
+    status.textContent = message;
+    status.style.color = registered ? '#a8ffd0' : '#ffb2a8';
   }
-  if(!supabaseClient){showPaymentMessage('Payment service is not configured. Please contact the app administrator.',true);return;}
-  const button=document.getElementById('confirmDemoPayment');
-  button.disabled=true;
-  button.textContent='Connecting securely…';
-  try{
-    const {data:sessionData,error:sessionError}=await supabaseClient.auth.getSession();
-    if(sessionError)throw sessionError;
-    if(!sessionData?.session){
-      showPaymentMessage('Please sign in to your Keno X account before making a payment.',true);return;
-    }
-    if(paymentAction==='deposit'){
-      // The Edge Function must create a provider checkout session using server-held credentials.
-      // It must NOT trust client-supplied balances or mark a deposit paid.
-      const {data,error}=await supabaseClient.functions.invoke('create-telebirr-payment',{
-        body:{amount_etb:amount,currency:'ETB'}
-      });
-      if(error)throw error;
-      const checkoutUrl=data?.checkout_url||data?.checkoutUrl||data?.url;
-      if(!checkoutUrl||!/^https:\/\//i.test(checkoutUrl))throw new Error('Payment server did not return a valid secure checkout URL.');
-      showPaymentMessage('Opening secure Telebirr checkout. Your wallet will update only after the server verifies payment.');
-      if(tg&&typeof tg.openLink==='function')tg.openLink(checkoutUrl);
-      else window.location.href=checkoutUrl;
-    }else{
-      // Withdrawal requests are recorded server-side; funds must only be sent after admin/provider review.
-      const {data,error}=await supabaseClient.functions.invoke('request-telebirr-withdrawal',{
-        body:{amount_etb:amount,currency:'ETB'}
-      });
-      if(error)throw error;
-      if(data?.success===false)throw new Error(data?.message||'The withdrawal request was not accepted.');
-      showPaymentMessage(data?.message||'Your withdrawal request was submitted for review. No money has been sent yet.');
-    }
-  }catch(error){
-    console.error('Telebirr payment request failed:',error);
-    showPaymentMessage(error?.message||'Could not connect to the payment service. Please try again later.',true);
-  }finally{
-    button.disabled=false;
-    button.textContent=paymentAction==='deposit'?'＋ Continue to Telebirr':'↗ Submit withdrawal request';
+  const play = document.getElementById('playBtn');
+  if (play) {
+    play.hidden = !registered;
+    play.disabled = !registered;
+    play.textContent = registered ? joinLabel() : '🔒 Register with Telegram bot first';
   }
-};
-document.querySelectorAll('[data-method]').forEach(b=>b.onclick=()=>{if(b.dataset.method==='Telebirr')openPaymentScreen('deposit');});
-document.getElementById('refreshBalance').onclick=async()=>{const result=await supabaseClient.auth.getSession();if(result.data?.session)await loadPlayerWallet(result.data.session);syncHomeBalance();renderModeBalance();document.getElementById('refreshBalance').textContent='✓ Updated';setTimeout(()=>document.getElementById('refreshBalance').textContent='↻ Refresh',1200);};
-updatePicks();syncHomeBalance();renderWalletHistory();startCountdown();setGameMode('demo');
-
-// Supabase client was initialized at the start of this script.
-const accountFeedback=document.getElementById('accountFeedback');
-const signedOutBox=document.getElementById('accountSignedOut');
-const signedInBox=document.getElementById('accountSignedIn');
-const loginPanel=document.getElementById('loginPanel');
-const registerPanel=document.getElementById('registerPanel');
-function setAccountTab(tab){
-  const isLogin=tab==='login';
-  loginPanel.hidden=!isLogin; registerPanel.hidden=isLogin;
-  document.getElementById('loginTabBtn').classList.toggle('active',isLogin);
-  document.getElementById('registerTabBtn').classList.toggle('active',!isLogin);
-  document.getElementById('loginTabBtn').setAttribute('aria-selected',String(isLogin));
-  document.getElementById('registerTabBtn').setAttribute('aria-selected',String(!isLogin));
-  accountFeedback.textContent='';
-}
-document.getElementById('loginTabBtn').addEventListener('click',()=>setAccountTab('login'));
-document.getElementById('registerTabBtn').addEventListener('click',()=>setAccountTab('register'));
-function accountMessage(message,isError=false){accountFeedback.textContent=message;accountFeedback.style.color=isError?'#ffb2a8':'#9af5ff';}
-async function showAccountSession(session) {
-  if(!session){walletUserId=null;adminPointsBalance=0;walletHistory=[];balance=1000;try{localStorage.removeItem(WALLET_BALANCE_KEY);}catch(_){}setSync(true,'');if(typeof renderModeBalance==='function')renderModeBalance();}
-  const walletHistoryCard=document.getElementById('walletHistoryCard');
-  if(walletHistoryCard)walletHistoryCard.hidden=!session;
-  signedOutBox.hidden = !!session;
-  signedInBox.hidden = !session;
-
-  // Do not show the available-balance card in Wallet before the player signs in.
-  const walletBalanceSlot = document.getElementById('walletBalanceSlot');
-  if (walletBalanceSlot) walletBalanceSlot.hidden = !session;
-
-  // Keep the Home tab clean after login: hide demo-mode and wallet/payment actions.
-  const homePaymentActions = document.querySelector('#homePanel .payment-actions');
-  const homePaymentCard = document.querySelector('#homePanel .payment-card');
-  if (homePaymentActions) homePaymentActions.hidden = !!session;
-  if (homePaymentCard) homePaymentCard.hidden = !!session;
-
-  if (session) {
-    const username =
-      session.user.user_metadata?.username || "Player";
-
-    document.getElementById("accountStatus").textContent =
-      `Signed in as ${username}. Your player profile is connected.`;
-
-    await loadPlayerWallet(session);
-    loadWalletHistoryForPlayer();
-    // Signed-in players see only the administrator-assigned balance.
-    setGameMode('real');
-    const modeSwitch = document.querySelector('.mode-switch');
-    if (modeSwitch) modeSwitch.hidden = true;
-    await checkAdminAccess();
-  } else {
-    renderWalletHistory();
-    document.getElementById("accountStatus").textContent = "";
-    const modeSwitch = document.querySelector('.mode-switch');
-    if (modeSwitch) modeSwitch.hidden = false;
-    setGameMode('demo');
-    document.getElementById("adminButton")?.remove();
+  const homeStart = document.getElementById('startKenoBtn');
+  if (homeStart) {
+    homeStart.disabled = !registered;
+    homeStart.textContent = registered ? 'Start playing in Keno →' : 'Registration required';
   }
+  const balanceText = document.getElementById('homeBalance');
+  if (balanceText) balanceText.textContent = registered ? fmt(balance) : '';
+  const stakeBalance = document.getElementById('stakeBalance');
+  if (stakeBalance) {
+    stakeBalance.hidden = !registered;
+    stakeBalance.textContent = registered ? 'Practice points: ' + fmt(balance) : '';
+  }
+  const walletSlot = document.getElementById('walletBalanceSlot');
+  if (walletSlot) walletSlot.hidden = true;
+  if (typeof updateStakeUI === 'function') updateStakeUI();
 }
 
-async function checkAdminAccess() {
-  document.getElementById("adminButton")?.remove();
-
+async function verifyTelegramRegistration() {
+  const play = document.getElementById('playBtn');
+  if (play) play.disabled = true;
+  if (!tg || !tg.initData || !tg.initDataUnsafe?.user?.id) {
+    updateTelegramRegistrationUI(false,
+      'Open Keno X from the Telegram bot after sharing your own contact to register.');
+    return;
+  }
+  if (!supabaseClient) {
+    updateTelegramRegistrationUI(false, 'Registration service is unavailable. Please try again later.');
+    return;
+  }
   try {
     const { data, error } = await supabaseClient.functions.invoke(
-      "admin-players"
+      'check-telegram-registration', { body: { initData: tg.initData } }
     );
-
-    if (error || !Array.isArray(data?.players)) {
-      return;
+    if (error) throw error;
+    if (data?.registered === true) {
+      telegramPlayer = data.player || { telegram_id: tg.initDataUnsafe.user.id };
+      const name = telegramPlayer.username ? '@' + telegramPlayer.username :
+        (tg.initDataUnsafe.user.first_name || 'Telegram player');
+      updateTelegramRegistrationUI(true,
+        '✅ Registered as ' + name + '. You can play free practice rounds.');
+      try {
+        const key = 'keno_x_telegram_points_' + String(tg.initDataUnsafe.user.id);
+        const saved = localStorage.getItem(key);
+        if (saved !== null && Number.isFinite(Number(saved))) balance = Math.max(0, Number(saved));
+        window.addEventListener('pagehide', () => localStorage.setItem(key, String(balance)));
+      } catch (_) {}
+      renderModeBalance();
+    } else {
+      updateTelegramRegistrationUI(false,
+        '⚠️ Registration not found. Return to the Keno X Telegram bot and share your own contact first.');
     }
-
-    const adminButton = document.createElement("button");
-
-    adminButton.id = "adminButton";
-    adminButton.textContent = "Admin Dashboard";
-
-    adminButton.style.cssText =
-      "position:fixed;bottom:20px;right:20px;padding:14px;background:#c927bb;color:#111;border:0;border-radius:10px;z-index:9999;cursor:pointer;";
-
-    adminButton.addEventListener("click", () => {
-      loadAdminDashboard();
-    });
-
-    document.body.appendChild(adminButton);
-
   } catch (error) {
-    console.error("Admin access check failed:", error);
+    console.error('Telegram registration verification failed:', error);
+    updateTelegramRegistrationUI(false,
+      'Could not verify registration. Please reopen the game from the Telegram bot.');
+  }
+}
+updateTelegramRegistrationUI(false, 'Checking your Telegram contact registration…');
+verifyTelegramRegistration();
+
+async function checkAdminAccess() {
+  if (!supabaseClient) return false;
+  try {
+    const { data, error } = await supabaseClient.functions.invoke('admin-players');
+    if (error || !Array.isArray(data?.players)) return false;
+    if (document.getElementById('adminButton')) return true;
+    const button = document.createElement('button');
+    button.id = 'adminButton';
+    button.textContent = 'Admin Dashboard';
+    button.style.cssText = 'position:fixed;bottom:20px;right:20px;padding:14px;background:#c927bb;color:#111;border:0;border-radius:10px;z-index:9999;cursor:pointer;';
+    button.addEventListener('click', loadAdminDashboard);
+    document.body.appendChild(button);
+    return true;
+  } catch (error) {
+    console.warn('Admin access check failed:', error);
+    return false;
   }
 }
 
-document.getElementById('loginForm').addEventListener('submit',async(event)=>{
-  event.preventDefault();
-  if(!supabaseClient){accountMessage('Account service is unavailable. Refresh and try again.',true);return;}
-  const username=document.getElementById('loginUsername').value.trim();
-  const password=document.getElementById('loginPassword').value;
-  if(!/^[A-Za-z0-9_]{3,20}$/.test(username)){accountMessage('Enter a valid username (3–20 letters, numbers, or underscores).',true);return;}
-  const button=document.getElementById('loginBtn');button.disabled=true;button.textContent='Checking…';
-  accountMessage('Signing in…');
-  try{
-    const {data,error}=await supabaseClient.functions.invoke('username-login',{body:{username,password}});
-    if(error) throw error;
-   const { data: sessionData, error: sessionError } =
-  await supabaseClient.auth.setSession({
-    access_token: data.access_token,
-    refresh_token: data.refresh_token
-  });
-
-if (sessionError) throw sessionError;
-
-accountMessage('Login successful.');
-showAccountSession(sessionData.session);
-event.target.reset();
- } catch (error) {
-    console.error('Username login failed:', error);
-
-    if (error.context) {
-        console.error('HTTP status:', error.context.status);
-
-        try {
-            const responseBody = await error.context.clone().text();
-            console.error('Server response:', responseBody);
-        } catch (readError) {
-            console.error('Could not read server response:', readError);
-        }
+// Keep the existing administrator Supabase session, if this browser already has one.
+(async () => {
+  if (!supabaseClient) return;
+  try {
+    const { data, error } = await supabaseClient.auth.getSession();
+    if (error) throw error;
+    if (data?.session) {
+      const allowed = await checkAdminAccess();
+      if (allowed) document.getElementById('adminSignOutBtn').hidden = false;
     }
+  } catch (error) {
+    console.warn('Admin session check skipped:', error);
+  }
+})();
 
-    accountMessage(
-        'Sign-in failed. Check the browser console for details.',
-        true
-    );
-  }finally{button.disabled=false;button.textContent='Login';}
-});
-// ---- Phone registration helpers ----
-
-// Accepts +251911234567, 251911234567, 0911234567 or 911234567 (Ethiopia default); returns E.164 or null.
-function normalizePhone(raw){
-  let v=String(raw||'').replace(/[\s\-().]/g,'');
-  if(!/^\+?\d{9,15}$/.test(v))return null;
-  if(v.startsWith('+'))return /^\+[1-9]\d{8,14}$/.test(v)?v:null;
-  if(/^0\d{9}$/.test(v))return '+251'+v.slice(1);
-  if(/^[79]\d{8}$/.test(v))return '+251'+v;
-  if(/^251\d{9}$/.test(v))return '+'+v;
-  return null;
-}
-document.getElementById('registerForm').addEventListener('submit',async(event)=>{
-  event.preventDefault();
-  if(!supabaseClient){accountMessage('Account service is unavailable. Refresh and try again.',true);return;}
-  const username=document.getElementById('regUsername').value.trim();
-  const password=document.getElementById('regPassword').value;
-  const confirm=document.getElementById('regConfirm').value;
-  const rawPhone=document.getElementById('regPhone').value.trim();
-  const optPhone=rawPhone?normalizePhone(rawPhone):null;
-  if(!/^[A-Za-z0-9_]{3,20}$/.test(username)){accountMessage('Username must be 3–20 characters: letters, numbers, and underscores only.',true);return;}
-  if(password.length<8){accountMessage('Choose a password with at least 8 characters.',true);return;}
-  if(password!==confirm){accountMessage('The passwords do not match.',true);return;}
-  if(rawPhone&&!optPhone){accountMessage('That phone number looks invalid. Fix it or leave it empty.',true);return;}
-  const button=document.getElementById('registerBtn');button.disabled=true;button.textContent='Creating account…';
-  accountMessage('Creating your account…');
-  try{
-    // No email or SMS: the account uses a private placeholder address built from the username.
-    const quickEmail=username.toLowerCase()+'@users.habeshakeno.app';
-    const meta={username};if(optPhone)meta.phone_contact=optPhone;
-    const {data,error}=await supabaseClient.auth.signUp({email:quickEmail,password,options:{data:meta}});
-    if(error)throw error;
-    let sess=data.session;
-    if(!sess){
-      const {data:sd,error:se}=await supabaseClient.auth.signInWithPassword({email:quickEmail,password});
-      if(!se)sess=sd.session;
-    }
-    if(sess){accountMessage('Account created. Welcome, '+username+'!');showAccountSession(sess);event.target.reset();}
-    else accountMessage('Account created, but Supabase still requires email confirmation. Turn off "Confirm email" in Authentication → Sign In / Providers → Email.',true);
-  }catch(error){
-    const message=String(error?.message||'Registration failed.');
-    accountMessage(/duplicate|unique|already/i.test(message)?'That username is already taken. Please choose another.':message,true);
-  }finally{button.disabled=false;button.textContent='Create account';}
-});
-document.getElementById('signOutBtn').addEventListener('click',async()=>{
-  if(!supabaseClient)return;
-  const {error}=await supabaseClient.auth.signOut();
-  if(error)accountMessage('Could not sign out. Please try again.',true);
-  else accountMessage('You have signed out.');
-});
 // ---------- Admin dashboard ----------
 // Shows every player's balance (welcome points + admin-assigned points) and updates right after
 // an admin adds or deducts points. It also refreshes itself every 15 seconds while it is open.
-const adminState={players:[],transactions:[],search:'',sort:'points',flashId:null,updatedAt:null,loading:false,timer:null,changed:{},activity:[],stakeSeen:{},live:false};
+
+// Separate administrator sign-in. Player registration remains exclusively in the Telegram bot.
+const adminAccessPanel = document.getElementById('adminAccessPanel');
+const adminLoginFeedback = document.getElementById('adminLoginFeedback');
+document.getElementById('adminAccessToggle')?.addEventListener('click', () => {
+  if (adminAccessPanel) adminAccessPanel.hidden = !adminAccessPanel.hidden;
+});
+function adminLoginMessage(message, isError=false) {
+  if (!adminLoginFeedback) return;
+  adminLoginFeedback.textContent = message;
+  adminLoginFeedback.style.color = isError ? '#ffb2a8' : '#9af5ff';
+}
+document.getElementById('adminLoginForm')?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  if (!supabaseClient) { adminLoginMessage('Supabase is unavailable.', true); return; }
+  const username = document.getElementById('adminLoginUsername').value.trim();
+  const password = document.getElementById('adminLoginPassword').value;
+  if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) {
+    adminLoginMessage('Enter a valid administrator username.', true); return;
+  }
+  const button = document.getElementById('adminLoginBtn');
+  button.disabled = true; button.textContent = 'Checking…';
+  adminLoginMessage('Signing in…');
+  try {
+    const { data, error } = await supabaseClient.functions.invoke('username-login', {
+      body: { username, password }
+    });
+    if (error) throw error;
+    const { error: sessionError } = await supabaseClient.auth.setSession({
+      access_token: data.access_token,
+      refresh_token: data.refresh_token
+    });
+    if (sessionError) throw sessionError;
+    const allowed = await checkAdminAccess();
+    if (!allowed) {
+      await supabaseClient.auth.signOut();
+      throw new Error('This account is not authorized as a Keno X administrator.');
+    }
+    adminLoginMessage('Administrator verified. Opening dashboard…');
+    adminAccessPanel.hidden = true;
+    document.getElementById('adminSignOutBtn').hidden = false;
+    await loadAdminDashboard();
+    event.target.reset();
+  } catch (error) {
+    console.error('Admin sign-in failed:', error);
+    adminLoginMessage(error?.message || 'Could not sign in.', true);
+  } finally {
+    button.disabled = false; button.textContent = 'Sign in';
+  }
+});
+document.getElementById('adminSignOutBtn')?.addEventListener('click', async () => {
+  try { await supabaseClient.auth.signOut(); } catch (_) {}
+  document.getElementById('adminButton')?.remove();
+  document.getElementById('adminSignOutBtn').hidden = true;
+  adminLoginMessage('Signed out.');
+});
+
+const adminState={players:[],transactions:[],search:'',sort:'points',flashId:null,updatedAt:null,loading:false,timer:null,changed:{},activity:[],stakeSeen:{},live:false,telegramRegistrations:[]};
 const escHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pts=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:2});
 const playerTotal=p=>Number(p.practice_balance||0);
@@ -1290,7 +1126,7 @@ function renderAdminDashboard(){
       <strong>#${i+1} ${escHtml(player.username||'No username')}</strong>${(adminState.changed[player.id]&&adminState.changed[player.id].delta)?` <span style="font-size:12px;font-weight:800;color:${adminState.changed[player.id].delta>=0?'#19dc83':'#ff8a8a'}">${adminState.changed[player.id].delta>=0?'▲ +':'▼ −'}${pts(Math.abs(adminState.changed[player.id].delta))} • last result ${new Date(adminState.changed[player.id].at).toLocaleTimeString()}</span>`:''}
       <p style="margin:4px 0">${escHtml(player.email||'No email')}</p>
       <p style="margin:4px 0">Games Played: ${player.games_played??0}</p>
-      <p style="margin:4px 0;font-size:16px;color:#83f3ff">Balance: <b>${pts(player.practice_balance)}</b> <small style="color:#a8b4aa">(the balance this player stakes with)</small></p>
+      <p style="margin:4px 0;font-size:16px;color:#83f3ff">Balance: <b>${pts(player.practice_balance)}</b> <small style="color:#a8b4aa">(virtual practice points only; no cash value)</small></p>
       ${Number(player.staked_now||0)>0?`<p style="margin:4px 0;color:#66f0ff;font-weight:800">🎟 Staked this round: ${pts(player.staked_now)} (${player.entries_now||0} entr${Number(player.entries_now)===1?'y':'ies'}) — balance changes after the draw. After this stake: ${pts(Math.max(0,Number(player.practice_balance||0)-Number(player.staked_now)))}</p>`:''}
       ${Number(player.admin_points||0)>0?`<p style="margin:4px 0;color:#a8b4aa"><small>Older admin-assigned points (not used for staking): ${pts(player.admin_points)}</small></p>`:''}
       <button onclick="adjustAdminPoints('${escHtml(player.id)}','ADD')" style="background:#16834a;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;">+ Add Balance</button>
@@ -1298,6 +1134,12 @@ function renderAdminDashboard(){
       <p style="margin:6px 0 0">Account Status: ${escHtml(player.account_status||'Registered')}</p>
       <small>Joined: ${player.created_at?new Date(player.created_at).toLocaleDateString():'—'}</small>
     </div>`).join('')||'<p>No players found.</p>';
+  const telegramHost=document.getElementById('telegramRegistrationList');
+  if(telegramHost){
+    telegramHost.innerHTML=adminState.telegramRegistrations.length
+      ? adminState.telegramRegistrations.map((u,i)=>`<div style="padding:10px;border-bottom:1px solid #555"><b>#${i+1} ${escHtml(u.full_name||'Telegram player')}</b><p style="margin:4px 0">Telegram ID: ${escHtml(u.telegram_id)}</p><p style="margin:4px 0">Username: ${u.username?'@'+escHtml(u.username):'Not set'}</p><p style="margin:4px 0">Phone: ${escHtml(u.phone_number||'Not available')}</p><small>Registered: ${u.registered_at?new Date(u.registered_at).toLocaleString():'—'}</small></div>`).join('')
+      : '<p>No Telegram registrations found.</p>';
+  }
   const la=document.getElementById('liveActivity');
   if(la)la.innerHTML=adminState.activity.length?adminState.activity.map(a=>a.kind==='stake'?`<div style="padding:8px 0;border-bottom:1px solid #444;font-size:13px"><span style="color:#a8b4aa">${new Date(a.at).toLocaleTimeString()}</span> • <b>${escHtml(a.name)}</b> <span style="color:#66f0ff">staked ${pts(a.amount)}</span> (${a.entries} entr${a.entries===1?'y':'ies'}) — waiting for the draw</div>`:`<div style="padding:8px 0;border-bottom:1px solid #444;font-size:13px"><span style="color:#a8b4aa">${new Date(a.at).toLocaleTimeString()}</span> • <b>${escHtml(a.name)}</b> ${a.delta>=0?'<span style="color:#19dc83">gained +':'<span style="color:#ff8a8a">lost −'}${pts(Math.abs(a.delta))}</span> (${pts(a.from)} → ${pts(a.to)})</div>`).join(''):'<p style="color:#a8b4aa;font-size:13px">No changes yet — waiting for players to finish a draw.</p>';
   const txCut=getTxClearedAt();
@@ -1325,6 +1167,14 @@ async function refreshAdminData(silent=true){
     const { data, error } = await supabaseClient.functions.invoke('admin-players');
     if(error)throw error;
     const fresh=data?.players??[];
+     try {
+       const tr = await supabaseClient.functions.invoke('admin-telegram-registrations');
+       if (!tr.error && Array.isArray(tr.data?.registrations)) {
+         adminState.telegramRegistrations = tr.data.registrations;
+       }
+     } catch (registrationError) {
+       console.warn('Telegram registration list unavailable:', registrationError);
+     }
     // Live balances and open stakes straight from the database (needs the SQL setup); otherwise basic data only.
     let live=null;
     try{const r=await supabaseClient.rpc('admin_live_player_points');if(!r.error&&Array.isArray(r.data))live=r.data;}catch(_){}
@@ -1422,6 +1272,10 @@ async function loadAdminDashboard() {
           <small id="adminUpdated" style="color:#a8b4aa"></small>
         </div>
         <div id="adminLiveNote" style="font-size:12px;margin:-6px 0 12px"></div>
+        <h2 style="color:#c927bb">Telegram contact registrations</h2>
+        <p style="font-size:12px;color:#a8b4aa">Accounts registered through the bot's Share Contact button.</p>
+        <div id="telegramRegistrationList"></div>
+        <h2 style="color:#c927bb;margin-top:20px">Game player accounts</h2>
         <div id="playerList"></div>
         <h2 style="color:#c927bb;margin-top:25px;">Live player results</h2>
         <p style="margin:0 0 8px;color:#a8b4aa;font-size:12px">Balance changes seen while this dashboard is open: a player's wins and losses appear here within seconds.</p>
@@ -1448,8 +1302,8 @@ async function loadAdminDashboard() {
 async function adjustPracticeBalance(playerId, type) {
   const amount = prompt(
     type === "ADD"
-      ? "Enter Practice ETB amount to add:"
-      : "Enter Practice ETB amount to deduct:"
+      ? "Enter virtual practice points to add:"
+      : "Enter virtual practice points to deduct:"
   );
 
   if (amount === null) return;
@@ -1477,7 +1331,7 @@ async function adjustPracticeBalance(playerId, type) {
     if (error) throw error;
 
     alert("Practice balance updated successfully! New balance: " +
-      Number(data).toFixed(2) + " ETB");
+      Number(data).toFixed(2) + " points");
 
     await loadAdminDashboard();
 
@@ -1523,46 +1377,8 @@ async function adjustAdminPoints(playerId, type) {
 window.adjustAdminPoints = adjustAdminPoints;
 
 window.adjustPracticeBalance = adjustPracticeBalance;
-(async () => {
-  if (!supabaseClient) return;
-  try {
-    const { data, error } = await supabaseClient.auth.getSession();
-    if (error) throw error;
-    await showAccountSession(data.session);
-  } catch (error) {
-    console.error('Session restore failed:', error);
-  }
-})();
 
-// ---- Email confirmation landing ----
-// After the user clicks the link in the verification email, Supabase redirects here with
-// tokens in the URL hash (#access_token=...&type=signup) or a ?code= parameter.
-(function(){
-  const hash=new URLSearchParams(window.location.hash.replace(/^#/,''));
-  const query=new URLSearchParams(window.location.search);
-  const isConfirm=hash.get('type')==='signup'||hash.get('type')==='email'||hash.get('type')==='email_change'||
-                  query.get('type')==='signup'||query.has('code')||hash.has('access_token');
-  const hasError=hash.get('error')||query.get('error');
-  if(!isConfirm&&!hasError)return;
-  const box=document.getElementById('emailConfirmedBanner');
-  if(!box)return;
-  if(hasError){
-    box.querySelector('h2').textContent='Confirmation link problem';
-    box.querySelector('h2').style.color='#ffb2a8';
-    box.querySelector('p').textContent=(hash.get('error_description')||query.get('error_description')||'This link is invalid or has expired. Please register again or request a new link.').replace(/\+/g,' ');
-    box.querySelector('div').style.borderColor='#a74747';
-    box.querySelector('div div').textContent='⚠️';
-  }
-  box.hidden=false;box.style.display='flex';
-  document.getElementById('emailConfirmedBtn').addEventListener('click',async()=>{
-    box.style.display='none';
-    // Remove the tokens from the address bar, and sign the freshly-verified session out so the user logs in normally.
-    history.replaceState(null,'',window.location.pathname);
-    try{if(supabaseClient)await supabaseClient.auth.signOut();}catch(_){}
-    setAccountTab('login');
-    try{showTab('wallet');}catch(_){}
-  });
-})();
+
 </script>
 <script>
 /* Keno X: confetti burst when a round pays out */
