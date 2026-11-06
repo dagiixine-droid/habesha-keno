@@ -1221,7 +1221,9 @@ event.target.reset();
 // ---- Telegram contact-share registration (account saved in Supabase by the telegram-register Edge Function) ----
 async function startTelegramSession(body){
   const {data,error}=await supabaseClient.functions.invoke('telegram-register',{body});
-  if(error)throw error;
+  if(error){let msg=error.message||'Registration service error';
+    try{const b=await error.context.json();msg=b?.error||b?.message||msg;}catch(_){}
+    throw new Error(msg);}
   if(data?.error)throw new Error(data.error);
   if(!data?.session)return false;
   const {error:se}=await supabaseClient.auth.setSession({access_token:data.session.access_token,refresh_token:data.session.refresh_token});
