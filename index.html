@@ -128,12 +128,12 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
       <div id="registerPanel" role="tabpanel" aria-labelledby="registerTabBtn" hidden>
         <form id="registerForm" class="account-form">
           <label>Username<input id="regUsername" name="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" autocomplete="username" placeholder="e.g. Abebe_12" required></label>
-          <label>Email address<input id="regEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label>
+          <label id="regPhoneLabel">Phone number (optional)<input id="regPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0911234567"></label>
           <label>Password<input id="regPassword" name="password" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" required></label>
           <label>Confirm password<input id="regConfirm" name="confirm" type="password" minlength="8" autocomplete="new-password" placeholder="Enter password again" required></label>
           <button class="goldbtn" type="submit" id="registerBtn">Create account</button>
         </form>
-        <p class="account-help">Your email is used for account verification and recovery. Choose a username that does not reveal private information. Never reuse an important password.</p>
+        <p class="account-help">Choose a username that does not reveal private information, and a strong password you do not use anywhere else. There is no password recovery, so keep it safe. Your phone number is optional and is not verified.</p>
       </div>
     </div>
     <div id="accountSignedIn" hidden>
@@ -1189,27 +1189,48 @@ event.target.reset();
     );
   }finally{button.disabled=false;button.textContent='Login';}
 });
+// ---- Phone registration helpers ----
+
+// Accepts +251911234567, 251911234567, 0911234567 or 911234567 (Ethiopia default); returns E.164 or null.
+function normalizePhone(raw){
+  let v=String(raw||'').replace(/[\s\-().]/g,'');
+  if(!/^\+?\d{9,15}$/.test(v))return null;
+  if(v.startsWith('+'))return /^\+[1-9]\d{8,14}$/.test(v)?v:null;
+  if(/^0\d{9}$/.test(v))return '+251'+v.slice(1);
+  if(/^[79]\d{8}$/.test(v))return '+251'+v;
+  if(/^251\d{9}$/.test(v))return '+'+v;
+  return null;
+}
 document.getElementById('registerForm').addEventListener('submit',async(event)=>{
   event.preventDefault();
   if(!supabaseClient){accountMessage('Account service is unavailable. Refresh and try again.',true);return;}
   const username=document.getElementById('regUsername').value.trim();
-  const email=document.getElementById('regEmail').value.trim();
   const password=document.getElementById('regPassword').value;
   const confirm=document.getElementById('regConfirm').value;
+  const rawPhone=document.getElementById('regPhone').value.trim();
+  const optPhone=rawPhone?normalizePhone(rawPhone):null;
   if(!/^[A-Za-z0-9_]{3,20}$/.test(username)){accountMessage('Username must be 3–20 characters: letters, numbers, and underscores only.',true);return;}
   if(password.length<8){accountMessage('Choose a password with at least 8 characters.',true);return;}
   if(password!==confirm){accountMessage('The passwords do not match.',true);return;}
+  if(rawPhone&&!optPhone){accountMessage('That phone number looks invalid. Fix it or leave it empty.',true);return;}
   const button=document.getElementById('registerBtn');button.disabled=true;button.textContent='Creating account…';
   accountMessage('Creating your account…');
   try{
-    const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{username},emailRedirectTo:window.location.origin+window.location.pathname}});
-    if(error) throw error;
-    if(data.session){accountMessage('Account created successfully. Your profile is ready.');showAccountSession(data.session);}
-    else accountMessage('Registration received! Check your email for the verification link. After verifying, return here to sign in.');
-    event.target.reset();
+    // No email or SMS: the account uses a private placeholder address built from the username.
+    const quickEmail=username.toLowerCase()+'@users.habeshakeno.app';
+    const meta={username};if(optPhone)meta.phone_contact=optPhone;
+    const {data,error}=await supabaseClient.auth.signUp({email:quickEmail,password,options:{data:meta}});
+    if(error)throw error;
+    let sess=data.session;
+    if(!sess){
+      const {data:sd,error:se}=await supabaseClient.auth.signInWithPassword({email:quickEmail,password});
+      if(!se)sess=sd.session;
+    }
+    if(sess){accountMessage('Account created. Welcome, '+username+'!');showAccountSession(sess);event.target.reset();}
+    else accountMessage('Account created, but Supabase still requires email confirmation. Turn off "Confirm email" in Authentication → Sign In / Providers → Email.',true);
   }catch(error){
     const message=String(error?.message||'Registration failed.');
-    accountMessage(message.toLowerCase().includes('duplicate')||message.toLowerCase().includes('unique')?'That username is already taken. Please choose another.':message,true);
+    accountMessage(/duplicate|unique|already/i.test(message)?'That username is already taken. Please choose another.':message,true);
   }finally{button.disabled=false;button.textContent='Create account';}
 });
 document.getElementById('signOutBtn').addEventListener('click',async()=>{
