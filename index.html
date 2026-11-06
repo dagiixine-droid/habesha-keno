@@ -77,6 +77,14 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
 </head>
 <body>
 <div class="app">
+  <div id="emailConfirmedBanner" role="status" aria-live="polite" hidden style="position:fixed;inset:0;z-index:20000;display:none;align-items:center;justify-content:center;padding:20px;background:#000c;backdrop-filter:blur(8px)">
+    <div style="max-width:420px;width:100%;text-align:center;padding:28px 22px;border:1px solid #167c4b;border-radius:20px;background:linear-gradient(145deg,#0f2a1d,#070b09);box-shadow:0 24px 80px #000b">
+      <div style="font-size:54px;line-height:1">✅</div>
+      <h2 style="margin:12px 0 8px;color:#a8ffd0;font-size:22px">Your email confirmation is done successfully</h2>
+      <p style="margin:0 0 18px;color:#c9d6cc;font-size:14px;line-height:1.5">Thank you! Your Habesha Keno account is now verified. You can sign in and start playing.</p>
+      <button type="button" id="emailConfirmedBtn" class="goldbtn" style="width:100%">Continue to Login</button>
+    </div>
+  </div>
   <header class="top">
     <div class="brand"><div class="badge">HK</div><div><h1>Habesha Keno</h1><small id="platformLabel">Telegram Mini App • Demo</small></div></div>
   </header>
@@ -1194,7 +1202,7 @@ document.getElementById('registerForm').addEventListener('submit',async(event)=>
   const button=document.getElementById('registerBtn');button.disabled=true;button.textContent='Creating account…';
   accountMessage('Creating your account…');
   try{
-    const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{username}}});
+    const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{username},emailRedirectTo:window.location.origin+window.location.pathname}});
     if(error) throw error;
     if(data.session){accountMessage('Account created successfully. Your profile is ready.');showAccountSession(data.session);}
     else accountMessage('Registration received! Check your email for the verification link. After verifying, return here to sign in.');
@@ -1478,6 +1486,36 @@ window.adjustPracticeBalance = adjustPracticeBalance;
   } catch (error) {
     console.error('Session restore failed:', error);
   }
+})();
+
+// ---- Email confirmation landing ----
+// After the user clicks the link in the verification email, Supabase redirects here with
+// tokens in the URL hash (#access_token=...&type=signup) or a ?code= parameter.
+(function(){
+  const hash=new URLSearchParams(window.location.hash.replace(/^#/,''));
+  const query=new URLSearchParams(window.location.search);
+  const isConfirm=hash.get('type')==='signup'||hash.get('type')==='email'||hash.get('type')==='email_change'||
+                  query.get('type')==='signup'||query.has('code')||hash.has('access_token');
+  const hasError=hash.get('error')||query.get('error');
+  if(!isConfirm&&!hasError)return;
+  const box=document.getElementById('emailConfirmedBanner');
+  if(!box)return;
+  if(hasError){
+    box.querySelector('h2').textContent='Confirmation link problem';
+    box.querySelector('h2').style.color='#ffb2a8';
+    box.querySelector('p').textContent=(hash.get('error_description')||query.get('error_description')||'This link is invalid or has expired. Please register again or request a new link.').replace(/\+/g,' ');
+    box.querySelector('div').style.borderColor='#a74747';
+    box.querySelector('div div').textContent='⚠️';
+  }
+  box.hidden=false;box.style.display='flex';
+  document.getElementById('emailConfirmedBtn').addEventListener('click',async()=>{
+    box.style.display='none';
+    // Remove the tokens from the address bar, and sign the freshly-verified session out so the user logs in normally.
+    history.replaceState(null,'',window.location.pathname);
+    try{if(supabaseClient)await supabaseClient.auth.signOut();}catch(_){}
+    setAccountTab('login');
+    try{showTab('wallet');}catch(_){}
+  });
 })();
 </script>
 </body></html>
