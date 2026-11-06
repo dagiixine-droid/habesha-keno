@@ -3,92 +3,117 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#070b0b">
+<meta name="theme-color" content="#07050d">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<title>Habesha Keno — Demo</title>
+<title>Keno X — Demo</title>
 <style>
-:root{--bg:#050707;--panel:#101817;--gold:#ffd35a;--gold2:#ff9d00;--green:#00e985;--blue:#42d9ff;--purple:#a77bff;--muted:#9aaba5;--line:#5c4815}
-[hidden]{display:none!important}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% -12%,#263626 0,#0a100e 38%,#050707 75%);color:#f7f4e8;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;min-height:100vh}
-    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.13;background-image:linear-gradient(30deg,transparent 48%,#ffd35a 49%,transparent 50%),linear-gradient(150deg,transparent 48%,#42d9ff 49%,transparent 50%);background-size:74px 74px;mask-image:linear-gradient(to bottom,black,transparent 70%);z-index:-1}
-    button{transition:transform .18s ease,filter .18s ease,border-color .18s ease,box-shadow .18s ease}button:active{transform:scale(.97)}@keyframes goldPulse{0%,100%{box-shadow:0 0 12px #ffb00024, inset 0 1px #fff2}50%{box-shadow:0 0 24px #ffb00058, inset 0 1px #fff7}}@keyframes riseIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes ballPop{0%{opacity:0;transform:scale(.35) rotate(-25deg)}75%{transform:scale(1.13) rotate(4deg)}100%{opacity:1;transform:scale(1) rotate(0)}}@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+:root{--bg:#050309;--panel:#100b1d;--gold:#5aeeff;--gold2:#00e5ff;--green:#00e985;--blue:#42d9ff;--purple:#a77bff;--muted:#9aaba5;--line:#2f155c}
+[hidden]{display:none!important}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% -12%,#263626 0,#0a0713 38%,#050309 75%);color:#e2fbfd;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;min-height:100vh}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.13;background-image:linear-gradient(30deg,transparent 48%,#5aeeff 49%,transparent 50%),linear-gradient(150deg,transparent 48%,#42d9ff 49%,transparent 50%);background-size:74px 74px;mask-image:linear-gradient(to bottom,black,transparent 70%);z-index:-1}
+    button{transition:transform .18s ease,filter .18s ease,border-color .18s ease,box-shadow .18s ease}button:active{transform:scale(.97)}@keyframes goldPulse{0%,100%{box-shadow:0 0 12px #00e5ff24, inset 0 1px #fff2}50%{box-shadow:0 0 24px #00e5ff58, inset 0 1px #fff7}}@keyframes riseIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes ballPop{0%{opacity:0;transform:scale(.35) rotate(-25deg)}75%{transform:scale(1.13) rotate(4deg)}100%{opacity:1;transform:scale(1) rotate(0)}}@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
 button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:100vh;padding:14px}
-.top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1px solid #5b481c;border-radius:18px;background:linear-gradient(120deg,#101612,#070b0a);box-shadow:0 8px 32px #0008,0 0 24px #ffb00012;position:relative;overflow:hidden}.top:after{content:'';position:absolute;left:0;top:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),var(--blue),transparent)}
+.top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1px solid #331c5b;border-radius:18px;background:linear-gradient(120deg,#0f0a1c,#07050d);box-shadow:0 8px 32px #0008,0 0 24px #00e5ff12;position:relative;overflow:hidden}.top:after{content:'';position:absolute;left:0;top:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),var(--blue),transparent)}
 .top .balance{display:none!important}
-.brand{display:flex;align-items:center;gap:12px}.badge{width:46px;height:46px;border:2px solid var(--gold);border-radius:50%;display:grid;place-items:center;color:var(--gold);font-weight:900;font-size:19px;text-shadow:0 0 12px #ffb000;background:radial-gradient(circle,#42320e,#090d0b 72%);box-shadow:0 0 18px #ffb00024,inset 0 0 10px #ffb00020;flex-shrink:0}.brand h1{font-size:19px;margin:0;color:#ffdc78}.brand small{display:block;color:var(--muted);font-size:12px}.balance{border:1px solid #8b681f;padding:10px 14px;border-radius:12px;color:var(--gold);font-weight:850;background:linear-gradient(135deg,#2b210b,#0b100e);box-shadow:0 0 18px #ffb00017;white-space:nowrap}
-.hero{text-align:center;padding:26px 12px 22px;margin:14px 0;border-radius:20px;border:1px solid #5b481c;background:radial-gradient(ellipse at 50% 0%,#29311c 0,#101713 45%,#090c0b 100%);position:relative;overflow:hidden;box-shadow:inset 0 1px #fff1,0 12px 30px #0006}.hero:after{content:'';position:absolute;inset:auto -20% -70% -20%;height:100%;background:radial-gradient(ellipse,#ffb00018,transparent 65%);pointer-events:none}
-.hero:before{content:"✦  ETHIOPIA  ✦";letter-spacing:8px;color:#7d6a2b;font-size:10px}.hero h2{margin:10px 0 2px;font-size:clamp(32px,7vw,62px);line-height:1;color:var(--gold);background:linear-gradient(100deg,#fff1a7,#ffbd26,#fff0a0,#ff9d00);background-size:200% auto;background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 28px #ffb00030;font-weight:1000;letter-spacing:2px;animation:shimmer 5s linear infinite}.hero p{margin:8px 0 0;color:#d9c78d;letter-spacing:2px;font-size:13px}
-.notice{padding:10px 12px;background:#241b08;border:1px solid #8c671c;border-radius:12px;color:#f5d98b;font-size:12px;line-height:1.5;margin-bottom:14px}
-.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.8fr);gap:14px}.card{background:linear-gradient(145deg,#131b17eF,#080d0cf5);border:1px solid #4c3b16;border-radius:17px;padding:15px;box-shadow:0 10px 28px #0005,0 0 18px #ffb0000b;backdrop-filter:blur(8px);animation:riseIn .45s ease both}.card:nth-child(2){animation-delay:.06s}.card:nth-child(3){animation-delay:.12s}.card h3{margin:0 0 13px;color:#ffdc78;font-size:16px}.sub{font-size:12px;color:var(--muted);margin-top:-7px;margin-bottom:13px}
-.grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}.num{min-width:0;aspect-ratio:1.22;border:1px solid #65501c;border-radius:8px;background:linear-gradient(#17211d,#0b100f);color:#f6f0d9;font-weight:750;font-size:clamp(11px,2vw,16px);box-shadow:inset 0 1px #ffffff0a;transition:.12s}.num:hover{border-color:var(--gold);filter:brightness(1.25);transform:translateY(-1px)}.num.selected{background:linear-gradient(145deg,#fff0a0,#ffbd26 62%,#e58b00);color:#201400;border-color:#fff4b8;box-shadow:0 0 12px #ffb000,0 0 25px #ffb00055,inset 0 1px #fff8c8;animation:goldPulse 1.8s ease-in-out infinite;font-weight:950}
-.controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:13px;flex-wrap:wrap}.pill{border:1px solid #4d401e;border-radius:10px;padding:8px 10px;background:#0b1110;color:#f6e6b0;font-size:13px}.goldbtn{border:0;border-radius:12px;padding:12px 16px;background:linear-gradient(135deg,#fff0a0,#ffbd26 60%,#dc8100);color:#241700;font-weight:900;box-shadow:0 0 14px #ffb00035}.goldbtn:hover,.greenbtn:hover{filter:brightness(1.08);box-shadow:0 0 24px #ffb00055}.goldbtn:disabled{opacity:.45;cursor:not-allowed}.greenbtn{width:100%;border:1px solid #a8ffca;border-radius:13px;padding:15px;background:linear-gradient(120deg,#27ff91,#00bf68,#00914d);background-size:180% 180%;color:#001b0d;font-weight:950;font-size:17px;box-shadow:0 0 20px #00db7840;animation:shimmer 5s linear infinite}.stack{display:grid;gap:14px}.field{display:flex;align-items:center;justify-content:space-between;gap:10px}.field label{color:#d9d2bb;font-size:13px}.field input{width:110px;background:#060a09;border:1px solid #55451c;border-radius:9px;padding:10px;color:#fff;text-align:right;font-weight:800}.quick{display:flex;gap:6px;margin-top:9px}.quick button{flex:1;padding:8px 2px;border:1px solid #7b5a1b;border-radius:8px;background:#2b210c;color:#ffdb78;font-weight:800;font-size:12px}.stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #ffffff10;font-size:13px}.stat:last-child{border:0}.stat strong{color:var(--gold)}.drawballs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.countdown-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;margin-bottom:14px;border:1px solid #7b5b1b;border-radius:14px;background:linear-gradient(120deg,#211a09,#0c1210)}.countdown-label{font-size:11px;color:#c9b979;letter-spacing:1px;font-weight:800}.countdown-time{font-size:27px;font-weight:1000;color:var(--gold);font-variant-numeric:tabular-nums;text-shadow:0 0 14px #ffb00040}.countdown-note{font-size:11px;color:#9eaaa0;margin-top:3px}.draw-diagram{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px;margin-top:12px}.diagram-num{aspect-ratio:1;border:1px solid #39443a;border-radius:7px;background:#0b100e;color:#aab7ab;font-size:12px;font-weight:800;display:grid;place-items:center}.diagram-num.picked{border-color:#b98c25;background:#30240b;color:#ffdf83}.diagram-num.drawn{border-color:#16c779;background:linear-gradient(145deg,#b8ffd7,#19d17c);color:#002313;box-shadow:0 0 9px #00df7930}.diagram-num.hit{border-color:#fff0a0;background:linear-gradient(145deg,#fff2a7,#ffb000);color:#201400;box-shadow:0 0 12px #ffb00080}.diagram-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;color:#aab5ad;font-size:10px}.legend-dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px}.draw-diagram-wrap{margin-top:12px;padding-top:12px;border-top:1px solid #ffffff12}.draw-diagram-title{font-size:12px;color:#d8d0b5;font-weight:800}.ball{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 25%,#fff0a4,#ffb000 65%,#8d4d00);color:#201400;font-weight:900;font-size:12px;box-shadow:0 0 10px #ffb00035;animation:ballPop .35s cubic-bezier(.2,.8,.2,1) both}.result{padding:11px;border-radius:10px;background:#092217;border:1px solid #087b43;color:#c9ffe0;font-size:13px;line-height:1.6;display:none}.result.show{display:block;animation:riseIn .35s ease both}.nav{display:flex;gap:8px;margin-top:14px}.nav button{flex:1;padding:11px 4px;border:1px solid #3c351e;border-radius:11px;background:#0b100f;color:#c9c4b4;font-size:12px}.nav button.active{border-color:var(--gold);color:var(--gold);background:linear-gradient(135deg,#2b210c,#0b100f);box-shadow:0 0 12px #ffb00020}.nav button:hover{border-color:#8a6a24;color:#ffe29a}.foot{text-align:center;color:#73827a;font-size:11px;margin:16px 0 8px}.notice{box-shadow:inset 0 1px #fff1}.field input:focus{outline:1px solid var(--gold);border-color:var(--gold);box-shadow:0 0 12px #ffb00020}::selection{background:#ffca45;color:#201400}
-.how-to-card h3{margin-bottom:8px}.how-to-list{list-style:none;padding:0;margin:14px 0;display:grid;gap:14px}.how-to-list li{display:flex;align-items:flex-start;gap:11px}.step-number{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:linear-gradient(135deg,#fff0a0,#ffbd26);color:#241700;font-weight:950}.how-to-list strong{font-size:13px;color:#fff0bf}.how-to-list p{margin:3px 0 0;color:#aeb9ae;font-size:12px;line-height:1.5}.how-to-note{padding:10px 11px;border:1px solid #3f482b;border-radius:10px;background:#10180f;color:#c8d3b4;font-size:11px;line-height:1.55}.how-to-start{margin-top:13px;width:100%}
-.mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px;border:1px solid #4c3b16;border-radius:14px;background:#090e0c}.mode-btn{min-height:44px;border:1px solid #344037;border-radius:10px;background:#111814;color:#c3cbbf;font-weight:850}.mode-btn.active{border-color:var(--gold);background:linear-gradient(135deg,#3b2b0b,#17170e);color:#ffdf83;box-shadow:0 0 14px #ffb0001c}.mode-btn.real.active{border-color:#a77bff;color:#ddccff;background:linear-gradient(135deg,#28183e,#111018)}.mode-message{padding:11px 12px;border-radius:11px;border:1px solid #8a6926;background:#241b08;color:#f5d98b;font-size:12px;line-height:1.5}.mode-message.real-preview{border-color:#7754b5;background:#1a1228;color:#e1d3ff}.home-panel{display:grid;gap:13px;margin:14px 0}.home-balance{padding:18px;background:radial-gradient(ellipse at 90% 0%,#5a4318 0,transparent 46%),linear-gradient(130deg,#171e17,#090d0b 72%);border-color:#8a6926;position:relative;overflow:hidden}.balance-top,.balance-foot,.payment-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}.eyebrow{font-size:11px;letter-spacing:1.7px;color:#d6c58d;font-weight:800}.demo-tag,.soon-tag{font-size:10px;letter-spacing:1px;font-weight:900;color:#ffdf83;border:1px solid #8a6926;background:#30240d;padding:6px 8px;border-radius:999px;white-space:nowrap}.ETB-amount{display:flex;align-items:baseline;gap:10px;margin:13px 0 12px;color:#ffda68;font-size:clamp(36px,8vw,54px);font-weight:1000;letter-spacing:-1px;text-shadow:0 0 18px #ffb00030}.ETB-amount small{font-size:12px;letter-spacing:0;color:#c5b987;font-weight:650;text-shadow:none}.balance-foot{font-size:11px;color:#9aa99d;border-top:1px solid #ffffff12;padding-top:11px}.refresh-btn{border:1px solid #5b481c;background:#0a100d;color:#ffda68;border-radius:9px;padding:7px 10px;font-size:12px}.payment-actions{display:grid;grid-template-columns:1fr 1fr;gap:11px}.action-card{display:flex;align-items:center;gap:10px;text-align:left;padding:14px 12px;border-radius:15px;border:1px solid #6c531e;background:linear-gradient(135deg,#2c230d,#10130e);color:#fff0bf;min-width:0;box-shadow:0 8px 20px #0004}.deposit-action{border-color:#a47b27;background:linear-gradient(135deg,#42300b,#17150b)}.withdraw-action{border-color:#315e51;background:linear-gradient(135deg,#10372a,#0c1511)}.action-icon{width:38px;height:38px;display:grid;place-items:center;flex-shrink:0;border-radius:12px;background:#ffcf4a;color:#241800;font-size:24px;font-weight:900;box-shadow:0 0 15px #ffb00028}.withdraw-action .action-icon{background:#19dc83;color:#002313;box-shadow:0 0 15px #00db7830}.action-card strong,.method strong{display:block;font-size:14px}.action-card small,.method small{display:block;font-size:10px;color:#aeb6a9;margin-top:3px}.action-arrow{margin-left:auto;color:#ffdb76;font-size:25px}.payment-card h3{margin-bottom:6px}.payment-heading{align-items:flex-start}.payment-heading .sub{margin:0;line-height:1.4}.soon-tag{font-size:9px;color:#b8e7d0;border-color:#245742;background:#0c2118}.payment-methods{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin-top:15px}.method{display:flex;align-items:center;gap:8px;min-width:0;text-align:left;padding:10px 8px;border:1px solid #344037;border-radius:12px;background:linear-gradient(145deg,#151d18,#0a0e0c);color:#f7f1dc}.method-mark{width:30px;height:30px;flex-shrink:0;display:grid;place-items:center;border-radius:9px;font-weight:1000;color:#07120b;background:linear-gradient(135deg,#b8f7d2,#20c87d)}.method-mark.cbe{background:linear-gradient(135deg,#c9eaff,#6bb5f3)}.method-mark.bank{background:linear-gradient(135deg,#f5df9c,#caa84a)}.method strong{font-size:11px}.method small{font-size:9px}.method-arrow{display:none}.payment-note{font-size:10px;color:#8e9b90;line-height:1.5;margin:12px 0 0}.action-card:hover,.method:hover{transform:translateY(-2px);filter:brightness(1.12);border-color:var(--gold)}#kenoGame{scroll-margin-top:12px}#kenoPanel[hidden],#homePanel[hidden]{display:none!important}#kenoPanel{animation:riseIn .3s ease both}#homePanel{animation:riseIn .3s ease both}
-@media(max-width:700px){.app{padding:9px}.layout{grid-template-columns:1fr}.hero{padding:18px 8px}.grid{gap:4px}.num{border-radius:6px;aspect-ratio:1.08}.card{padding:12px}.top{padding:10px}.balance{font-size:12px;padding:8px}.brand{gap:8px}.brand h1{font-size:16px}.badge{width:40px;height:40px;font-size:16px}.nav{gap:5px}.nav button{font-size:11px;padding:10px 2px}.home-balance{padding:15px}.payment-methods{grid-template-columns:1fr}.method{padding:10px}.method-arrow{display:block;margin-left:auto;color:#d9bd68;font-size:20px}.action-card{padding:12px 10px}.action-card strong{font-size:13px}.payment-heading{flex-direction:column;gap:8px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}}
+.brand{display:flex;align-items:center;gap:12px}.badge{width:46px;height:46px;border:2px solid var(--gold);border-radius:50%;display:grid;place-items:center;color:var(--gold);font-weight:900;font-size:19px;text-shadow:0 0 12px #00e5ff;background:radial-gradient(circle,#1b0e42,#090610 72%);box-shadow:0 0 18px #00e5ff24,inset 0 0 10px #00e5ff20;flex-shrink:0}.brand h1{font-size:19px;margin:0;color:#78f1ff}.brand small{display:block;color:var(--muted);font-size:12px}.balance{border:1px solid #8b1f82;padding:10px 14px;border-radius:12px;color:var(--gold);font-weight:850;background:linear-gradient(135deg,#130b2b,#0a0714);box-shadow:0 0 18px #00e5ff17;white-space:nowrap}
+.hero{text-align:center;padding:26px 12px 22px;margin:14px 0;border-radius:20px;border:1px solid #331c5b;background:radial-gradient(ellipse at 50% 0%,#1e1538 0,#0f0b1c 45%,#08060f 100%);position:relative;overflow:hidden;box-shadow:inset 0 1px #fff1,0 12px 30px #0006}.hero:after{content:'';position:absolute;inset:auto -20% -70% -20%;height:100%;background:radial-gradient(ellipse,#00e5ff18,transparent 65%);pointer-events:none}
+.hero:before{content:"✦  ETHIOPIA  ✦";letter-spacing:8px;color:#86227e;font-size:10px}.hero h2{margin:10px 0 2px;font-size:clamp(32px,7vw,62px);line-height:1;color:var(--gold);background:linear-gradient(100deg,#a7f6ff,#26e9ff,#a0f5ff,#00e5ff);background-size:200% auto;background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 28px #00e5ff30;font-weight:1000;letter-spacing:2px;animation:shimmer 5s linear infinite}.hero p{margin:8px 0 0;color:#6feaf7;letter-spacing:2px;font-size:13px}
+.notice{padding:10px 12px;background:#0f0824;border:1px solid #8c1c83;border-radius:12px;color:#87edf9;font-size:12px;line-height:1.5;margin-bottom:14px}
+.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.8fr);gap:14px}.card{background:linear-gradient(145deg,#120d21eF,#08060ff5);border:1px solid #2a164c;border-radius:17px;padding:15px;box-shadow:0 10px 28px #0005,0 0 18px #00e5ff0b;backdrop-filter:blur(8px);animation:riseIn .45s ease both}.card:nth-child(2){animation-delay:.06s}.card:nth-child(3){animation-delay:.12s}.card h3{margin:0 0 13px;color:#78f1ff;font-size:16px}.sub{font-size:12px;color:var(--muted);margin-top:-7px;margin-bottom:13px}
+.grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}.num{min-width:0;aspect-ratio:1.22;border:1px solid #671a61;border-radius:8px;background:linear-gradient(#160f29,#0a0714);color:#d2f8fd;font-weight:750;font-size:clamp(11px,2vw,16px);box-shadow:inset 0 1px #ffffff0a;transition:.12s}.num:hover{border-color:var(--gold);filter:brightness(1.25);transform:translateY(-1px)}.num.selected{background:linear-gradient(145deg,#a0f5ff,#26e9ff 62%,#e500d2);color:#080020;border-color:#b8f8ff;box-shadow:0 0 12px #00e5ff,0 0 25px #00e5ff55,inset 0 1px #c8f9ff;animation:goldPulse 1.8s ease-in-out infinite;font-weight:950}
+.controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:13px;flex-wrap:wrap}.pill{border:1px solid #2e1b50;border-radius:10px;padding:8px 10px;background:#0b0814;color:#abf3fb;font-size:13px}.goldbtn{border:0;border-radius:12px;padding:12px 16px;background:linear-gradient(135deg,#a0f5ff,#26e9ff 60%,#dc00ca);color:#090024;font-weight:900;box-shadow:0 0 14px #00e5ff35}.goldbtn:hover,.greenbtn:hover{filter:brightness(1.08);box-shadow:0 0 24px #00e5ff55}.goldbtn:disabled{opacity:.45;cursor:not-allowed}.greenbtn{width:100%;border:1px solid #a8ffca;border-radius:13px;padding:15px;background:linear-gradient(120deg,#27ff91,#00bf68,#00914d);background-size:180% 180%;color:#07001b;font-weight:950;font-size:17px;box-shadow:0 0 20px #00db7840;animation:shimmer 5s linear infinite}.stack{display:grid;gap:14px}.field{display:flex;align-items:center;justify-content:space-between;gap:10px}.field label{color:#9af0fa;font-size:13px}.field input{width:110px;background:#06040c;border:1px solid #311c55;border-radius:9px;padding:10px;color:#fff;text-align:right;font-weight:800}.quick{display:flex;gap:6px;margin-top:9px}.quick button{flex:1;padding:8px 2px;border:1px solid #7b1b73;border-radius:8px;background:#140c2b;color:#78f1ff;font-weight:800;font-size:12px}.stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #ffffff10;font-size:13px}.stat:last-child{border:0}.stat strong{color:var(--gold)}.drawballs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.countdown-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;margin-bottom:14px;border:1px solid #7b1b73;border-radius:14px;background:linear-gradient(120deg,#0f0921,#0c0816)}.countdown-label{font-size:11px;color:#4ce5f6;letter-spacing:1px;font-weight:800}.countdown-time{font-size:27px;font-weight:1000;color:var(--gold);font-variant-numeric:tabular-nums;text-shadow:0 0 14px #00e5ff40}.countdown-note{font-size:11px;color:#9eaaa0;margin-top:3px}.draw-diagram{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px;margin-top:12px}.diagram-num{aspect-ratio:1;border:1px solid #39443a;border-radius:7px;background:#0a0714;color:#aab7ab;font-size:12px;font-weight:800;display:grid;place-items:center}.diagram-num.picked{border-color:#b925ad;background:#140b30;color:#83f3ff}.diagram-num.drawn{border-color:#16c779;background:linear-gradient(145deg,#b8ffd7,#19d17c);color:#090023;box-shadow:0 0 9px #00df7930}.diagram-num.hit{border-color:#a0f5ff;background:linear-gradient(145deg,#a7f6ff,#00e5ff);color:#080020;box-shadow:0 0 12px #00e5ff80}.diagram-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;color:#aab5ad;font-size:10px}.legend-dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px}.draw-diagram-wrap{margin-top:12px;padding-top:12px;border-top:1px solid #ffffff12}.draw-diagram-title{font-size:12px;color:#94eff9;font-weight:800}.ball{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 25%,#a4f6ff,#00e5ff 65%,#8d0081);color:#080020;font-weight:900;font-size:12px;box-shadow:0 0 10px #00e5ff35;animation:ballPop .35s cubic-bezier(.2,.8,.2,1) both}.result{padding:11px;border-radius:10px;background:#0f0922;border:1px solid #087b43;color:#c9ffe0;font-size:13px;line-height:1.6;display:none}.result.show{display:block;animation:riseIn .35s ease both}.nav{display:flex;gap:8px;margin-top:14px}.nav button{flex:1;padding:11px 4px;border:1px solid #271743;border-radius:11px;background:#0a0714;color:#c9c4b4;font-size:12px}.nav button.active{border-color:var(--gold);color:var(--gold);background:linear-gradient(135deg,#140c2b,#0a0714);box-shadow:0 0 12px #00e5ff20}.nav button:hover{border-color:#8b2383;color:#9af5ff}.foot{text-align:center;color:#73827a;font-size:11px;margin:16px 0 8px}.notice{box-shadow:inset 0 1px #fff1}.field input:focus{outline:1px solid var(--gold);border-color:var(--gold);box-shadow:0 0 12px #00e5ff20}::selection{background:#45ecff;color:#080020}
+.how-to-card h3{margin-bottom:8px}.how-to-list{list-style:none;padding:0;margin:14px 0;display:grid;gap:14px}.how-to-list li{display:flex;align-items:flex-start;gap:11px}.step-number{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:linear-gradient(135deg,#a0f5ff,#26e9ff);color:#090024;font-weight:950}.how-to-list strong{font-size:13px;color:#bff9ff}.how-to-list p{margin:3px 0 0;color:#aeb9ae;font-size:12px;line-height:1.5}.how-to-note{padding:10px 11px;border:1px solid #3f482b;border-radius:10px;background:#0f0b1c;color:#c8d3b4;font-size:11px;line-height:1.55}.how-to-start{margin-top:13px;width:100%}
+.mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px;border:1px solid #2a164c;border-radius:14px;background:#090611}.mode-btn{min-height:44px;border:1px solid #344037;border-radius:10px;background:#100b1e;color:#c3cbbf;font-weight:850}.mode-btn.active{border-color:var(--gold);background:linear-gradient(135deg,#170b3b,#0e0a1b);color:#83f3ff;box-shadow:0 0 14px #00e5ff1c}.mode-btn.real.active{border-color:#a77bff;color:#ddccff;background:linear-gradient(135deg,#28183e,#100b1d)}.mode-message{padding:11px 12px;border-radius:11px;border:1px solid #8d2384;background:#0f0824;color:#87edf9;font-size:12px;line-height:1.5}.mode-message.real-preview{border-color:#7754b5;background:#16102a;color:#e1d3ff}.home-panel{display:grid;gap:13px;margin:14px 0}.home-balance{padding:18px;background:radial-gradient(ellipse at 90% 0%,#30185a 0,transparent 46%),linear-gradient(130deg,#150f26,#090610 72%);border-color:#8d2384;position:relative;overflow:hidden}.balance-top,.balance-foot,.payment-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}.eyebrow{font-size:11px;letter-spacing:1.7px;color:#6ce9f7;font-weight:800}.demo-tag,.soon-tag{font-size:10px;letter-spacing:1px;font-weight:900;color:#83f3ff;border:1px solid #8d2384;background:#160d30;padding:6px 8px;border-radius:999px;white-space:nowrap}.ETB-amount{display:flex;align-items:baseline;gap:10px;margin:13px 0 12px;color:#68f0ff;font-size:clamp(36px,8vw,54px);font-weight:1000;letter-spacing:-1px;text-shadow:0 0 18px #00e5ff30}.ETB-amount small{font-size:12px;letter-spacing:0;color:#56e6f6;font-weight:650;text-shadow:none}.balance-foot{font-size:11px;color:#9aa99d;border-top:1px solid #ffffff12;padding-top:11px}.refresh-btn{border:1px solid #331c5b;background:#0a0713;color:#68f0ff;border-radius:9px;padding:7px 10px;font-size:12px}.payment-actions{display:grid;grid-template-columns:1fr 1fr;gap:11px}.action-card{display:flex;align-items:center;gap:10px;text-align:left;padding:14px 12px;border-radius:15px;border:1px solid #6e1c68;background:linear-gradient(135deg,#150d2c,#0d0918);color:#bff9ff;min-width:0;box-shadow:0 8px 20px #0004}.deposit-action{border-color:#a4279a;background:linear-gradient(135deg,#190b42,#0d0919)}.withdraw-action{border-color:#315e51;background:linear-gradient(135deg,#1a1037,#0d0918)}.action-icon{width:38px;height:38px;display:grid;place-items:center;flex-shrink:0;border-radius:12px;background:#4aedff;color:#090024;font-size:24px;font-weight:900;box-shadow:0 0 15px #00e5ff28}.withdraw-action .action-icon{background:#19dc83;color:#090023;box-shadow:0 0 15px #00db7830}.action-card strong,.method strong{display:block;font-size:14px}.action-card small,.method small{display:block;font-size:10px;color:#aeb6a9;margin-top:3px}.action-arrow{margin-left:auto;color:#76f1ff;font-size:25px}.payment-card h3{margin-bottom:6px}.payment-heading{align-items:flex-start}.payment-heading .sub{margin:0;line-height:1.4}.soon-tag{font-size:9px;color:#b8e7d0;border-color:#245742;background:#110c21}.payment-methods{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin-top:15px}.method{display:flex;align-items:center;gap:8px;min-width:0;text-align:left;padding:10px 8px;border:1px solid #344037;border-radius:12px;background:linear-gradient(145deg,#130e24,#090711);color:#d6f9fd}.method-mark{width:30px;height:30px;flex-shrink:0;display:grid;place-items:center;border-radius:9px;font-weight:1000;color:#0a0712;background:linear-gradient(135deg,#b8f7d2,#20c87d)}.method-mark.cbe{background:linear-gradient(135deg,#c9eaff,#6bb5f3)}.method-mark.bank{background:linear-gradient(135deg,#97f0fa,#21def3)}.method strong{font-size:11px}.method small{font-size:9px}.method-arrow{display:none}.payment-note{font-size:10px;color:#8e9b90;line-height:1.5;margin:12px 0 0}.action-card:hover,.method:hover{transform:translateY(-2px);filter:brightness(1.12);border-color:var(--gold)}#kenoGame{scroll-margin-top:12px}#kenoPanel[hidden],#homePanel[hidden]{display:none!important}#kenoPanel{animation:riseIn .3s ease both}#homePanel{animation:riseIn .3s ease both}
+@media(max-width:700px){.app{padding:9px}.layout{grid-template-columns:1fr}.hero{padding:18px 8px}.grid{gap:4px}.num{border-radius:6px;aspect-ratio:1.08}.card{padding:12px}.top{padding:10px}.balance{font-size:12px;padding:8px}.brand{gap:8px}.brand h1{font-size:16px}.badge{width:40px;height:40px;font-size:16px}.nav{gap:5px}.nav button{font-size:11px;padding:10px 2px}.home-balance{padding:15px}.payment-methods{grid-template-columns:1fr}.method{padding:10px}.method-arrow{display:block;margin-left:auto;color:#4be5f6;font-size:20px}.action-card{padding:12px 10px}.action-card strong{font-size:13px}.payment-heading{flex-direction:column;gap:8px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}}
 
-.payment-modal-backdrop{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;background:#000b;backdrop-filter:blur(8px)}.payment-modal-backdrop.open{display:flex;animation:riseIn .2s ease both}.payment-modal{width:min(100%,460px);max-height:90vh;overflow:auto;padding:18px;border:1px solid #8a6926;border-radius:20px;background:radial-gradient(ellipse at 100% 0%,#3a2c10 0,transparent 48%),linear-gradient(145deg,#121a16,#070b09);box-shadow:0 24px 80px #000b}.payment-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.payment-modal-head h3{margin:0;color:#ffdc78;font-size:20px}.modal-close{width:38px;height:38px;border-radius:10px;border:1px solid #4a503e;background:#0b100e;color:#fff;font-size:22px}.payment-method-choice{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid #3d5946;border-radius:13px;background:#0b1711;margin:12px 0 16px}.payment-method-choice .method-mark{width:40px;height:40px;font-size:18px}.payment-method-choice strong{display:block;color:#f6e8b8}.payment-method-choice small{display:block;color:#9ba99f;margin-top:3px}.payment-modal label{display:block;color:#d8d0b5;font-size:13px;margin:12px 0 7px}.payment-modal input{width:100%;padding:13px;border:1px solid #5b4a20;border-radius:11px;background:#050908;color:#fff;font:inherit;font-weight:800}.amount-shortcuts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:9px}.amount-shortcuts button{padding:9px 5px;border:1px solid #6b521e;border-radius:9px;background:#211a0a;color:#ffdc78;font-weight:800}.payment-demo-warning{padding:11px;border:1px solid #6a501e;border-radius:11px;background:#211908;color:#f2d995;font-size:11px;line-height:1.55;margin:14px 0}.payment-feedback{display:none;padding:11px;border:1px solid #167c4b;border-radius:10px;background:#092217;color:#c9ffe0;font-size:12px;line-height:1.5;margin-top:12px}.payment-feedback.show{display:block}.payment-modal .greenbtn{font-size:15px;padding:13px}.payment-modal .sub{line-height:1.5;margin-bottom:10px}
+.payment-modal-backdrop{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;background:#000b;backdrop-filter:blur(8px)}.payment-modal-backdrop.open{display:flex;animation:riseIn .2s ease both}.payment-modal{width:min(100%,460px);max-height:90vh;overflow:auto;padding:18px;border:1px solid #8d2384;border-radius:20px;background:radial-gradient(ellipse at 100% 0%,#1b103a 0,transparent 48%),linear-gradient(145deg,#110c20,#07050d);box-shadow:0 24px 80px #000b}.payment-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.payment-modal-head h3{margin:0;color:#78f1ff;font-size:20px}.modal-close{width:38px;height:38px;border-radius:10px;border:1px solid #4a503e;background:#0a0714;color:#fff;font-size:22px}.payment-method-choice{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid #3d5946;border-radius:13px;background:#0d0919;margin:12px 0 16px}.payment-method-choice .method-mark{width:40px;height:40px;font-size:18px}.payment-method-choice strong{display:block;color:#b3f4fb}.payment-method-choice small{display:block;color:#9ba99f;margin-top:3px}.payment-modal label{display:block;color:#94eff9;font-size:13px;margin:12px 0 7px}.payment-modal input{width:100%;padding:13px;border:1px solid #351f5c;border-radius:11px;background:#05040a;color:#fff;font:inherit;font-weight:800}.amount-shortcuts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:9px}.amount-shortcuts button{padding:9px 5px;border:1px solid #6e1b67;border-radius:9px;background:#100a21;color:#78f1ff;font-weight:800}.payment-demo-warning{padding:11px;border:1px solid #6d1b66;border-radius:11px;background:#0e0821;color:#8eeef9;font-size:11px;line-height:1.55;margin:14px 0}.payment-feedback{display:none;padding:11px;border:1px solid #167c4b;border-radius:10px;background:#0f0922;color:#c9ffe0;font-size:12px;line-height:1.5;margin-top:12px}.payment-feedback.show{display:block}.payment-modal .greenbtn{font-size:15px;padding:13px}.payment-modal .sub{line-height:1.5;margin-bottom:10px}
 
 
-.account-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.account-tab{padding:11px;border:1px solid #51421f;border-radius:10px;background:#0b100f;color:#d8cfb7;font-weight:800}.account-tab.active{border-color:var(--gold);color:var(--gold);background:linear-gradient(135deg,#2b210c,#0b100f);box-shadow:0 0 12px #ffb00020}.account-card{margin-bottom:13px}.account-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.account-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.account-form label{display:grid;gap:6px;color:#d9d2bb;font-size:12px}.account-form input{width:100%;min-width:0;background:#060a09;border:1px solid #55451c;border-radius:9px;padding:11px;color:#fff;font:inherit}.account-form input:focus{outline:1px solid var(--gold);border-color:var(--gold)}.account-form button{grid-column:1/-1}.account-help{font-size:11px;color:#9eaaa0;line-height:1.5;margin:11px 0 0}.account-feedback{font-size:12px;line-height:1.5;color:#ffe29a;margin:9px 0 0;min-height:0}.account-feedback:empty{display:none}.account-status{color:#c9ffe0;font-size:13px;line-height:1.5}@media(max-width:560px){.account-form{grid-template-columns:1fr}}
+.account-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.account-tab{padding:11px;border:1px solid #311c54;border-radius:10px;background:#0a0714;color:#96eff9;font-weight:800}.account-tab.active{border-color:var(--gold);color:var(--gold);background:linear-gradient(135deg,#140c2b,#0a0714);box-shadow:0 0 12px #00e5ff20}.account-card{margin-bottom:13px}.account-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.account-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.account-form label{display:grid;gap:6px;color:#9af0fa;font-size:12px}.account-form input{width:100%;min-width:0;background:#06040c;border:1px solid #311c55;border-radius:9px;padding:11px;color:#fff;font:inherit}.account-form input:focus{outline:1px solid var(--gold);border-color:var(--gold)}.account-form button{grid-column:1/-1}.account-help{font-size:11px;color:#9eaaa0;line-height:1.5;margin:11px 0 0}.account-feedback{font-size:12px;line-height:1.5;color:#9af5ff;margin:9px 0 0;min-height:0}.account-feedback:empty{display:none}.account-status{color:#c9ffe0;font-size:13px;line-height:1.5}@media(max-width:560px){.account-form{grid-template-columns:1fr}}
 #homePanel .home-balance{display:none!important}
 
 /* Recent draw and leaderboard visual cards */
-#recentGamesBody tr{background:linear-gradient(100deg,#10251b,#101714);border-top:1px solid #286044!important}
+#recentGamesBody tr{background:linear-gradient(100deg,#150f26,#0f0b1c);border-top:1px solid #286044!important}
 #recentGamesBody td{padding:12px 8px!important;vertical-align:middle!important}
-#recentGamesBody td:first-child{color:#ffdf83!important;font-weight:900;white-space:nowrap}
+#recentGamesBody td:first-child{color:#83f3ff!important;font-weight:900;white-space:nowrap}
 #recentGamesBody td:last-child{color:#a8ffd0!important;font-weight:800}
 .draw-number-list{display:flex;flex-wrap:wrap;gap:5px;min-width:210px}
-.draw-number-chip{width:29px;height:29px;display:inline-grid;place-items:center;border-radius:50%;background:radial-gradient(circle at 32% 25%,#fff1ad,#ffc02e 58%,#9a5700);border:1px solid #ffe18a;color:#241700;font-size:11px;font-weight:950;box-shadow:0 2px 7px #0007,0 0 8px #ffb00035}
-#leaderboardBody tr{background:linear-gradient(100deg,#14231a,#0c1210);border-top:1px solid #344b37!important}
-#leaderboardBody tr:nth-child(1){background:linear-gradient(100deg,#49360d,#201a0d);outline:1px solid #c99b32}
-#leaderboardBody tr:nth-child(2){background:linear-gradient(100deg,#26343a,#11191c)}
-#leaderboardBody tr:nth-child(3){background:linear-gradient(100deg,#3c281b,#17110d)}
+.draw-number-chip{width:29px;height:29px;display:inline-grid;place-items:center;border-radius:50%;background:radial-gradient(circle at 32% 25%,#adf7ff,#2eeaff 58%,#9a008d);border:1px solid #8af3ff;color:#090024;font-size:11px;font-weight:950;box-shadow:0 2px 7px #0007,0 0 8px #00e5ff35}
+#leaderboardBody tr{background:linear-gradient(100deg,#150f28,#0c0816);border-top:1px solid #344b37!important}
+#leaderboardBody tr:nth-child(1){background:linear-gradient(100deg,#230d49,#110c21);outline:1px solid #c932bc}
+#leaderboardBody tr:nth-child(2){background:linear-gradient(100deg,#26343a,#110c21)}
+#leaderboardBody tr:nth-child(3){background:linear-gradient(100deg,#261641,#0e0a1a)}
 #leaderboardBody td{padding:12px 9px!important;vertical-align:middle!important}
-#leaderboardBody td:first-child{font-weight:1000;color:#ffdf83!important;width:42px}
-#leaderboardBody td:nth-child(2){font-weight:800;color:#f3f0df!important}
+#leaderboardBody td:first-child{font-weight:1000;color:#83f3ff!important;width:42px}
+#leaderboardBody td:nth-child(2){font-weight:800;color:#d5f9fd!important}
 #leaderboardBody td:last-child{font-weight:950;color:#a8ffd0!important;text-align:right}
 #recentGamesBody tr:hover,#leaderboardBody tr:hover{filter:brightness(1.18)}
 
 
-.stake-bal{float:right;color:#ffdf83;font-size:12px;font-weight:800}
+.stake-bal{float:right;color:#83f3ff;font-size:12px;font-weight:800}
 .stake-note{font-size:11px;color:#9eaa9f;line-height:1.45;margin-top:6px}
-.quick button.on{border-color:var(--gold);color:#ffdf83;background:#2a210b}
-.paytable{margin-top:12px;border:1px solid #4d401e;border-radius:12px;background:#0b1110;overflow:hidden}
-.paytable-head{display:flex;justify-content:space-between;padding:8px 10px;font-size:11px;color:#d9c47c;letter-spacing:.6px;font-weight:800;background:#17170e}
-.paytable-row{display:flex;justify-content:space-between;padding:7px 10px;font-size:12px;border-top:1px solid #ffffff12;color:#e9e5d5}
-.paytable-row b{color:#ffdf83}
-.paytable-row.hit{background:#10372a;color:#b8f7d2}
+.quick button.on{border-color:var(--gold);color:#83f3ff;background:#130b2a}
+.paytable{margin-top:12px;border:1px solid #2e1b50;border-radius:12px;background:#0b0814;overflow:hidden}
+.paytable-head{display:flex;justify-content:space-between;padding:8px 10px;font-size:11px;color:#5ee7f7;letter-spacing:.6px;font-weight:800;background:#0e0a1b}
+.paytable-row{display:flex;justify-content:space-between;padding:7px 10px;font-size:12px;border-top:1px solid #ffffff12;color:#c2f6fc}
+.paytable-row b{color:#83f3ff}
+.paytable-row.hit{background:#1a1037;color:#b8f7d2}
 .paytable-empty{padding:10px;font-size:11px;color:#9eaa9f}
-.topup-btn{display:none;width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid #315e51;background:#10372a;color:#b8f7d2;font-weight:800}
+.topup-btn{display:none;width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid #315e51;background:#1a1037;color:#b8f7d2;font-weight:800}
 .topup-btn.show{display:block}
 .win-line{color:#19dc83;font-weight:900}.lose-line{color:#ff8a8a;font-weight:800}
-.entries{margin-top:12px;border:1px solid #315e51;border-radius:12px;background:#0a1511;overflow:hidden}
-.entries-head{display:flex;justify-content:space-between;padding:8px 10px;font-size:11px;color:#b8f7d2;letter-spacing:.6px;font-weight:800;background:#10372a}
+.entries{margin-top:12px;border:1px solid #315e51;border-radius:12px;background:#0c0916;overflow:hidden}
+.entries-head{display:flex;justify-content:space-between;padding:8px 10px;font-size:11px;color:#b8f7d2;letter-spacing:.6px;font-weight:800;background:#1a1037}
 .entries>.entry-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-top:1px solid #ffffff12}
 .entries{max-height:240px;overflow-y:auto}
-.entry-info{min-width:0}.entry-info strong{display:block;font-size:12px;color:#ffdf83}.entry-info small{display:block;font-size:10px;color:#9eaa9f;margin-top:2px;overflow-wrap:anywhere}
-.entry-x{flex-shrink:0;width:30px;height:30px;border-radius:8px;border:1px solid #6b3a3a;background:#2a1313;color:#ff9a9a;font-weight:900}
+.entry-info{min-width:0}.entry-info strong{display:block;font-size:12px;color:#83f3ff}.entry-info small{display:block;font-size:10px;color:#9eaa9f;margin-top:2px;overflow-wrap:anywhere}
+.entry-x{flex-shrink:0;width:30px;height:30px;border-radius:8px;border:1px solid #6b3a3a;background:#18112c;color:#ff9a9a;font-weight:900}
 .result-list{max-height:220px;overflow-y:auto;margin-top:8px;border-top:1px solid #ffffff18}
 .result-row{padding:7px 0;border-bottom:1px solid #ffffff10;font-size:12px}
 
 /* Payment UI is visible; actual payment processing requires the secure Supabase Edge Functions described in the setup notes. */
 #stakeNote{font-size:12px;color:#b8f7d2}
+
+/* ===== Keno X neon theme ===== */
+:root{--gold:#3df2ff;--gold2:#ff3df0;--neon-c:#3df2ff;--neon-m:#ff3df0;--neon-v:#a77bff;--neon-g:#00ff9d}
+body{background:radial-gradient(ellipse at 50% -10%,#2a1260 0,#0b0720 42%,#04030d 80%)}
+body:before{opacity:.16;background-image:linear-gradient(#3df2ff 1px,transparent 1px),linear-gradient(90deg,#ff3df0 1px,transparent 1px);background-size:46px 46px;mask-image:linear-gradient(to bottom,black,transparent 75%)}
+button{transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease,filter .28s ease,border-color .28s ease,background-color .28s ease,color .28s ease}
+button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabled){transform:translateY(0) scale(.97)}
+.brand h1,.card h3{text-shadow:0 0 10px #3df2ff88,0 0 22px #3df2ff40}
+.hero h2{filter:drop-shadow(0 0 14px #3df2ff90) drop-shadow(0 0 30px #ff3df045)}
+.badge{box-shadow:0 0 16px #3df2ff90,0 0 34px #ff3df050,inset 0 0 12px #3df2ff40;text-shadow:0 0 12px #3df2ff}
+.top,.hero,.card{box-shadow:0 10px 30px #0008,0 0 22px #3df2ff22,inset 0 0 0 1px #ff3df014}
+.top:after{background:linear-gradient(90deg,transparent,#3df2ff,#ff3df0,transparent);box-shadow:0 0 12px #3df2ff}
+.num{transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease,background .28s ease,border-color .28s ease,filter .2s ease;border-color:#27408a}
+.num:hover{border-color:#3df2ff;box-shadow:0 0 14px #3df2ff90;transform:translateY(-2px) scale(1.04)}
+.num.selected{border-color:#fff;box-shadow:0 0 10px #ff3df0,0 0 24px #3df2ff90,inset 0 1px #fff9;animation:neonPulse 1.6s ease-in-out infinite;transform:scale(1.04)}
+.num.drawn{box-shadow:0 0 12px #00ff9d90,0 0 26px #00ff9d40;animation:ballPop .45s ease both}
+.num.hit{background:linear-gradient(145deg,#fff,#3df2ff 55%,#ff3df0);color:#10062a;border-color:#fff;box-shadow:0 0 14px #fff,0 0 30px #3df2ff,0 0 52px #ff3df0;animation:hitPop .55s cubic-bezier(.2,.8,.2,1) both,hitGlow 1.1s ease-in-out .55s infinite alternate;z-index:1;position:relative}
+.drawballs>*{animation:ballPop .45s ease both;box-shadow:0 0 14px #3df2ff90}
+.result.show{animation:riseIn .4s ease both}
+.nav button.active{box-shadow:0 0 16px #3df2ff90;text-shadow:0 0 10px #3df2ff}
+.win-line{text-shadow:0 0 10px #00ff9d90}
+@keyframes neonPulse{0%,100%{box-shadow:0 0 8px #ff3df0,0 0 18px #3df2ff70,inset 0 1px #fff9}50%{box-shadow:0 0 16px #ff3df0,0 0 34px #3df2ff,inset 0 1px #fff}}
+@keyframes hitPop{0%{transform:scale(1)}40%{transform:scale(1.3) rotate(-4deg)}100%{transform:scale(1.08)}}
+@keyframes hitGlow{from{box-shadow:0 0 12px #fff,0 0 26px #3df2ff,0 0 44px #ff3df0}to{box-shadow:0 0 18px #fff,0 0 40px #3df2ff,0 0 72px #ff3df0}}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
 <div class="app">
   <div id="emailConfirmedBanner" role="status" aria-live="polite" hidden style="position:fixed;inset:0;z-index:20000;display:none;align-items:center;justify-content:center;padding:20px;background:#000c;backdrop-filter:blur(8px)">
-    <div style="max-width:420px;width:100%;text-align:center;padding:28px 22px;border:1px solid #167c4b;border-radius:20px;background:linear-gradient(145deg,#0f2a1d,#070b09);box-shadow:0 24px 80px #000b">
+    <div style="max-width:420px;width:100%;text-align:center;padding:28px 22px;border:1px solid #167c4b;border-radius:20px;background:linear-gradient(145deg,#160f2a,#07050d);box-shadow:0 24px 80px #000b">
       <div style="font-size:54px;line-height:1">✅</div>
       <h2 style="margin:12px 0 8px;color:#a8ffd0;font-size:22px">Your email confirmation is done successfully</h2>
-      <p style="margin:0 0 18px;color:#c9d6cc;font-size:14px;line-height:1.5">Thank you! Your Habesha Keno account is now verified. You can sign in and start playing.</p>
+      <p style="margin:0 0 18px;color:#c9d6cc;font-size:14px;line-height:1.5">Thank you! Your Keno X account is now verified. You can sign in and start playing.</p>
       <button type="button" id="emailConfirmedBtn" class="goldbtn" style="width:100%">Continue to Login</button>
     </div>
   </div>
   <header class="top">
-    <div class="brand"><div class="badge">HK</div><div><h1>Habesha Keno</h1><small id="platformLabel">Telegram Mini App • Demo</small></div></div>
+    <div class="brand"><div class="badge">KX</div><div><h1>Keno X</h1><small id="platformLabel">Telegram Mini App • Demo</small></div></div>
   </header>
-  <section class="hero" id="siteHero"><h2>HABESHA KENO</h2><p>✦ PLAY • MATCH • CELEBRATE ✦</p></section>
+  <section class="hero" id="siteHero"><h2>KENO X</h2><p>✦ PLAY • MATCH • CELEBRATE ✦</p></section>
   <section id="homePanel" class="home-panel" hidden>
     <div class="home-balance card">
       <div class="balance-top"><span class="eyebrow">YOUR AVAILABLE BALANCE</span><span class="demo-tag" id="modeBadge">REAL MODE</span></div>
@@ -96,7 +121,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
       <div class="balance-foot"><span>🔒 Secure wallet</span><button class="refresh-btn" id="refreshBalance" type="button">↻ Refresh</button></div>
     </div>
     <section class="card how-to-card">
-      <h3>🎮 How to play Habesha Keno</h3>
+      <h3>🎮 How to play Keno X</h3>
       <p class="sub" style="margin-top:-5px;line-height:1.5">Learn the basics in a few quick steps.</p>
       <ol class="how-to-list">
         <li><span class="step-number">1</span><div><strong>Open Keno</strong><p>Tap <b>Keno</b> in the bottom navigation.</p></div></li>
@@ -112,7 +137,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
       <div id="walletBalanceSlot" hidden></div>
       <section id="walletAccountSlot">
   <section class="card account-card" id="accountCard" style="margin-top:14px">
-    <div class="account-head"><div><h3>👤 Player account</h3><p class="sub" style="margin:0">Sign in or create your Habesha Keno account.</p></div><span class="soon-tag">ACCOUNT</span></div>
+    <div class="account-head"><div><h3>👤 Player account</h3><p class="sub" style="margin:0">Sign in or create your Keno X account.</p></div><span class="soon-tag">ACCOUNT</span></div>
     <div id="accountSignedOut">
       <div class="account-tabs" role="tablist" aria-label="Account options">
         <button type="button" class="account-tab active" id="loginTabBtn" role="tab" aria-selected="true" aria-controls="loginPanel">Login</button>
@@ -203,14 +228,14 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
     <section class="card" style="margin-bottom:14px">
       <h3>🏆 Recent Keno Draw</h3>
       <p class="sub">Results only — usernames, drawn numbers and winners below are fictional, real player records.</p>
-      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:440px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">20 drawn numbers</th><th style="padding:10px 6px">Winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="3" style="padding:12px 6px;color:#9aaba5">No completed demo games yet. The first result will appear here.</td></tr></tbody></table></div>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:440px"><thead><tr style="color:#5ee7f7;text-align:left"><th style="padding:10px 6px">Game</th><th style="padding:10px 6px">20 drawn numbers</th><th style="padding:10px 6px">Winner</th></tr></thead><tbody id="recentGamesBody"><tr><td colspan="3" style="padding:12px 6px;color:#9aaba5">No completed demo games yet. The first result will appear here.</td></tr></tbody></table></div>
       <button type="button" class="greenbtn leaderboard-toggle" id="recentGamesToggle" style="margin-top:12px" hidden>See more</button>
     </section>
     <section class="card">
       <h3>🥇 Top 12 leaderboard</h3>
       <p class="sub">Fictional sample usernames only • daily balance • real-player accounts are shown.</p>
       <div class="stake-note" id="leaderboardStatus" style="margin:0 0 10px">Loading…</div>
-      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#d9c47c;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Number of Wins</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:300px"><thead><tr style="color:#5ee7f7;text-align:left"><th style="padding:10px 6px">#</th><th style="padding:10px 6px">Username</th><th style="padding:10px 6px">Number of Wins</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div>
       <button type="button" class="greenbtn leaderboard-toggle" id="leaderboardToggle" style="margin-top:12px" hidden>See more</button>
     </section>
   </section>
@@ -229,7 +254,7 @@ button{font:inherit;cursor:pointer}.app{max-width:980px;margin:auto;min-height:1
   </div>
 
   <nav class="nav"><button id="homeNav">⌂ Home</button><button id="kenoNav">▦ Keno</button><button id="walletNav" class="active">▣ Wallet</button><button id="leaderNav">♜ Leaderboard</button></nav>
-  <div class="foot">Habesha Keno • Local prototype • Virtual balance and activity are saved in this browser only</div>
+  <div class="foot">Keno X • Local prototype • Virtual balance and activity are saved in this browser only</div>
 </div>
 <script>
 // Initialize Supabase before any account or admin code can reference it.
@@ -246,8 +271,8 @@ if (tg) {
   tg.ready();
   tg.expand();
   try {
-    tg.setHeaderColor('#080d0c');
-    tg.setBackgroundColor('#070b0b');
+    tg.setHeaderColor('#08060f');
+    tg.setBackgroundColor('#07050d');
   } catch (e) {}
   document.getElementById('platformLabel').textContent = 'Telegram Mini App • Keno Betting';
 } else {
@@ -463,7 +488,7 @@ async function recordStakeOnline(){
 function setSync(ok,msg){
   const el=document.getElementById('syncStatus');if(!el)return;
   if(!walletUserId){el.hidden=true;return}
-  el.hidden=false;el.textContent=msg;el.style.color=ok?'#19dc83':'#ffb86b';
+  el.hidden=false;el.textContent=msg;el.style.color=ok?'#19dc83':'#6bf0ff';
 }
 // Wins and losses are sent to the server as CHANGES (+/-), applied on top of the current server balance,
 // so points an admin added or deducted in the meantime are never overwritten. Unsent changes are kept and retried.
@@ -597,10 +622,10 @@ function renderWalletHistory(){
   walletHistory.forEach(item=>{
     const row=document.createElement('div');row.style.cssText='display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:11px 0;border-top:1px solid #ffffff18;';
     const left=document.createElement('div');left.style.minWidth='0';
-    const title=document.createElement('strong');title.style.cssText='display:block;color:#f5e7bd;font-size:13px';title.textContent=item.type;
+    const title=document.createElement('strong');title.style.cssText='display:block;color:#b7f4fb;font-size:13px';title.textContent=item.type;
     const detail=document.createElement('small');detail.style.cssText='display:block;color:#9eaa9f;font-size:11px;margin-top:4px';detail.textContent=item.details+' · '+new Date(item.createdAt).toLocaleString();
     left.append(title,detail);
-    const right=document.createElement('div');right.style.cssText='text-align:right;color:#ffdf83;font-weight:800;font-size:12px;white-space:nowrap';
+    const right=document.createElement('div');right.style.cssText='text-align:right;color:#83f3ff;font-weight:800;font-size:12px;white-space:nowrap';
     right.textContent=(item.amount>0?'+':'')+fmt(item.amount)+' credits';
     const bal=document.createElement('small');bal.style.cssText='display:block;color:#9eaa9f;font-weight:500;margin-top:4px';bal.textContent='Balance: '+fmt(item.balance);right.appendChild(bal);row.append(left,right);host.appendChild(row);
   });
@@ -755,7 +780,7 @@ window.renderRecentGames = function renderRecentGames(){
         const td=document.createElement('td');
         td.style.padding='10px 6px';
         td.style.verticalAlign='top';
-        td.style.color=i===2?'#ffdf83':'#e9e5d5';
+        td.style.color=i===2?'#83f3ff':'#c2f6fc';
         td.textContent=value;
         tr.appendChild(td);
       });
@@ -804,7 +829,7 @@ tr.style.borderTop = '1px solid #ffffff18';
 [String(rank), name, Number(points).toLocaleString('en-US')].forEach((value, j) => {
   const td = document.createElement('td');
   td.style.padding = '10px 6px';
-  td.style.color = j === 0 ? '#ffdf83' : '#e9e5d5';
+  td.style.color = j === 0 ? '#83f3ff' : '#c2f6fc';
   td.textContent = value;
   tr.appendChild(td);
 });
@@ -964,15 +989,15 @@ document.getElementById('homeNav').onclick=()=>showTab('home');
 document.getElementById('kenoNav').onclick=()=>showTab('keno');
 document.getElementById('walletNav').onclick=()=>showTab('wallet');
 document.getElementById('leaderNav').onclick=()=>showTab('leader');
-    // Always open the Wallet tab when Habesha Keno launches
+    // Always open the Wallet tab when Keno X launches
 document.addEventListener('DOMContentLoaded', function () {
   showTab('wallet');
 });
 function openTelegramAdmin(action='general'){
   const messages={
-    deposit:'Hello admin, I would like to make a deposit to my Habesha Keno wallet.',
-    withdraw:'Hello admin, I would like to request a withdrawal from my Habesha Keno wallet.',
-    general:'Hello admin, I need help with Habesha Keno.'
+    deposit:'Hello admin, I would like to make a deposit to my Keno X wallet.',
+    withdraw:'Hello admin, I would like to request a withdrawal from my Keno X wallet.',
+    general:'Hello admin, I need help with Keno X.'
   };
   const message=messages[action]||messages.general;
   window.open('https://t.me/habesha_keno?text='+encodeURIComponent(message),'_blank','noopener');
@@ -1005,7 +1030,7 @@ document.querySelectorAll('[data-demo-amount]').forEach(b=>b.onclick=()=>{paymen
 function showPaymentMessage(message,isError=false){
   paymentFeedback.textContent=message;
   paymentFeedback.style.borderColor=isError?'#a74747':'#167c4b';
-  paymentFeedback.style.background=isError?'#2a1111':'#092217';
+  paymentFeedback.style.background=isError?'#17102b':'#0f0922';
   paymentFeedback.style.color=isError?'#ffd0d0':'#c9ffe0';
   paymentFeedback.classList.add('show');
 }
@@ -1022,7 +1047,7 @@ document.getElementById('confirmDemoPayment').onclick=async()=>{
     const {data:sessionData,error:sessionError}=await supabaseClient.auth.getSession();
     if(sessionError)throw sessionError;
     if(!sessionData?.session){
-      showPaymentMessage('Please sign in to your Habesha Keno account before making a payment.',true);return;
+      showPaymentMessage('Please sign in to your Keno X account before making a payment.',true);return;
     }
     if(paymentAction==='deposit'){
       // The Edge Function must create a provider checkout session using server-held credentials.
@@ -1074,7 +1099,7 @@ function setAccountTab(tab){
 }
 document.getElementById('loginTabBtn').addEventListener('click',()=>setAccountTab('login'));
 document.getElementById('registerTabBtn').addEventListener('click',()=>setAccountTab('register'));
-function accountMessage(message,isError=false){accountFeedback.textContent=message;accountFeedback.style.color=isError?'#ffb2a8':'#ffe29a';}
+function accountMessage(message,isError=false){accountFeedback.textContent=message;accountFeedback.style.color=isError?'#ffb2a8':'#9af5ff';}
 async function showAccountSession(session) {
   if(!session){walletUserId=null;adminPointsBalance=0;walletHistory=[];balance=1000;try{localStorage.removeItem(WALLET_BALANCE_KEY);}catch(_){}setSync(true,'');if(typeof renderModeBalance==='function')renderModeBalance();}
   const walletHistoryCard=document.getElementById('walletHistoryCard');
@@ -1134,7 +1159,7 @@ async function checkAdminAccess() {
     adminButton.textContent = "Admin Dashboard";
 
     adminButton.style.cssText =
-      "position:fixed;bottom:20px;right:20px;padding:14px;background:#c9a227;color:#111;border:0;border-radius:10px;z-index:9999;cursor:pointer;";
+      "position:fixed;bottom:20px;right:20px;padding:14px;background:#c927bb;color:#111;border:0;border-radius:10px;z-index:9999;cursor:pointer;";
 
     adminButton.addEventListener("click", () => {
       loadAdminDashboard();
@@ -1254,19 +1279,19 @@ function renderAdminDashboard(){
   const totalAdmin=players.reduce((t,p)=>t+Number(p.admin_points||0),0);
   const games=players.reduce((t,p)=>t+Number(p.games_played||0),0);
   const cards=[['Total Players',players.length],['Total Games Played',games],['All Players\' Balance',pts(totalAll)],['Average Per Player',pts(players.length?totalAll/players.length:0)]];
-  document.getElementById('adminSummary').innerHTML=cards.map(([k,v])=>`<div style="background:#252525;padding:15px;border-radius:10px;flex:1;min-width:140px"><h3 style="margin:0 0 6px;font-size:13px;color:#d9c47c">${k}</h3><h2 style="margin:0">${v}</h2></div>`).join('');
+  document.getElementById('adminSummary').innerHTML=cards.map(([k,v])=>`<div style="background:#1d1436;padding:15px;border-radius:10px;flex:1;min-width:140px"><h3 style="margin:0 0 6px;font-size:13px;color:#5ee7f7">${k}</h3><h2 style="margin:0">${v}</h2></div>`).join('');
   const q=adminState.search.toLowerCase();
   const list=players.filter(p=>((p.username||'')+' '+(p.email||'')).toLowerCase().includes(q));
   if(adminState.sort==='points')list.sort((x,y)=>playerTotal(y)-playerTotal(x));
   else if(adminState.sort==='name')list.sort((x,y)=>String(x.username||'').localeCompare(String(y.username||'')));
   else list.sort((x,y)=>new Date(y.created_at||0)-new Date(x.created_at||0));
   document.getElementById('playerList').innerHTML=list.map((player,i)=>`
-    <div style="padding:12px;border-bottom:1px solid #555;${(adminState.flashId===player.id||(adminState.changed[player.id]&&Date.now()-adminState.changed[player.id].at<8000))?'background:#10372a;transition:background .6s;':''}">
+    <div style="padding:12px;border-bottom:1px solid #555;${(adminState.flashId===player.id||(adminState.changed[player.id]&&Date.now()-adminState.changed[player.id].at<8000))?'background:#1a1037;transition:background .6s;':''}">
       <strong>#${i+1} ${escHtml(player.username||'No username')}</strong>${(adminState.changed[player.id]&&adminState.changed[player.id].delta)?` <span style="font-size:12px;font-weight:800;color:${adminState.changed[player.id].delta>=0?'#19dc83':'#ff8a8a'}">${adminState.changed[player.id].delta>=0?'▲ +':'▼ −'}${pts(Math.abs(adminState.changed[player.id].delta))} • last result ${new Date(adminState.changed[player.id].at).toLocaleTimeString()}</span>`:''}
       <p style="margin:4px 0">${escHtml(player.email||'No email')}</p>
       <p style="margin:4px 0">Games Played: ${player.games_played??0}</p>
-      <p style="margin:4px 0;font-size:16px;color:#ffdf83">Balance: <b>${pts(player.practice_balance)}</b> <small style="color:#a8b4aa">(the balance this player stakes with)</small></p>
-      ${Number(player.staked_now||0)>0?`<p style="margin:4px 0;color:#ffcf66;font-weight:800">🎟 Staked this round: ${pts(player.staked_now)} (${player.entries_now||0} entr${Number(player.entries_now)===1?'y':'ies'}) — balance changes after the draw. After this stake: ${pts(Math.max(0,Number(player.practice_balance||0)-Number(player.staked_now)))}</p>`:''}
+      <p style="margin:4px 0;font-size:16px;color:#83f3ff">Balance: <b>${pts(player.practice_balance)}</b> <small style="color:#a8b4aa">(the balance this player stakes with)</small></p>
+      ${Number(player.staked_now||0)>0?`<p style="margin:4px 0;color:#66f0ff;font-weight:800">🎟 Staked this round: ${pts(player.staked_now)} (${player.entries_now||0} entr${Number(player.entries_now)===1?'y':'ies'}) — balance changes after the draw. After this stake: ${pts(Math.max(0,Number(player.practice_balance||0)-Number(player.staked_now)))}</p>`:''}
       ${Number(player.admin_points||0)>0?`<p style="margin:4px 0;color:#a8b4aa"><small>Older admin-assigned points (not used for staking): ${pts(player.admin_points)}</small></p>`:''}
       <button onclick="adjustAdminPoints('${escHtml(player.id)}','ADD')" style="background:#16834a;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;">+ Add Balance</button>
       <button onclick="adjustAdminPoints('${escHtml(player.id)}','DEDUCT')" style="background:#a83232;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;margin-left:5px;">- Deduct Balance</button>
@@ -1274,7 +1299,7 @@ function renderAdminDashboard(){
       <small>Joined: ${player.created_at?new Date(player.created_at).toLocaleDateString():'—'}</small>
     </div>`).join('')||'<p>No players found.</p>';
   const la=document.getElementById('liveActivity');
-  if(la)la.innerHTML=adminState.activity.length?adminState.activity.map(a=>a.kind==='stake'?`<div style="padding:8px 0;border-bottom:1px solid #444;font-size:13px"><span style="color:#a8b4aa">${new Date(a.at).toLocaleTimeString()}</span> • <b>${escHtml(a.name)}</b> <span style="color:#ffcf66">staked ${pts(a.amount)}</span> (${a.entries} entr${a.entries===1?'y':'ies'}) — waiting for the draw</div>`:`<div style="padding:8px 0;border-bottom:1px solid #444;font-size:13px"><span style="color:#a8b4aa">${new Date(a.at).toLocaleTimeString()}</span> • <b>${escHtml(a.name)}</b> ${a.delta>=0?'<span style="color:#19dc83">gained +':'<span style="color:#ff8a8a">lost −'}${pts(Math.abs(a.delta))}</span> (${pts(a.from)} → ${pts(a.to)})</div>`).join(''):'<p style="color:#a8b4aa;font-size:13px">No changes yet — waiting for players to finish a draw.</p>';
+  if(la)la.innerHTML=adminState.activity.length?adminState.activity.map(a=>a.kind==='stake'?`<div style="padding:8px 0;border-bottom:1px solid #444;font-size:13px"><span style="color:#a8b4aa">${new Date(a.at).toLocaleTimeString()}</span> • <b>${escHtml(a.name)}</b> <span style="color:#66f0ff">staked ${pts(a.amount)}</span> (${a.entries} entr${a.entries===1?'y':'ies'}) — waiting for the draw</div>`:`<div style="padding:8px 0;border-bottom:1px solid #444;font-size:13px"><span style="color:#a8b4aa">${new Date(a.at).toLocaleTimeString()}</span> • <b>${escHtml(a.name)}</b> ${a.delta>=0?'<span style="color:#19dc83">gained +':'<span style="color:#ff8a8a">lost −'}${pts(Math.abs(a.delta))}</span> (${pts(a.from)} → ${pts(a.to)})</div>`).join(''):'<p style="color:#a8b4aa;font-size:13px">No changes yet — waiting for players to finish a draw.</p>';
   const txCut=getTxClearedAt();
   const tx=txCut?adminState.transactions.filter(t=>new Date(t.created_at).getTime()>txCut):adminState.transactions;
   const clearBtn=document.getElementById('clearTxHistoryBtn');if(clearBtn)clearBtn.hidden=!tx.length;
@@ -1288,7 +1313,7 @@ function renderAdminDashboard(){
       <small>${new Date(t.created_at).toLocaleString()}</small></div>`;
   }).join(''):'<p>No transactions yet.</p>';
   const ln=document.getElementById('adminLiveNote');
-  if(ln){ln.style.color=adminState.live?'#19dc83':'#ffb86b';ln.textContent=adminState.live?'✓ Live data: balances and stakes come straight from the database.':'⚠ Basic data only. For live balances and stakes, run supabase_practice_settlement.sql and add your admin account to keno_admins (see the SQL file).';}
+  if(ln){ln.style.color=adminState.live?'#19dc83':'#6bf0ff';ln.textContent=adminState.live?'✓ Live data: balances and stakes come straight from the database.':'⚠ Basic data only. For live balances and stakes, run supabase_practice_settlement.sql and add your admin account to keno_admins (see the SQL file).';}
   const u=document.getElementById('adminUpdated');
   if(u&&adminState.updatedAt){const d=new Date(adminState.updatedAt);u.textContent=`Updated ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;}
 }
@@ -1381,10 +1406,10 @@ async function loadAdminDashboard() {
     if(!document.getElementById('adminDashboard')){
       const dashboard=document.createElement('div');
       dashboard.id='adminDashboard';
-      dashboard.style.cssText='position:fixed;inset:5%;background:#151515;color:white;padding:20px;border:2px solid #c9a227;border-radius:12px;z-index:10000;overflow:auto;';
+      dashboard.style.cssText='position:fixed;inset:5%;background:#100c1e;color:white;padding:20px;border:2px solid #c927bb;border-radius:12px;z-index:10000;overflow:auto;';
       dashboard.innerHTML=`
         <button id="closeAdmin">Close ✕</button>
-        <h2 style="color:#c9a227">Admin Dashboard</h2>
+        <h2 style="color:#c927bb">Admin Dashboard</h2>
         <div id="adminSummary" style="display:flex;gap:12px;flex-wrap:wrap;margin:20px 0;"></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:15px;">
           <input id="playerSearch" placeholder="Search username or email..." style="padding:10px;flex:1;min-width:180px;">
@@ -1398,11 +1423,11 @@ async function loadAdminDashboard() {
         </div>
         <div id="adminLiveNote" style="font-size:12px;margin:-6px 0 12px"></div>
         <div id="playerList"></div>
-        <h2 style="color:#c9a227;margin-top:25px;">Live player results</h2>
+        <h2 style="color:#c927bb;margin-top:25px;">Live player results</h2>
         <p style="margin:0 0 8px;color:#a8b4aa;font-size:12px">Balance changes seen while this dashboard is open: a player's wins and losses appear here within seconds.</p>
         <div id="liveActivity"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:25px">
-          <h2 style="color:#c9a227;margin:0">Balance Transaction History</h2>
+          <h2 style="color:#c927bb;margin:0">Balance Transaction History</h2>
           <button id="clearTxHistoryBtn" type="button" onclick="clearAdminTransactionHistory()" style="background:#a83232;color:white;padding:8px 12px;border:0;border-radius:6px;cursor:pointer">🗑 Clear history</button>
         </div>
         <div id="transactionList" style="margin-top:8px"></div>`;
@@ -1537,6 +1562,41 @@ window.adjustPracticeBalance = adjustPracticeBalance;
     setAccountTab('login');
     try{showTab('wallet');}catch(_){}
   });
+})();
+</script>
+<script>
+/* Keno X: confetti burst when a round pays out */
+(function(){
+  var res=document.getElementById('result');if(!res)return;
+  var cv=document.createElement('canvas');cv.setAttribute('aria-hidden','true');
+  cv.style.cssText='position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9999';
+  document.body.appendChild(cv);
+  var ctx=cv.getContext('2d'),parts=[],running=false,last=0,COL=['#3df2ff','#ff3df0','#a77bff','#00ff9d','#ffffff'];
+  function size(){cv.width=innerWidth;cv.height=innerHeight}
+  addEventListener('resize',size);size();
+  function frame(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    parts=parts.filter(function(p){return p.life>0&&p.y<cv.height+20});
+    parts.forEach(function(p){
+      p.vy+=.32;p.vx*=.992;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.life--;
+      ctx.save();ctx.globalAlpha=Math.min(1,p.life/30);ctx.translate(p.x,p.y);ctx.rotate(p.rot);
+      ctx.fillStyle=p.c;ctx.shadowColor=p.c;ctx.shadowBlur=8;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();
+    });
+    if(parts.length)requestAnimationFrame(frame);else{running=false;ctx.clearRect(0,0,cv.width,cv.height)}
+  }
+  function burst(){
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    var cx=cv.width/2,cy=cv.height*.38;
+    for(var i=0;i<150;i++){
+      var a=Math.random()*Math.PI*2,sp=4+Math.random()*10;
+      parts.push({x:cx,y:cy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-5,w:6+Math.random()*6,h:4+Math.random()*5,rot:Math.random()*6,vr:(Math.random()-.5)*.4,c:COL[i%COL.length],life:110+Math.random()*60});
+    }
+    if(!running){running=true;requestAnimationFrame(frame)}
+  }
+  new MutationObserver(function(){
+    if(Date.now()-last<4000)return;
+    if(res.querySelector('.win-line')&&res.textContent.indexOf('\u{1F389}')>-1){last=Date.now();burst()}
+  }).observe(res,{childList:true});
 })();
 </script>
 </body></html>
