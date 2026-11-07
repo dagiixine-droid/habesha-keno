@@ -142,6 +142,9 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
 .on-keno #drawStatus{font-size:12px!important}
 .on-keno #result{max-height:92px;overflow-y:auto;font-size:12px;margin-top:4px}
 .on-keno .nav{margin-top:8px}
+.wallet-amount b{display:block;font-size:40px;line-height:1.1;color:#83f3ff;text-shadow:0 0 16px #3df2ff90;font-variant-numeric:tabular-nums;animation:riseIn .4s ease both}
+.wallet-amount small{display:block;margin-top:4px;color:#9aaba5;font-size:12px}
+#walletBalanceCard[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -170,6 +173,10 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
   </section>
   <section id="walletPanel">
     <div class="stack">
+      <section class="card" id="walletBalanceCard" hidden>
+        <h3>💰 Practice points</h3>
+        <div class="wallet-amount"><b id="walletPracticePoints">—</b><small>Your balance — the same points you stake with in Keno</small></div>
+      </section>
       <section class="card" id="telegramRegistrationCard">
         <h3>👤 Telegram account</h3>
         <p id="telegramRegistrationStatus" class="account-status" role="status" aria-live="polite">Checking your Telegram contact registration…</p>
@@ -388,6 +395,7 @@ function renderModeBalance() {
   if (caption) caption.textContent = 'balance';
   const stakeBalance = document.getElementById('stakeBalance');
   if (stakeBalance) { stakeBalance.hidden = !isTelegramRegistered; stakeBalance.textContent = isTelegramRegistered ? 'Practice points: ' + fmt(balance) : ''; }
+  { const wc=document.getElementById('walletBalanceCard'),wb=document.getElementById('walletPracticePoints'); if(wc)wc.hidden=!isTelegramRegistered; if(wb)wb.textContent=isTelegramRegistered?fmt(balance):'—'; }
   if (typeof updateStakeUI === 'function') updateStakeUI();
 }
 
@@ -1021,6 +1029,7 @@ function updateTelegramRegistrationUI(registered, message) {
 
   const walletSlot = document.getElementById('walletBalanceSlot');
   if (walletSlot) walletSlot.hidden = true;
+  { const wc=document.getElementById('walletBalanceCard'),wb=document.getElementById('walletPracticePoints'); if(wc)wc.hidden=!registered; if(wb)wb.textContent=registered?fmt(balance):'—'; }
 
   if (typeof updateStakeUI === 'function') updateStakeUI();
 }
