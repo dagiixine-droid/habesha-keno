@@ -98,11 +98,6 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
 @keyframes hitPop{0%{transform:scale(1)}40%{transform:scale(1.3) rotate(-4deg)}100%{transform:scale(1.08)}}
 @keyframes hitGlow{from{box-shadow:0 0 12px #fff,0 0 26px #3df2ff,0 0 44px #ff3df0}to{box-shadow:0 0 18px #fff,0 0 40px #3df2ff,0 0 72px #ff3df0}}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
-.kx-adj{padding:8px 14px;border-radius:8px;border:1px solid;background:transparent;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:transform .2s,box-shadow .25s,background-color .25s}
-.kx-adj:hover:not(:disabled){transform:translateY(-1px)}.kx-adj:disabled{opacity:.5;cursor:not-allowed}
-.kx-add{color:#19dc83;border-color:#19dc83}.kx-add:hover:not(:disabled){background:#19dc8322;box-shadow:0 0 12px #19dc8366}
-.kx-ded{color:#ff8a8a;border-color:#ff8a8a}.kx-ded:hover:not(:disabled){background:#ff8a8a22;box-shadow:0 0 12px #ff8a8a66}
-#clearTxHistoryBtn[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -1056,110 +1051,63 @@ verifyTelegramRegistration();
 // ---------- Admin dashboard ----------
 // Shows every player's balance (welcome points + admin-assigned points) and updates right after
 // an admin adds or deducts points. It also refreshes itself every 15 seconds while it is open.
-const adminState={players:[],transactions:[],search:'',sort:'points',flashId:null,updatedAt:null,loading:false,timer:null,changed:{},activity:[],stakeSeen:{},live:false};
+const adminState={telegramRegistrations:[],search:'',sort:'newest',updatedAt:null,loading:false,timer:null,error:null};
 const escHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pts=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:2});
 const playerTotal=p=>Number(p.practice_balance||0);
 
 function renderAdminDashboard(){
-  const dash=document.getElementById('adminDashboard');if(!dash)return;
-  const players=adminState.players, byId=new Map(players.map(p=>[p.id,p]));
-  const totalAll=players.reduce((t,p)=>t+playerTotal(p),0);
-  const totalAdmin=players.reduce((t,p)=>t+Number(p.admin_points||0),0);
-  const games=players.reduce((t,p)=>t+Number(p.games_played||0),0);
-  const cards=[['Total Players',players.length],['Total Games Played',games],['All Players\' Balance',pts(totalAll)],['Average Per Player',pts(players.length?totalAll/players.length:0)]];
-  document.getElementById('adminSummary').innerHTML=cards.map(([k,v])=>`<div style="background:#1d1436;padding:15px;border-radius:10px;flex:1;min-width:140px"><h3 style="margin:0 0 6px;font-size:13px;color:#5ee7f7">${k}</h3><h2 style="margin:0">${v}</h2></div>`).join('');
-  const q=adminState.search.toLowerCase();
-  const list=players.filter(p=>((p.username||'')+' '+(p.email||'')).toLowerCase().includes(q));
-  if(adminState.sort==='points')list.sort((x,y)=>playerTotal(y)-playerTotal(x));
-  else if(adminState.sort==='name')list.sort((x,y)=>String(x.username||'').localeCompare(String(y.username||'')));
-  else list.sort((x,y)=>new Date(y.created_at||0)-new Date(x.created_at||0));
-  document.getElementById('playerList').innerHTML=list.map((player,i)=>`
-    <div style="padding:12px;border-bottom:1px solid #555;${(adminState.flashId===player.id||(adminState.changed[player.id]&&Date.now()-adminState.changed[player.id].at<8000))?'background:#1a1037;transition:background .6s;':''}">
-      <strong>#${i+1} ${escHtml(player.username||'No username')}</strong>${(adminState.changed[player.id]&&adminState.changed[player.id].delta)?` <span style="font-size:12px;font-weight:800;color:${adminState.changed[player.id].delta>=0?'#19dc83':'#ff8a8a'}">${adminState.changed[player.id].delta>=0?'▲ +':'▼ −'}${pts(Math.abs(adminState.changed[player.id].delta))} • last result ${new Date(adminState.changed[player.id].at).toLocaleTimeString()}</span>`:''}
-      <p style="margin:4px 0">${escHtml(player.email||'No email')}</p>
-      <p style="margin:4px 0">Games Played: ${player.games_played??0}</p>
-      <p style="margin:4px 0;font-size:16px;color:#83f3ff">Balance: <b>${pts(player.practice_balance)}</b> <small style="color:#a8b4aa">(the balance this player stakes with)</small></p>
-      ${Number(player.staked_now||0)>0?`<p style="margin:4px 0;color:#66f0ff;font-weight:800">🎟 Staked this round: ${pts(player.staked_now)} (${player.entries_now||0} entr${Number(player.entries_now)===1?'y':'ies'}) — balance changes after the draw. After this stake: ${pts(Math.max(0,Number(player.practice_balance||0)-Number(player.staked_now)))}</p>`:''}
-      ${Number(player.admin_points||0)>0?`<p style="margin:4px 0;color:#a8b4aa"><small>Older admin-assigned points (not used for staking): ${pts(player.admin_points)}</small></p>`:''}
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0">
-        <button type="button" class="kx-adj kx-add" onclick="adjustAdminPoints('${escHtml(player.id)}','ADD')">➕ Add points</button>
-        <button type="button" class="kx-adj kx-ded" onclick="adjustAdminPoints('${escHtml(player.id)}','DEDUCT')">➖ Deduct points</button>
-      </div>
-      <p style="margin:6px 0 0">Account Status: ${escHtml(player.account_status||'Registered')}</p>
-      <small>Joined: ${player.created_at?new Date(player.created_at).toLocaleDateString():'—'}</small>
-    </div>`).join('')||'<p>No players found.</p>';
-  const la=document.getElementById('liveActivity');
-  if(la)la.innerHTML=adminState.activity.length?adminState.activity.map(a=>a.kind==='stake'?`<div style="padding:8px 0;border-bottom:1px solid #444;font-size:13px"><span style="color:#a8b4aa">${new Date(a.at).toLocaleTimeString()}</span> • <b>${escHtml(a.name)}</b> <span style="color:#66f0ff">staked ${pts(a.amount)}</span> (${a.entries} entr${a.entries===1?'y':'ies'}) — waiting for the draw</div>`:`<div style="padding:8px 0;border-bottom:1px solid #444;font-size:13px"><span style="color:#a8b4aa">${new Date(a.at).toLocaleTimeString()}</span> • <b>${escHtml(a.name)}</b> ${a.delta>=0?'<span style="color:#19dc83">gained +':'<span style="color:#ff8a8a">lost −'}${pts(Math.abs(a.delta))}</span> (${pts(a.from)} → ${pts(a.to)})</div>`).join(''):'<p style="color:#a8b4aa;font-size:13px">No changes yet — waiting for players to finish a draw.</p>';
-  const txCut=getTxClearedAt();
-  const tx=txCut?adminState.transactions.filter(t=>new Date(t.created_at).getTime()>txCut):adminState.transactions;
-  const clearBtn=document.getElementById('clearTxHistoryBtn');if(clearBtn)clearBtn.hidden=!tx.length;
-  document.getElementById('transactionList').innerHTML=tx.length?tx.map(t=>{
-    const who=byId.get(t.auth_user_id);const add=t.transaction_type==='ADD';
-    return `<div style="padding:12px;border-bottom:1px solid #555;">
-      <strong>${add?'➕ Added':'➖ Deducted'}</strong>
-      <p style="margin:4px 0">Amount: ${pts(t.amount)} Balance</p>
-      <p style="margin:4px 0">Player: ${escHtml(who?.username||t.auth_user_id)}</p>
-      <p style="margin:4px 0">Reason: ${escHtml(t.reason||'No reason provided')}</p>
-      <small>${new Date(t.created_at).toLocaleString()}</small></div>`;
-  }).join(''):'<p>No transactions yet.</p>';
-  const ln=document.getElementById('adminLiveNote');
-  if(ln){ln.style.color=adminState.live?'#19dc83':'#6bf0ff';ln.textContent=adminState.live?'✓ Live data: balances and stakes come straight from the database.':'⚠ Basic data only. For live balances and stakes, run supabase_practice_settlement.sql and add your admin account to keno_admins (see the SQL file).';}
-  const u=document.getElementById('adminUpdated');
-  if(u&&adminState.updatedAt){const d=new Date(adminState.updatedAt);u.textContent=`Updated ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;}
+  const dash=document.getElementById('adminDashboard');
+  if(!dash)return;
+  // Display only records that have a Telegram ID. Email-based player profiles are ignored.
+  const rows=(adminState.telegramRegistrations||[]).filter(r =>
+    r && r.telegram_id !== null && r.telegram_id !== undefined && String(r.telegram_id).trim() !== ''
+  );
+  const q=String(adminState.search||'').trim().toLowerCase();
+  const filtered=rows.filter(r=>String(r.telegram_id).toLowerCase().includes(q));
+  if(adminState.sort==='newest') filtered.sort((a,b)=>new Date(b.registered_at||0)-new Date(a.registered_at||0));
+  else filtered.sort((a,b)=>String(a.telegram_id||'').localeCompare(String(b.telegram_id||''),undefined,{numeric:true}));
+
+  const summary=document.getElementById('adminSummary');
+  if(summary) summary.innerHTML=`<div style="background:#1d1436;padding:15px;border-radius:10px;flex:1;min-width:140px"><h3 style="margin:0 0 6px;font-size:13px;color:#5ee7f7">Telegram Registrations</h3><h2 style="margin:0">${rows.length}</h2></div>`;
+  const list=document.getElementById('telegramRegistrationList');
+  if(list){
+    if(adminState.error){
+      list.innerHTML=`<p style="color:#ffb2a8">Could not load Telegram registrations: ${escHtml(adminState.error)}</p>`;
+    }else if(!filtered.length){
+      list.innerHTML='<p style="color:#a8b4aa">No Telegram contact registrations found.</p>';
+    }else{
+      list.innerHTML=filtered.map((r,i)=>`<div style="padding:13px;border-bottom:1px solid #49365f;background:#171027;border-radius:9px;margin:8px 0">
+        <strong>#${i+1} Registered Telegram Player</strong>
+        <p style="margin:6px 0;color:#83f3ff;overflow-wrap:anywhere">Telegram ID: <b>${escHtml(r.telegram_id)}</b></p>
+        <small style="color:#a8b4aa">Registered: ${r.registered_at?new Date(r.registered_at).toLocaleString():'—'}</small>
+      </div>`).join('');
+    }
+  }
+  const updated=document.getElementById('adminUpdated');
+  if(updated&&adminState.updatedAt){const d=new Date(adminState.updatedAt);updated.textContent=`Updated ${d.toLocaleTimeString()}`;}
 }
 
 async function refreshAdminData(silent=true){
   if(adminState.loading)return;
   adminState.loading=true;
+  adminState.error=null;
   try{
-    const { data, error } = await supabaseClient.functions.invoke('admin-players', {
-      headers: { 'x-telegram-init-data': tg?.initData || '' }
+    const {data,error}=await supabaseClient.functions.invoke('admin-telegram-registrations',{
+      headers:{'x-telegram-init-data':tg?.initData||''}
     });
     if(error)throw error;
-    const fresh=data?.players??[];
-    // Live balances and open stakes straight from the database (needs the SQL setup); otherwise basic data only.
-    let live=null;
-    try{const r=await supabaseClient.rpc('admin_live_player_points');if(!r.error&&Array.isArray(r.data))live=r.data;}catch(_){}
-    adminState.live=!!live;
-    if(live){
-      const byId=new Map(fresh.map(x=>[x.id,x]));
-      live.forEach(l=>{
-        let x=byId.get(l.player_id);
-        if(!x){x={id:l.player_id,username:l.username,games_played:l.rounds_played,created_at:null};fresh.push(x);byId.set(x.id,x);}
-        x.practice_balance=Number(l.balance);x.staked_now=Number(l.staked_now||0);x.entries_now=Number(l.entries_now||0);
-      });
+    if(!Array.isArray(data?.registrations)){
+      throw new Error(data?.error||'The function did not return a registrations list.');
     }
-    if(adminState.players.length){
-      fresh.forEach(x=>{
-        const now=Number(x.staked_now||0),before=Number(adminState.stakeSeen[x.id]||0);
-        if(now>before){
-          adminState.changed[x.id]=Object.assign({},adminState.changed[x.id]||{delta:0},{at:Date.now(),staked:now});
-          adminState.activity.unshift({kind:'stake',name:x.username||'Player',amount:now,entries:Number(x.entries_now||0),at:Date.now()});
-          adminState.activity.length=Math.min(adminState.activity.length,40);
-        }
-      });
-    }
-    fresh.forEach(x=>{adminState.stakeSeen[x.id]=Number(x.staked_now||0);});
-    const prev=new Map(adminState.players.map(x=>[x.id,Number(x.practice_balance||0)]));
-    if(adminState.players.length){
-      fresh.forEach(x=>{
-        const before=prev.get(x.id),now=Number(x.practice_balance||0);
-        if(before!==undefined&&now!==before){
-          const delta=now-before;
-          adminState.changed[x.id]={delta,at:Date.now()};
-          adminState.activity.unshift({name:x.username||'Player',from:before,to:now,delta,at:Date.now()});
-          adminState.activity.length=Math.min(adminState.activity.length,40);
-        }
-      });
-    }
-    adminState.players=fresh;
-    adminState.transactions=data?.transactions??[];
+    adminState.telegramRegistrations=data.registrations;
     adminState.updatedAt=Date.now();
     renderAdminDashboard();
   }catch(error){
-    console.error('Admin refresh failed:',error);
-    if(!silent)alert('Admin error: '+(error?.message||'Unknown error'));
+    console.error('Telegram registrations load failed:',error);
+    adminState.error=error?.message||'Unknown error';
+    renderAdminDashboard();
+    if(!silent)alert('Telegram registration error: '+adminState.error);
   }finally{adminState.loading=false;}
 }
 
@@ -1222,26 +1170,18 @@ async function loadAdminDashboard() {
         <button id="closeAdmin">Close ✕</button>
         <h2 style="color:#c927bb">Admin Dashboard</h2>
         <div id="adminSummary" style="display:flex;gap:12px;flex-wrap:wrap;margin:20px 0;"></div>
+        <h3 style="color:#c927bb">Registered Telegram Players</h3>
+        <p style="font-size:12px;color:#a8b4aa">Only records containing a Telegram ID are displayed. Email-based player accounts are excluded.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:15px;">
-          <input id="playerSearch" placeholder="Search username or email..." style="padding:10px;flex:1;min-width:180px;">
+          <input id="playerSearch" placeholder="Search by Telegram ID..." style="padding:10px;flex:1;min-width:180px;">
           <select id="playerSort" style="padding:10px;">
-            <option value="points">Sort: highest points</option>
-            <option value="name">Sort: name A–Z</option>
             <option value="newest">Sort: newest</option>
+            <option value="id">Sort: Telegram ID</option>
           </select>
           <button id="adminRefresh" type="button" style="padding:10px;cursor:pointer;">↻ Refresh</button>
           <small id="adminUpdated" style="color:#a8b4aa"></small>
         </div>
-        <div id="adminLiveNote" style="font-size:12px;margin:-6px 0 12px"></div>
-        <div id="playerList"></div>
-        <h2 style="color:#c927bb;margin-top:25px;">Live player results</h2>
-        <p style="margin:0 0 8px;color:#a8b4aa;font-size:12px">Balance changes seen while this dashboard is open: a player's wins and losses appear here within seconds.</p>
-        <div id="liveActivity"></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:25px">
-          <h2 style="color:#c927bb;margin:0">Balance Transaction History</h2>
-          <button id="clearTxHistoryBtn" type="button" class="kx-adj kx-ded" hidden onclick="clearAdminTransactionHistory()">🗑 Clear history</button>
-        </div>
-        <div id="transactionList" style="margin-top:8px"></div>`;
+        <div id="telegramRegistrationList"></div>`;
       document.body.appendChild(dashboard);
       document.getElementById('playerSearch').addEventListener('input',e=>{adminState.search=e.target.value;renderAdminDashboard();});
       document.getElementById('playerSort').addEventListener('change',e=>{adminState.sort=e.target.value;renderAdminDashboard();});
