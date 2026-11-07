@@ -1287,6 +1287,9 @@ document.getElementById('openBotBtn')?.addEventListener('click',openBotChat);
 document.getElementById('checkRegBtn')?.addEventListener('click',checkRegistration);
 // Returning Telegram players are signed in automatically (no contact prompt, no new account).
 // ---- Name + phone registration (no confirmation). Needs "Confirm email" OFF in Supabase Auth settings. ----
+// Supabase rejects emails whose domain has no mail server (MX), so player emails use a real domain.
+// No email is ever sent (confirmation is off). The +tag makes each phone number a unique address.
+const KX_EMAIL_PREFIX='kenox.players+p',KX_EMAIL_DOMAIN='@gmail.com';
 function kxSecret(){
   let k='';try{k=localStorage.getItem('kx_device_secret')||'';}catch(_){}
   if(!k){const a=new Uint8Array(24);crypto.getRandomValues(a);k=Array.from(a,x=>x.toString(16).padStart(2,'0')).join('');try{localStorage.setItem('kx_device_secret',k);}catch(_){}}
@@ -1310,7 +1313,7 @@ async function registerNamePhone(){
   if(!supabaseClient){accountMessage('Account service is unavailable. Refresh and try again.',true);return;}
   btn.disabled=true;accountMessage('Creating your account…');
   try{
-    const digits=phone.slice(1),email='p'+digits+'@users.habeshakeno.app',pw=kxSecret();
+    const digits=phone.slice(1),email=KX_EMAIL_PREFIX+digits+KX_EMAIL_DOMAIN,pw=kxSecret();
     let session=null;
     const si=await supabaseClient.auth.signInWithPassword({email,password:pw});
     if(si.data?.session)session=si.data.session; // same phone on the same device: just log in
