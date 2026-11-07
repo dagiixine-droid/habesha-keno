@@ -1243,8 +1243,11 @@ event.target.reset();
 });
 // ---- Telegram sign-in: accounts are created in the bot chat (telegram-bot); the Mini App signs registered players in ----
 async function startTelegramSession(body){
-  const r=await fetch(SUPABASE_URL+'/functions/v1/telegram-register',{method:'POST',
-    headers:{'Content-Type':'application/json',apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify(body)});
+  let r;
+  try{r=await fetch(SUPABASE_URL+'/functions/v1/telegram-register',{method:'POST',
+    headers:{'Content-Type':'application/json',apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify(body)});}
+  catch(e){console.error('telegram-register unreachable',e);
+    throw new Error('Cannot reach the sign-in service (telegram-register). It is not deployed, or it still checks JWTs. Deploy it with: supabase functions deploy telegram-register --no-verify-jwt');}
   const txt=await r.text();let data=null;try{data=JSON.parse(txt);}catch(_){}
   if(!r.ok){console.error('telegram-register',r.status,txt);
     throw new Error('HTTP '+r.status+': '+(data?.error||data?.message||txt.slice(0,200)||'no response body'));}
