@@ -238,10 +238,13 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
   <div class="auth-gate" id="authGate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
     <div class="auth-box">
       <h2 id="gateTitle">Welcome to Keno X</h2>
-      <p>Register in the bot chat: tap the button below, then tap <b>Share contact</b> in the chat. When the bot confirms, come back here. You must be signed in to play, and you are signed in automatically every time you open the game.</p>
+      <p>Enter your name and phone number to start playing. There is no confirmation step. Your account is saved and you stay signed in on this device.</p>
       <div id="accountSignedOut">
-        <button class="goldbtn" id="openBotBtn" type="button" style="width:100%">💬 Open bot chat to register</button>
-        <button class="pill" id="checkRegBtn" type="button" style="margin-top:8px;width:100%">I have registered, sign me in</button>
+        <label style="display:block;margin-top:6px;font-size:13px">Full name
+          <input id="regName" type="text" autocomplete="name" maxlength="40" placeholder="Your name" style="width:100%;padding:10px;margin-top:6px;border-radius:8px"></label>
+        <label style="display:block;margin-top:8px;font-size:13px">Phone number
+          <input id="regPhone" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="0911 234 567" style="width:100%;padding:10px;margin-top:6px;border-radius:8px"></label>
+        <button class="goldbtn" id="regSubmitBtn" type="button" style="width:100%;margin-top:12px">Start playing</button>
         <p class="account-feedback" id="gateFeedback" role="status" aria-live="polite"></p>
         <details style="margin-top:12px"><summary>Existing player? Log in with username</summary>
       <div id="loginPanel" role="tabpanel" aria-labelledby="loginTabBtn">
@@ -1283,17 +1286,61 @@ async function checkRegistration(){
 document.getElementById('openBotBtn')?.addEventListener('click',openBotChat);
 document.getElementById('checkRegBtn')?.addEventListener('click',checkRegistration);
 // Returning Telegram players are signed in automatically (no contact prompt, no new account).
-async function autoTelegramLogin(){try{
+// ---- Name + phone registration (no confirmation). Needs "Confirm email" OFF in Supabase Auth settings. ----
+function kxSecret(){
+  let k='';try{k=localStorage.getItem('kx_device_secret')||'';}catch(_){}
+  if(!k){const a=new Uint8Array(24);crypto.getRandomValues(a);k=Array.from(a,x=>x.toString(16).padStart(2,'0')).join('');try{localStorage.setItem('kx_device_secret',k);}catch(_){}}
+  return k;
+}
+function normPhone(raw){
+  let d=String(raw||'').replace(/[\s\-().]/g,'');
+  if(d.startsWith('00'))d='+'+d.slice(2);
+  if(d.startsWith('+'))return /^\+\d{8,15}$/.test(d)?d:null;
+  if(/^0[79]\d{8}$/.test(d))return '+251'+d.slice(1);
+  if(/^251[79]\d{8}$/.test(d))return '+'+d;
+  if(/^[79]\d{8}$/.test(d))return '+251'+d;
+  return null;
+}
+async function registerNamePhone(){
+  const btn=document.getElementById('regSubmitBtn');
+  const name=document.getElementById('regName').value.trim().replace(/\s+/g,' ');
+  const phone=normPhone(document.getElementById('regPhone').value);
+  if(name.length<2||name.length>40){accountMessage('Enter your name (2 to 40 characters).',true);return;}
+  if(!phone){accountMessage('Enter a valid phone number, for example 0911234567.',true);return;}
+  if(!supabaseClient){accountMessage('Account service is unavailable. Refresh and try again.',true);return;}
+  btn.disabled=true;accountMessage('Creating your account…');
+  try{
+    const digits=phone.slice(1),email='p'+digits+'@users.habeshakeno.app',pw=kxSecret();
+    let session=null;
+    const si=await supabaseClient.auth.signInWithPassword({email,password:pw});
+    if(si.data?.session)session=si.data.session; // same phone on the same device: just log in
+    else{
+      const slug=name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,14)||'player';
+      const username=slug+'_'+digits.slice(-4);
+      const r=await supabaseClient.auth.signUp({email,password:pw,options:{data:{username,full_name:name,phone_contact:phone,registered_via:'name_phone'}}});
+      if(r.error){accountMessage(/already|registered/i.test(r.error.message)?'This phone number is already registered on another device. Contact support to recover the account.':r.error.message,true);return;}
+      if(!r.data?.session){accountMessage('Account created, but Supabase still asks for confirmation. Turn off "Confirm email" in Authentication settings.',true);return;}
+      session=r.data.session;
+      await supabaseClient.from('player_profiles').upsert({auth_user_id:r.data.user.id,username,phone,phone_verified:false,registered_via:'name_phone',first_name:name});
+    }
+    try{localStorage.setItem('kx_device_email',email);}catch(_){}
+    await showAccountSession(session);
+  }catch(e){accountMessage(String(e?.message||'Registration failed. Please try again.'),true);}
+  finally{btn.disabled=false;}
+}
+document.getElementById('regSubmitBtn')?.addEventListener('click',registerNamePhone);
+['regName','regPhone'].forEach(id=>document.getElementById(id)?.addEventListener('keydown',e=>{if(e.key==='Enter')registerNamePhone();}));
+// Returning player whose session expired: sign in again silently with this device's saved credentials.
+async function autoDeviceLogin(){try{
   if(!supabaseClient)return;
   const {data}=await supabaseClient.auth.getSession();
   if(data?.session)return;
-  if(!tg||!tg.initData){accountMessage('Open Keno X from the Telegram bot to sign in.',true);return;}
-  accountMessage('Signing you in…');
-  const ok=await startTelegramSession({initData:tg.initData});
-  if(!ok)accountMessage('You are not registered yet. Open the bot chat, tap Share contact, then come back and tap the button below.',true);
-}catch(e){accountMessage(String(e?.message||'Could not sign you in.'),true);}}
-setTimeout(autoTelegramLogin,300);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)autoTelegramLogin();});
+  const email=localStorage.getItem('kx_device_email'),pw=localStorage.getItem('kx_device_secret');
+  if(!email||!pw)return;
+  const r=await supabaseClient.auth.signInWithPassword({email,password:pw});
+  if(r.data?.session)await showAccountSession(r.data.session);
+}catch(_){}}
+setTimeout(autoDeviceLogin,300);
 // ---- Phone registration helpers ----
 
 // Accepts +251911234567, 251911234567, 0911234567 or 911234567 (Ethiopia default); returns E.164 or null.
@@ -1372,7 +1419,7 @@ function renderAdminDashboard(){
     <div style="padding:12px;border-bottom:1px solid #555;${(adminState.flashId===player.id||(adminState.changed[player.id]&&Date.now()-adminState.changed[player.id].at<8000))?'background:#1a1037;transition:background .6s;':''}">
       <strong>#${i+1} ${escHtml(player.username||'No username')}</strong>${(adminState.changed[player.id]&&adminState.changed[player.id].delta)?` <span style="font-size:12px;font-weight:800;color:${adminState.changed[player.id].delta>=0?'#19dc83':'#ff8a8a'}">${adminState.changed[player.id].delta>=0?'▲ +':'▼ −'}${pts(Math.abs(adminState.changed[player.id].delta))} • last result ${new Date(adminState.changed[player.id].at).toLocaleTimeString()}</span>`:''}
       <p style="margin:4px 0">${escHtml(player.email||'No email')}</p>
-      <p style="margin:4px 0">📱 ${escHtml(playerPhone(player)||'No phone')}${playerTg(player)?' • Telegram @'+escHtml(playerTg(player)):''}${playerMeta(player).registered_via==='telegram_contact'?' • <small style="color:#19dc83">Registered via Telegram contact</small>':''}</p>
+      <p style="margin:4px 0">👤 ${escHtml(playerMeta(player).full_name||'No name')} • 📱 ${escHtml(playerPhone(player)||'No phone')}${playerTg(player)?' • Telegram @'+escHtml(playerTg(player)):''}${playerMeta(player).registered_via==='telegram_contact'?' • <small style="color:#19dc83">Registered via Telegram contact</small>':''}</p>
       <p style="margin:4px 0">Games Played: ${player.games_played??0}</p>
       <p style="margin:4px 0;font-size:16px;color:#83f3ff">Balance: <b>${pts(player.practice_balance)}</b> <small style="color:#a8b4aa">(the balance this player stakes with)</small></p>
       ${Number(player.staked_now||0)>0?`<p style="margin:4px 0;color:#66f0ff;font-weight:800">🎟 Staked this round: ${pts(player.staked_now)} (${player.entries_now||0} entr${Number(player.entries_now)===1?'y':'ies'}) — balance changes after the draw. After this stake: ${pts(Math.max(0,Number(player.practice_balance||0)-Number(player.staked_now)))}</p>`:''}
