@@ -196,7 +196,7 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
   </section>
 
 
-  <nav class="nav"><button id="homeNav">⌂ Home</button><button id="kenoNav">▦ Keno</button><button id="walletNav" class="active">▣ Wallet</button><button id="leaderNav">♜ Leaderboard</button></nav>
+  <nav class="nav"><button id="homeNav">⌂ Home</button><button id="kenoNav">▦ Keno</button><button id="walletNav" class="active">▣ Wallet</button><button id="leaderNav">♜ Leaderboard</button><button id="adminNav" type="button" hidden>⚙ Admin</button></nav>
   <div class="foot">Keno X • Free practice game • Points have no cash value</div>
 </div>
 <script>
@@ -938,6 +938,7 @@ document.getElementById('homeNav')?.addEventListener('click', () => showAppPanel
 document.getElementById('kenoNav')?.addEventListener('click', () => showAppPanel('keno'));
 document.getElementById('walletNav')?.addEventListener('click', () => showAppPanel('wallet'));
 document.getElementById('leaderNav')?.addEventListener('click', () => showAppPanel('leader'));
+document.getElementById('adminNav')?.addEventListener('click', () => loadAdminDashboard());
 document.getElementById('startKenoBtn')?.addEventListener('click', () => showAppPanel('keno'));
 
 // Telegram contact registration is completed by the bot and saved in Supabase.
@@ -1076,7 +1077,7 @@ function renderAdminDashboard(){
       <p style="margin:4px 0;font-size:16px;color:#83f3ff">Balance: <b>${pts(player.practice_balance)}</b> <small style="color:#a8b4aa">(the balance this player stakes with)</small></p>
       ${Number(player.staked_now||0)>0?`<p style="margin:4px 0;color:#66f0ff;font-weight:800">🎟 Staked this round: ${pts(player.staked_now)} (${player.entries_now||0} entr${Number(player.entries_now)===1?'y':'ies'}) — balance changes after the draw. After this stake: ${pts(Math.max(0,Number(player.practice_balance||0)-Number(player.staked_now)))}</p>`:''}
       ${Number(player.admin_points||0)>0?`<p style="margin:4px 0;color:#a8b4aa"><small>Older admin-assigned points (not used for staking): ${pts(player.admin_points)}</small></p>`:''}
-      <p style="margin:6px 0;color:#a8b4aa;font-size:12px">Practice-point adjustments are temporarily disabled while Telegram admin write authorization is being secured.</p>
+      <p style="font-size:12px;color:#a8b4aa">Practice-point editing is temporarily unavailable while Telegram admin write authorization is being secured.</p>
       <p style="margin:6px 0 0">Account Status: ${escHtml(player.account_status||'Registered')}</p>
       <small>Joined: ${player.created_at?new Date(player.created_at).toLocaleDateString():'—'}</small>
     </div>`).join('')||'<p>No players found.</p>';
@@ -1179,12 +1180,29 @@ async function clearAdminTransactionHistory(){
     }
   }finally{if(btn)btn.disabled=false;}
 }
+
 window.clearAdminTransactionHistory=clearAdminTransactionHistory;
+
+async function checkTelegramAdminAccess(){
+  const button=document.getElementById('adminNav');
+  if(!button || !tg?.initData || !supabaseClient) return;
+  button.hidden=true;
+  try{
+    const {error}=await supabaseClient.functions.invoke('admin-players',{
+      headers:{'x-telegram-init-data':tg.initData}
+    });
+    if(!error) button.hidden=false;
+  }catch(error){
+    console.warn('Telegram admin access check failed:',error);
+    button.hidden=true;
+  }
+}
+checkTelegramAdminAccess();
 
 async function loadAdminDashboard() {
   try {
-    if (!tg?.initData || !tg?.initDataUnsafe?.user?.id) {
-      alert('Open Keno X inside Telegram to access the administrator dashboard.');
+    if (!tg?.initData) {
+      alert('Open Keno X from the Telegram bot to access the administrator dashboard.');
       return;
     }
 
@@ -1213,7 +1231,7 @@ async function loadAdminDashboard() {
         <div id="liveActivity"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:25px">
           <h2 style="color:#c927bb;margin:0">Balance Transaction History</h2>
-          <span style="color:#a8b4aa;font-size:12px">History deletion is temporarily disabled pending Telegram authorization.</span>
+          
         </div>
         <div id="transactionList" style="margin-top:8px"></div>`;
       document.body.appendChild(dashboard);
