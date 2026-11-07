@@ -98,6 +98,11 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
 @keyframes hitPop{0%{transform:scale(1)}40%{transform:scale(1.3) rotate(-4deg)}100%{transform:scale(1.08)}}
 @keyframes hitGlow{from{box-shadow:0 0 12px #fff,0 0 26px #3df2ff,0 0 44px #ff3df0}to{box-shadow:0 0 18px #fff,0 0 40px #3df2ff,0 0 72px #ff3df0}}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.kx-adj{padding:8px 14px;border-radius:8px;border:1px solid;background:transparent;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:transform .2s,box-shadow .25s,background-color .25s}
+.kx-adj:hover:not(:disabled){transform:translateY(-1px)}.kx-adj:disabled{opacity:.5;cursor:not-allowed}
+.kx-add{color:#19dc83;border-color:#19dc83}.kx-add:hover:not(:disabled){background:#19dc8322;box-shadow:0 0 12px #19dc8366}
+.kx-ded{color:#ff8a8a;border-color:#ff8a8a}.kx-ded:hover:not(:disabled){background:#ff8a8a22;box-shadow:0 0 12px #ff8a8a66}
+#clearTxHistoryBtn[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -1077,7 +1082,10 @@ function renderAdminDashboard(){
       <p style="margin:4px 0;font-size:16px;color:#83f3ff">Balance: <b>${pts(player.practice_balance)}</b> <small style="color:#a8b4aa">(the balance this player stakes with)</small></p>
       ${Number(player.staked_now||0)>0?`<p style="margin:4px 0;color:#66f0ff;font-weight:800">🎟 Staked this round: ${pts(player.staked_now)} (${player.entries_now||0} entr${Number(player.entries_now)===1?'y':'ies'}) — balance changes after the draw. After this stake: ${pts(Math.max(0,Number(player.practice_balance||0)-Number(player.staked_now)))}</p>`:''}
       ${Number(player.admin_points||0)>0?`<p style="margin:4px 0;color:#a8b4aa"><small>Older admin-assigned points (not used for staking): ${pts(player.admin_points)}</small></p>`:''}
-      <p style="font-size:12px;color:#a8b4aa">Practice-point editing is temporarily unavailable while Telegram admin write authorization is being secured.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0">
+        <button type="button" class="kx-adj kx-add" onclick="adjustAdminPoints('${escHtml(player.id)}','ADD')">➕ Add points</button>
+        <button type="button" class="kx-adj kx-ded" onclick="adjustAdminPoints('${escHtml(player.id)}','DEDUCT')">➖ Deduct points</button>
+      </div>
       <p style="margin:6px 0 0">Account Status: ${escHtml(player.account_status||'Registered')}</p>
       <small>Joined: ${player.created_at?new Date(player.created_at).toLocaleDateString():'—'}</small>
     </div>`).join('')||'<p>No players found.</p>';
@@ -1231,7 +1239,7 @@ async function loadAdminDashboard() {
         <div id="liveActivity"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:25px">
           <h2 style="color:#c927bb;margin:0">Balance Transaction History</h2>
-          
+          <button id="clearTxHistoryBtn" type="button" class="kx-adj kx-ded" hidden onclick="clearAdminTransactionHistory()">🗑 Clear history</button>
         </div>
         <div id="transactionList" style="margin-top:8px"></div>`;
       document.body.appendChild(dashboard);
