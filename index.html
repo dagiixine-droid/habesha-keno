@@ -1076,8 +1076,7 @@ function renderAdminDashboard(){
       <p style="margin:4px 0;font-size:16px;color:#83f3ff">Balance: <b>${pts(player.practice_balance)}</b> <small style="color:#a8b4aa">(the balance this player stakes with)</small></p>
       ${Number(player.staked_now||0)>0?`<p style="margin:4px 0;color:#66f0ff;font-weight:800">🎟 Staked this round: ${pts(player.staked_now)} (${player.entries_now||0} entr${Number(player.entries_now)===1?'y':'ies'}) — balance changes after the draw. After this stake: ${pts(Math.max(0,Number(player.practice_balance||0)-Number(player.staked_now)))}</p>`:''}
       ${Number(player.admin_points||0)>0?`<p style="margin:4px 0;color:#a8b4aa"><small>Older admin-assigned points (not used for staking): ${pts(player.admin_points)}</small></p>`:''}
-      <button onclick="adjustAdminPoints('${escHtml(player.id)}','ADD')" style="background:#16834a;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;">+ Add Balance</button>
-      <button onclick="adjustAdminPoints('${escHtml(player.id)}','DEDUCT')" style="background:#a83232;color:white;padding:8px;border:0;border-radius:5px;cursor:pointer;margin-left:5px;">- Deduct Balance</button>
+      <p style="margin:6px 0;color:#a8b4aa;font-size:12px">Practice-point adjustments are temporarily disabled while Telegram admin write authorization is being secured.</p>
       <p style="margin:6px 0 0">Account Status: ${escHtml(player.account_status||'Registered')}</p>
       <small>Joined: ${player.created_at?new Date(player.created_at).toLocaleDateString():'—'}</small>
     </div>`).join('')||'<p>No players found.</p>';
@@ -1105,7 +1104,9 @@ async function refreshAdminData(silent=true){
   if(adminState.loading)return;
   adminState.loading=true;
   try{
-    const { data, error } = await supabaseClient.functions.invoke('admin-players');
+    const { data, error } = await supabaseClient.functions.invoke('admin-players', {
+      headers: { 'x-telegram-init-data': tg?.initData || '' }
+    });
     if(error)throw error;
     const fresh=data?.players??[];
     // Live balances and open stakes straight from the database (needs the SQL setup); otherwise basic data only.
@@ -1182,9 +1183,10 @@ window.clearAdminTransactionHistory=clearAdminTransactionHistory;
 
 async function loadAdminDashboard() {
   try {
-    const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
-    if (sessionError) throw sessionError;
-    if (!sessionData.session) { alert('Please log in first.'); return; }
+    if (!tg?.initData || !tg?.initDataUnsafe?.user?.id) {
+      alert('Open Keno X inside Telegram to access the administrator dashboard.');
+      return;
+    }
 
     if(!document.getElementById('adminDashboard')){
       const dashboard=document.createElement('div');
@@ -1211,7 +1213,7 @@ async function loadAdminDashboard() {
         <div id="liveActivity"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:25px">
           <h2 style="color:#c927bb;margin:0">Balance Transaction History</h2>
-          <button id="clearTxHistoryBtn" type="button" onclick="clearAdminTransactionHistory()" style="background:#a83232;color:white;padding:8px 12px;border:0;border-radius:6px;cursor:pointer">🗑 Clear history</button>
+          <span style="color:#a8b4aa;font-size:12px">History deletion is temporarily disabled pending Telegram authorization.</span>
         </div>
         <div id="transactionList" style="margin-top:8px"></div>`;
       document.body.appendChild(dashboard);
