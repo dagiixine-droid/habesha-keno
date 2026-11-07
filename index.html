@@ -905,6 +905,41 @@ startCountdown();
 const homePanel=document.getElementById('homePanel');
 const kenoPanel=document.getElementById('kenoPanel');
 const walletPanel=document.getElementById('walletPanel');
+const leaderPanel=document.getElementById('leaderPanel');
+
+function showAppPanel(panelName) {
+  const panels = {
+    home: homePanel,
+    keno: kenoPanel,
+    wallet: walletPanel,
+    leader: leaderPanel
+  };
+  const navButtons = {
+    home: document.getElementById('homeNav'),
+    keno: document.getElementById('kenoNav'),
+    wallet: document.getElementById('walletNav'),
+    leader: document.getElementById('leaderNav')
+  };
+
+  Object.entries(panels).forEach(([name, panel]) => {
+    if (panel) panel.hidden = name !== panelName;
+  });
+  Object.entries(navButtons).forEach(([name, button]) => {
+    if (button) {
+      button.classList.toggle('active', name === panelName);
+      button.setAttribute('aria-current', name === panelName ? 'page' : 'false');
+    }
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.getElementById('homeNav')?.addEventListener('click', () => showAppPanel('home'));
+document.getElementById('kenoNav')?.addEventListener('click', () => showAppPanel('keno'));
+document.getElementById('walletNav')?.addEventListener('click', () => showAppPanel('wallet'));
+document.getElementById('leaderNav')?.addEventListener('click', () => showAppPanel('leader'));
+document.getElementById('startKenoBtn')?.addEventListener('click', () => showAppPanel('keno'));
+
 // Telegram contact registration is completed by the bot and saved in Supabase.
 // This Mini App verifies Telegram's signed initData through a secure Edge Function.
 function updateTelegramRegistrationUI(registered, message) {
