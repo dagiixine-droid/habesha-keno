@@ -972,9 +972,11 @@ async function verifyTelegramRegistration() {
 
     if (data?.registered === true) {
       telegramPlayer = data.player || { telegram_id: tg.initDataUnsafe.user.id };
-      const name = telegramPlayer.username
-        ? '@' + telegramPlayer.username
-        : (telegramPlayer.full_name || tg.initDataUnsafe.user.first_name || 'Telegram player');
+      const telegramUser = tg.initDataUnsafe?.user;
+
+const name = telegramUser?.username
+    ? '@' + telegramUser.username
+    : (telegramUser?.first_name || 'Player');
       const phone = maskPhone(telegramPlayer.phone_number || telegramPlayer.phone);
       const phoneText = phone ? ' • Contact: ' + phone : '';
       updateTelegramRegistrationUI(true,
