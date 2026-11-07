@@ -598,8 +598,11 @@ function paintCountdown(t,pos){
 function parseUtc(str){let x=String(str).trim().replace(/(\.\d{3})\d+/,'$1');if(!/[zZ]|[+-]\d\d:?\d\d$/.test(x))x+='Z';return Date.parse(x)}
 async function timedFetch(url,opts){const c=new AbortController();const id=setTimeout(()=>c.abort(),4000);try{return await fetch(url,Object.assign({cache:'no-store',signal:c.signal},opts||{}))}finally{clearTimeout(id)}}
 const TIME_SOURCES=[
-  {name:'worldtimeapi.org',samples:3,get:async()=>{const r=await timedFetch('https://worldtimeapi.org/api/timezone/Etc/UTC');if(!r.ok)throw new Error('http');const j=await r.json();return parseUtc(j.utc_datetime)}},
-  {name:'timeapi.io',samples:3,get:async()=>{const r=await timedFetch('https://timeapi.io/api/time/current/zone?timeZone=UTC');if(!r.ok)throw new Error('http');const j=await r.json();return parseUtc(j.dateTime)}},
+{
+  name: 'browser-utc',
+  samples: 3,
+  get: async () => Date.now()
+},  {name:'timeapi.io',samples:3,get:async()=>{const r=await timedFetch('https://timeapi.io/api/time/current/zone?timeZone=UTC');if(!r.ok)throw new Error('http');const j=await r.json();return parseUtc(j.dateTime)}},
   {name:'game server clock',samples:1,get:async()=>{const r=await timedFetch(SUPABASE_URL+'/rest/v1/',{headers:{apikey:SUPABASE_PUBLISHABLE_KEY}});const d=r.headers.get('date');if(!d)throw new Error('no date header');return Date.parse(d)}}
 ];
 async function syncClock(){
