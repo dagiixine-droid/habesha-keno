@@ -235,10 +235,10 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
     </section>
   </div>
 
-  <div class="auth-gate" id="authGate" hidden role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+  <div class="auth-gate" id="authGate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
     <div class="auth-box">
       <h2 id="gateTitle">Welcome to Keno X</h2>
-      <p>Register in the bot chat: tap the button below, then tap <b>Share contact</b> in the chat. When the bot confirms, come back here. You will be signed in automatically from then on.</p>
+      <p>Register in the bot chat: tap the button below, then tap <b>Share contact</b> in the chat. When the bot confirms, come back here. You must be signed in to play, and you are signed in automatically every time you open the game.</p>
       <div id="accountSignedOut">
         <button class="goldbtn" id="openBotBtn" type="button" style="width:100%">💬 Open bot chat to register</button>
         <button class="pill" id="checkRegBtn" type="button" style="margin-top:8px;width:100%">I have registered, sign me in</button>
@@ -252,7 +252,7 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
         </form>
       </div>
         </details>
-        <button class="pill" id="gateDemoBtn" type="button" style="margin-top:12px;width:100%">Continue in demo mode</button>
+        
       </div>
     </div>
   </div>
@@ -1130,8 +1130,7 @@ async function showAccountSession(session) {
   signedOutBox.hidden = !!session;
   signedInBox.hidden = !session;
   { const g=document.getElementById('authGate'),ac=document.getElementById('accountCard');
-    let dismissed=false;try{dismissed=sessionStorage.getItem('kx_gate_dismissed')==='1';}catch(_){}
-    if(g)g.hidden=!!session||dismissed; if(ac)ac.hidden=!session; }
+    if(g)g.hidden=!!session; if(ac)ac.hidden=!session; }
 
   // Do not show the available-balance card in Wallet before the player signs in.
   const walletBalanceSlot = document.getElementById('walletBalanceSlot');
@@ -1280,14 +1279,17 @@ async function checkRegistration(){
 }
 document.getElementById('openBotBtn')?.addEventListener('click',openBotChat);
 document.getElementById('checkRegBtn')?.addEventListener('click',checkRegistration);
-document.getElementById('gateDemoBtn')?.addEventListener('click',()=>{try{sessionStorage.setItem('kx_gate_dismissed','1');}catch(_){}document.getElementById('authGate').hidden=true;});
 // Returning Telegram players are signed in automatically (no contact prompt, no new account).
 async function autoTelegramLogin(){try{
-  if(!supabaseClient||!tg||!tg.initData)return;
+  if(!supabaseClient)return;
   const {data}=await supabaseClient.auth.getSession();
-  if(!data?.session)await startTelegramSession({initData:tg.initData});
-}catch(_){}}
-setTimeout(autoTelegramLogin,900);
+  if(data?.session)return;
+  if(!tg||!tg.initData){accountMessage('Open Keno X from the Telegram bot to sign in.',true);return;}
+  accountMessage('Signing you in…');
+  const ok=await startTelegramSession({initData:tg.initData});
+  if(!ok)accountMessage('You are not registered yet. Open the bot chat, tap Share contact, then come back and tap the button below.',true);
+}catch(e){accountMessage(String(e?.message||'Could not sign you in.'),true);}}
+setTimeout(autoTelegramLogin,300);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)autoTelegramLogin();});
 // ---- Phone registration helpers ----
 
