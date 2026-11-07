@@ -144,6 +144,7 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
     <div class="account-head"><div><h3>👤 Player account</h3><p class="sub" style="margin:0">Your Keno X account.</p></div><span class="soon-tag">ACCOUNT</span></div>
     <div id="accountSignedIn" hidden>
       <p class="account-status" id="accountStatus" aria-live="polite"></p>
+      <p class="account-status" id="accountContact" aria-live="polite" hidden></p>
       <button class="pill" type="button" id="signOutBtn">Sign out</button>
     </div>
     <p class="account-feedback" id="accountFeedback" role="status" aria-live="polite"></p>
@@ -237,9 +238,10 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
   <div class="auth-gate" id="authGate" hidden role="dialog" aria-modal="true" aria-labelledby="gateTitle">
     <div class="auth-box">
       <h2 id="gateTitle">Welcome to Keno X</h2>
-      <p>Share your Telegram contact to register. Your account and phone number are saved securely, and you are signed in automatically next time.</p>
+      <p>Register in the bot chat: tap the button below, then tap <b>Share contact</b> in the chat. When the bot confirms, come back here. You will be signed in automatically from then on.</p>
       <div id="accountSignedOut">
-        <button class="goldbtn" id="shareContactBtn" type="button" style="width:100%">📱 Share contact to register</button>
+        <button class="goldbtn" id="openBotBtn" type="button" style="width:100%">💬 Open bot chat to register</button>
+        <button class="pill" id="checkRegBtn" type="button" style="margin-top:8px;width:100%">I have registered, sign me in</button>
         <p class="account-feedback" id="gateFeedback" role="status" aria-live="polite"></p>
         <details style="margin-top:12px"><summary>Existing player? Log in with username</summary>
       <div id="loginPanel" role="tabpanel" aria-labelledby="loginTabBtn">
@@ -1000,7 +1002,9 @@ function openTelegramAdmin(action='general'){
     withdraw:'Hello admin, I would like to request a withdrawal from my Keno X wallet.',
     general:'Hello admin, I need help with Keno X.'
   };
-  const message=messages[action]||messages.general;
+  let message=messages[action]||messages.general;
+  const pc=window.playerContact;
+  if(pc&&pc.phone)message+='\n\nMy registered contact: '+pc.phone+(pc.telegram_username?' (@'+pc.telegram_username+')':'');
   window.open('https://t.me/habesha_keno?text='+encodeURIComponent(message),'_blank','noopener');
 }
 let paymentAction='deposit';
@@ -1101,6 +1105,24 @@ function setAccountTab(tab){
 document.getElementById('loginTabBtn')?.addEventListener('click',()=>setAccountTab('login'));
 document.getElementById('registerTabBtn')?.addEventListener('click',()=>setAccountTab('register'));
 function accountMessage(message,isError=false){[accountFeedback,document.getElementById('gateFeedback')].forEach(el=>{if(el){el.textContent=message;el.style.color=isError?'#ffb2a8':'#9af5ff';}});}
+function renderRegisteredContact(c){
+  const el=document.getElementById('accountContact');if(!el)return;
+  if(!c||!c.phone){el.hidden=true;el.textContent='';return;}
+  el.textContent='📱 Registered contact: '+c.phone+(c.telegram_username?' • @'+c.telegram_username:'');el.hidden=false;
+}
+// Shows the contact saved at registration; cached on this device so it appears instantly, refreshed from Supabase.
+async function loadRegisteredContact(session){
+  const uid=session?.user?.id;if(!uid)return;
+  const key='kx_contact_'+uid;
+  try{const cached=JSON.parse(localStorage.getItem(key)||'null');if(cached){window.playerContact=cached;renderRegisteredContact(cached);}}catch(_){}
+  let c=null;
+  try{
+    const {data}=await supabaseClient.from('player_profiles').select('phone,telegram_username').eq('auth_user_id',uid).maybeSingle();
+    if(data?.phone)c={phone:data.phone,telegram_username:data.telegram_username||''};
+  }catch(_){}
+  if(!c){const m=session.user.user_metadata||{};if(m.phone_contact)c={phone:m.phone_contact,telegram_username:m.telegram_username||''};}
+  if(c){window.playerContact=c;renderRegisteredContact(c);try{localStorage.setItem(key,JSON.stringify(c));}catch(_){}}
+}
 async function showAccountSession(session) {
   if(!session){walletUserId=null;adminPointsBalance=0;walletHistory=[];balance=1000;try{localStorage.removeItem(WALLET_BALANCE_KEY);}catch(_){}setSync(true,'');if(typeof renderModeBalance==='function')renderModeBalance();}
   const walletHistoryCard=document.getElementById('walletHistoryCard');
@@ -1127,6 +1149,7 @@ async function showAccountSession(session) {
 
     document.getElementById("accountStatus").textContent =
       `Signed in as ${username}. Your player profile is connected.`;
+    loadRegisteredContact(session); // saved contact from the bot-chat registration
 
     await loadPlayerWallet(session);
     loadWalletHistoryForPlayer();
@@ -1138,6 +1161,7 @@ async function showAccountSession(session) {
   } else {
     renderWalletHistory();
     document.getElementById("accountStatus").textContent = "";
+    { const c=document.getElementById('accountContact'); if(c){c.hidden=true;c.textContent='';} window.playerContact=null; }
     const modeSwitch = document.querySelector('.mode-switch');
     if (modeSwitch) modeSwitch.hidden = false;
     setGameMode('demo');
@@ -1218,48 +1242,53 @@ event.target.reset();
     );
   }finally{button.disabled=false;button.textContent='Login';}
 });
-// ---- Telegram contact-share registration (account saved in Supabase by the telegram-register Edge Function) ----
+// ---- Telegram sign-in: accounts are created in the bot chat (telegram-bot); the Mini App signs registered players in ----
 async function startTelegramSession(body){
-  const {data,error}=await supabaseClient.functions.invoke('telegram-register',{body});
-  if(error){let msg=error.message||'Registration service error';
-    try{const b=await error.context.json();msg=b?.error||b?.message||msg;}catch(_){}
-    throw new Error(msg);}
+  const r=await fetch(SUPABASE_URL+'/functions/v1/telegram-register',{method:'POST',
+    headers:{'Content-Type':'application/json',apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify(body)});
+  const txt=await r.text();let data=null;try{data=JSON.parse(txt);}catch(_){}
+  if(!r.ok){console.error('telegram-register',r.status,txt);
+    throw new Error('HTTP '+r.status+': '+(data?.error||data?.message||txt.slice(0,200)||'no response body'));}
   if(data?.error)throw new Error(data.error);
   if(!data?.session)return false;
   const {error:se}=await supabaseClient.auth.setSession({access_token:data.session.access_token,refresh_token:data.session.refresh_token});
   if(se)throw se;
   const {data:cur}=await supabaseClient.auth.getSession();
+  // Save the contact shared in the bot chat on this device right away (the server returns it with the session).
+  if(data.contact?.phone&&cur?.session?.user?.id){
+    const c={phone:data.contact.phone,telegram_username:data.contact.telegram_username||''};
+    window.playerContact=c;try{localStorage.setItem('kx_contact_'+cur.session.user.id,JSON.stringify(c));}catch(_){}
+  }
   if(cur?.session)await showAccountSession(cur.session);
   return true;
 }
-async function registerWithTelegramContact(){
-  const btn=document.getElementById('shareContactBtn');
+const BOT_USERNAME='YOUR_BOT_USERNAME'; // your bot's @username, without the @
+function openBotChat(){
+  const url='https://t.me/'+BOT_USERNAME+'?start=register';
+  if(tg&&typeof tg.openTelegramLink==='function')tg.openTelegramLink(url);else window.open(url,'_blank');
+}
+async function checkRegistration(){
+  const btn=document.getElementById('checkRegBtn');
   if(!supabaseClient){accountMessage('Account service is unavailable. Refresh and try again.',true);return;}
-  if(!tg||!tg.initData||typeof tg.requestContact!=='function'){accountMessage('Open Keno X inside Telegram to register with your contact.',true);return;}
-  btn.disabled=true;accountMessage('Waiting for you to share your contact…');
+  if(!tg||!tg.initData){accountMessage('Open Keno X inside Telegram to sign in.',true);return;}
+  btn.disabled=true;accountMessage('Checking your registration…');
   try{
-    const ev=await new Promise(resolve=>{
-      let done=false;
-      const finish=e=>{if(done)return;done=true;try{tg.offEvent('contactRequested',onEv);}catch(_){}resolve(e||{});};
-      const onEv=e=>finish(e);
-      tg.onEvent('contactRequested',onEv);
-      try{tg.requestContact((ok,e)=>{if(ok===false)finish({status:'cancelled'});else if(e)finish(e);});}catch(_){finish({status:'cancelled'});}
-    });
-    if(ev.status&&ev.status!=='sent'){accountMessage('Contact sharing was cancelled. Share your contact to register.',true);return;}
-    accountMessage('Creating your account…');
-    const ok=await startTelegramSession({initData:tg.initData,contactResponse:ev.response||null});
-    if(!ok)accountMessage('Could not verify your shared contact. Update Telegram and try again.',true);
-  }catch(e){accountMessage(String(e?.message||'Registration failed. Please try again.'),true);}
+    const ok=await startTelegramSession({initData:tg.initData});
+    if(!ok)accountMessage('No account yet. Open the bot chat, tap Share contact, then tap this button again.',true);
+  }catch(e){accountMessage(String(e?.message||'Could not check registration.'),true);}
   finally{btn.disabled=false;}
 }
-document.getElementById('shareContactBtn')?.addEventListener('click',registerWithTelegramContact);
+document.getElementById('openBotBtn')?.addEventListener('click',openBotChat);
+document.getElementById('checkRegBtn')?.addEventListener('click',checkRegistration);
 document.getElementById('gateDemoBtn')?.addEventListener('click',()=>{try{sessionStorage.setItem('kx_gate_dismissed','1');}catch(_){}document.getElementById('authGate').hidden=true;});
 // Returning Telegram players are signed in automatically (no contact prompt, no new account).
-setTimeout(async()=>{try{
+async function autoTelegramLogin(){try{
   if(!supabaseClient||!tg||!tg.initData)return;
   const {data}=await supabaseClient.auth.getSession();
-  if(!data?.session)await startTelegramSession({initData:tg.initData,loginOnly:true});
-}catch(_){}},900);
+  if(!data?.session)await startTelegramSession({initData:tg.initData});
+}catch(_){}}
+setTimeout(autoTelegramLogin,900);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)autoTelegramLogin();});
 // ---- Phone registration helpers ----
 
 // Accepts +251911234567, 251911234567, 0911234567 or 911234567 (Ethiopia default); returns E.164 or null.
