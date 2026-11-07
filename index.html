@@ -98,35 +98,50 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
 @keyframes hitPop{0%{transform:scale(1)}40%{transform:scale(1.3) rotate(-4deg)}100%{transform:scale(1.08)}}
 @keyframes hitGlow{from{box-shadow:0 0 12px #fff,0 0 26px #3df2ff,0 0 44px #ff3df0}to{box-shadow:0 0 18px #fff,0 0 40px #3df2ff,0 0 72px #ff3df0}}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
-/* ===== Simple one-screen Keno tab ===== */
-body.kx-keno-tab #siteHero{display:none}
-#kenoPanel:not([hidden]){display:grid;gap:8px}
-#kenoPanel .card{padding:10px;margin:0!important;border-radius:14px}
-#kenoPanel .card h3{margin:0 0 6px;font-size:13px}
-#kenoPanel .sub,#kenoPanel #stakeNote,#kenoPanel .paytable,#kenoPanel .stat{display:none}
-#kenoPanel #scheduledStatus{display:block;margin:0 0 4px;font-size:11px}
-#kenoPanel .countdown-card{padding:6px 12px;margin:0}
-#kenoPanel .countdown-time{font-size:22px}
-#kenoPanel .countdown-note{margin-top:1px}
-#kenoPanel .card:has(#drawBalls) h3{display:none}
-#kenoPanel #drawBalls{margin:2px 0 0;gap:4px;min-height:28px}
-#kenoPanel #drawBalls>*{width:26px!important;height:26px!important;min-width:0!important;padding:0!important;font-size:11px!important;line-height:26px!important}
-#kenoPanel #kenoGame{gap:8px}
-#kenoPanel .grid{grid-template-columns:repeat(10,minmax(0,1fr));gap:3px}
-#kenoPanel .num{aspect-ratio:1.4;font-size:11px;border-radius:5px;padding:0}
-#kenoPanel .controls{margin-top:6px}
-#kenoPanel .pill{padding:5px 8px;font-size:12px}
-#kenoPanel .stack{gap:8px}
-#kenoPanel .field{gap:6px}
-#kenoPanel .field input{width:90px;padding:6px}
-#kenoPanel .quick{margin-top:6px}
-#kenoPanel .quick button{padding:6px 2px}
-#kenoPanel #playBtn{margin-top:8px!important;padding:11px;font-size:15px}
-#kenoPanel .entries{max-height:90px;margin-top:6px}
-#kenoPanel #drawStatus{font-size:12px}
-#kenoPanel .result{padding:8px;font-size:12px;line-height:1.4;max-height:110px;overflow:auto}
-#kenoPanel .result-list{max-height:70px}
-@media(min-width:440px) and (max-width:700px){#kenoPanel #kenoGame>.stack{grid-template-columns:1fr 1fr;align-items:start}}
+
+/* ===== Compact Keno tab: stake, numbers and results fit one phone screen ===== */
+.on-keno #siteHero,.on-keno header.top{display:none}
+.on-keno .app{padding:8px 8px 10px;min-height:0}
+.on-keno #kenoPanel{max-width:520px;margin:0 auto}
+.on-keno #kenoPanel>.card,.on-keno #kenoPanel>.countdown-card{margin-bottom:8px!important;padding:8px 10px;border-radius:12px}
+.on-keno #kenoPanel #registrationGate h3{font-size:14px;margin:0 0 4px}
+.on-keno #kenoPanel #registrationGate p{font-size:12px!important;line-height:1.4!important}
+/* countdown: one slim row */
+.on-keno .countdown-card{gap:8px}.on-keno .countdown-label{font-size:11px}.on-keno #timerNote{display:none}.on-keno .countdown-time{font-size:24px}
+/* draw balls: 20 numbers in two tidy rows, no headings or status text */
+.on-keno #kenoPanel>.card:nth-of-type(3)>h3,.on-keno #scheduledStatus{display:none}
+.on-keno .drawballs{gap:3px;margin:0;display:grid;grid-template-columns:repeat(10,1fr)}
+.on-keno .drawballs>*{width:auto!important;height:auto!important;aspect-ratio:1;font-size:11px!important;display:grid;place-items:center;box-shadow:0 0 8px #3df2ff70}
+/* numbers: 10 x 8 board */
+.on-keno .layout{grid-template-columns:1fr;gap:8px}.on-keno .stack{gap:8px}
+.on-keno .layout>.card{padding:8px 10px;border-radius:12px}
+.on-keno .layout>.card>h3{font-size:12px;margin:0 0 4px;text-shadow:none}
+.on-keno .layout>.card>.sub{display:none}
+.on-keno #numberGrid{grid-template-columns:repeat(10,minmax(0,1fr));gap:3px}
+.on-keno #numberGrid .num{aspect-ratio:1.2;font-size:12px;padding:0;border-radius:6px}
+.on-keno .foot{display:none}
+.on-keno .layout>.card>h3{margin:0 0 3px}
+.on-keno .controls{margin-top:6px;gap:6px;flex-wrap:nowrap}
+.on-keno .controls .pill:first-child{display:none}
+.on-keno .controls .pill{flex:1;padding:6px 8px;font-size:12px}
+/* stake: input + join on one row, quick amounts below */
+.on-keno .stack>.card{padding:8px 10px;border-radius:12px}
+.on-keno .stack>.card:first-child{display:grid;grid-template-columns:104px 1fr;grid-template-areas:"h h" "f p" "q q";gap:6px;align-items:center}
+.on-keno .stack>.card:first-child>h3{grid-area:h;font-size:0;margin:0;text-shadow:none}
+.on-keno .stack>.card:first-child .stake-bal{font-size:13px;float:none}
+.on-keno .stack>.card:first-child>.field{grid-area:f}
+.on-keno .field label,.on-keno .stake-note:not(#syncStatus),.on-keno .stack .stat,.on-keno #paytable{display:none}
+.on-keno .field input{width:100%;padding:9px 8px;font-size:16px}
+.on-keno #playBtn{grid-area:p;margin:0!important;min-height:42px;font-size:15px;padding:8px}
+.on-keno .quick{grid-area:q;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:0}
+.on-keno .quick button{padding:7px 0;font-size:13px}
+.on-keno #entriesList,.on-keno #syncStatus{grid-column:1/-1;margin:0}
+.on-keno #entriesList{max-height:76px}
+/* results: status line + short list, scrolls inside its own box */
+.on-keno .stack>.card:nth-child(2)>h3{display:none}
+.on-keno #drawStatus{font-size:12px!important}
+.on-keno #result{max-height:92px;overflow-y:auto;font-size:12px;margin-top:4px}
+.on-keno .nav{margin-top:8px}
 </style>
 </head>
 <body>
@@ -960,7 +975,6 @@ function showAppPanel(panelName) {
     }
   });
 
-  document.body.classList.toggle('kx-keno-tab', panelName === 'keno');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1341,5 +1355,11 @@ window.adjustPracticeBalance = adjustPracticeBalance;
     if(res.querySelector('.win-line')&&res.textContent.indexOf('\u{1F389}')>-1){last=Date.now();burst()}
   }).observe(res,{childList:true});
 })();
+</script>
+<script>
+// Adds "on-keno" to <body> while the Keno tab is open, so only that tab uses the compact layout.
+(function(){var p=document.getElementById('kenoPanel');if(!p)return;
+var f=function(){document.body.classList.toggle('on-keno',!p.hidden)};
+new MutationObserver(f).observe(p,{attributes:true,attributeFilter:['hidden']});f();})();
 </script>
 </body></html>
