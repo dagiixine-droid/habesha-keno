@@ -119,6 +119,11 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
 .abtn:disabled{opacity:.5;cursor:not-allowed}
 .amsg{margin-top:8px;font-size:12px;font-weight:700}
 .amsg.ok{color:#19dc83}.amsg.err{color:#ff8a8a}
+
+/* ===== Fixed bottom navigation ===== */
+.app{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+.nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,980px);margin:0;padding:8px 10px calc(8px + env(safe-area-inset-bottom));z-index:900;background:linear-gradient(180deg,#0b0720e8,#05030df5);border-top:1px solid #3df2ff55;box-shadow:0 -8px 28px #000a,0 -1px 18px #3df2ff22;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.nav button{min-height:44px}
 </style>
 </head>
 <body>
