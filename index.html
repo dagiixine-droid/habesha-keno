@@ -120,6 +120,11 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
 .amsg{margin-top:8px;font-size:12px;font-weight:700}
 .amsg.ok{color:#19dc83}.amsg.err{color:#ff8a8a}
 
+/* ===== Always-visible balance chip ===== */
+.top{position:sticky;top:0;z-index:850}
+.mini-bal{display:flex;flex-direction:column;align-items:flex-end;padding:6px 12px;border:1px solid #3df2ff66;border-radius:12px;background:linear-gradient(135deg,#130b2b,#0a0714);box-shadow:0 0 14px #3df2ff22;white-space:nowrap}
+.mini-bal small{font-size:9px;letter-spacing:1.4px;color:#6ce9f7;font-weight:800}
+.mini-bal b{font-size:16px;color:#68f0ff;font-variant-numeric:tabular-nums;text-shadow:0 0 10px #3df2ff55;line-height:1.15}
 /* ===== Fixed bottom navigation ===== */
 .app{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
 .nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,980px);margin:0;padding:8px 10px calc(8px + env(safe-area-inset-bottom));z-index:900;background:linear-gradient(180deg,#0b0720e8,#05030df5);border-top:1px solid #3df2ff55;box-shadow:0 -8px 28px #000a,0 -1px 18px #3df2ff22;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
@@ -130,12 +135,14 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
 #kenoGame.draw-mode #pickCard{display:none}
 #kenoGame.draw-mode #stakeCard>:not(#entriesList){display:none}
 #kenoGame.draw-mode #stakeCard #entriesList{margin-top:0;max-height:none}
+
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
     <div class="brand"><div class="badge">KX</div><div><h1>Keno X</h1><small id="platformLabel">Telegram Mini App • Free Practice</small></div></div>
+    <div class="mini-bal" id="miniBal" hidden title="Available practice points"><small>AVAILABLE</small><b id="miniBalVal">0</b></div>
   </header>
   <section class="hero" id="siteHero"><h2>KENO X</h2><p>✦ PLAY • MATCH • CELEBRATE ✦</p></section>
   <section id="homePanel" class="home-panel" hidden>
@@ -1361,6 +1368,8 @@ function renderWalletStats(){
   set('walletBalanceBig',reg?fmt(balance):'—');
   set('walletGamesBig',reg?fmt(gamesPlayed):'—');
   set('gamesShown',reg?fmt(gamesPlayed):'—');
+  const mb=document.getElementById('miniBal');
+  if(mb){mb.hidden=!reg;if(reg)set('miniBalVal',fmt(availableBalance()));}
 }
 function applyServerWallet(d){
   const b=Number(d?.balance), g=Number(d?.games_played);
