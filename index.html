@@ -145,6 +145,10 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
 .wallet-amount b{display:block;font-size:40px;line-height:1.1;color:#83f3ff;text-shadow:0 0 16px #3df2ff90;font-variant-numeric:tabular-nums;animation:riseIn .4s ease both}
 .wallet-amount small{display:block;margin-top:4px;color:#9aaba5;font-size:12px}
 #walletBalanceCard[hidden]{display:none}
+.kx-adj{padding:9px 14px;border-radius:8px;border:1px solid;background:transparent;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:transform .2s,box-shadow .25s,background-color .25s}
+.kx-adj:hover:not(:disabled){transform:translateY(-1px)}.kx-adj:disabled{opacity:.4;cursor:not-allowed}
+.kx-add{color:#19dc83;border-color:#19dc83}.kx-add:hover:not(:disabled){background:#19dc8322;box-shadow:0 0 12px #19dc8366}
+.kx-ded{color:#ff8a8a;border-color:#ff8a8a}.kx-ded:hover:not(:disabled){background:#ff8a8a22;box-shadow:0 0 12px #ff8a8a66}
 </style>
 </head>
 <body>
@@ -1125,7 +1129,7 @@ function playerView(r){
   const uid=pl?.id||r.user_id||r.auth_user_id||null,cut=getTxClearedAt();
   const tx=(Array.isArray(r.transactions)?r.transactions:(uid?(adminState.transactions||[]).filter(t=>t.auth_user_id===uid):[]))
     .filter(t=>!cut||new Date(t.created_at).getTime()>cut).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-  return {id,phone:String(phoneOf(r,pl)||''),bal:num(r.practice_balance??r.balance??pl?.practice_balance),games:num(r.games_played??r.rounds_played??pl?.games_played),tx};
+  return {id,uid,phone:String(phoneOf(r,pl)||''),bal:num(r.practice_balance??r.balance??pl?.practice_balance),games:num(r.games_played??r.rounds_played??pl?.games_played),tx};
 }
 function txRow(t){
   const ty=String(t.transaction_type||'').toUpperCase(),a=Number(t.amount||0),neg=ty==='DEDUCT'||a<0;
@@ -1158,13 +1162,17 @@ function renderAdminDashboard(){
     }else if(!filtered.length){
       list.innerHTML='<p style="color:#a8b4aa">No Telegram contact registrations found.</p>';
     }else{
-      list.innerHTML=filtered.map(({r,v})=>`<div style="padding:13px;border:1px solid #49365f;background:#171027;border-radius:12px;margin:10px 0">
+      list.innerHTML=filtered.map(({r,v})=>`<div style="padding:13px;border:1px solid ${v.uid&&v.uid===adminState.flashId?'#19dc83':'#49365f'};background:#171027;border-radius:12px;margin:10px 0">
         <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline">
           <strong style="color:#83f3ff;font-size:17px;overflow-wrap:anywhere" title="Telegram ID ${escHtml(v.id)}">📱 ${v.phone?escHtml(fmtPhone(v.phone)):'Phone not shared <small style="color:#a8b4aa">(ID '+escHtml(v.id)+')</small>'}</strong>
           <small style="color:#a8b4aa">Registered: ${r.registered_at?new Date(r.registered_at).toLocaleString():'—'}</small>
         </div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0">
           ${tile('💰 Practice points',v.bal===null?'—':pts(v.bal))}${tile('🎮 Games played',v.games===null?'—':pts(v.games))}${tile('🧾 Transactions',v.tx.length)}
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px">
+          <button type="button" class="kx-adj kx-add" ${v.uid?'':'disabled title="This player\'s account was not matched"'} onclick="adjustAdminPoints('${escHtml(v.uid||'')}','ADD')">➕ Add points</button>
+          <button type="button" class="kx-adj kx-ded" ${v.uid?'':'disabled title="This player\'s account was not matched"'} onclick="adjustAdminPoints('${escHtml(v.uid||'')}','DEDUCT')">➖ Deduct points</button>
         </div>
         <details><summary style="cursor:pointer;color:#c927bb">Transaction history (${v.tx.length})</summary>
           <div style="max-height:220px;overflow:auto;margin-top:6px">${v.tx.length?v.tx.slice(0,50).map(txRow).join(''):'<p style="color:#a8b4aa;font-size:13px">No transactions yet.</p>'}</div>
@@ -1273,6 +1281,7 @@ async function loadAdminDashboard() {
             <option value="id">Sort: phone number</option>
           </select>
           <button id="adminRefresh" type="button" style="padding:10px;cursor:pointer;">↻ Refresh</button>
+          <button id="clearTxHistoryBtn" type="button" class="kx-adj kx-ded" onclick="clearAdminTransactionHistory()">🗑 Clear history</button>
           <small id="adminUpdated" style="color:#a8b4aa"></small>
         </div>
         <div id="telegramRegistrationList"></div>`;
@@ -1353,6 +1362,7 @@ async function adjustAdminPoints(playerId, type) {
     });
     if (error) throw error;
     // Show the new balance in the dashboard immediately, then confirm with fresh data from the server.
+    adminState.telegramRegistrations.forEach(r=>{if((r.user_id||r.auth_user_id)===playerId&&Number.isFinite(Number(data)))r.practice_balance=Number(data);});
     const row=adminState.players.find(x=>x.id===playerId);
     if(row&&Number.isFinite(Number(data)))row.practice_balance=Number(data);
     adminState.flashId=playerId;renderAdminDashboard();
