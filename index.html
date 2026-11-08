@@ -940,6 +940,8 @@ document.getElementById('playBtn').onclick=()=>{
  const picks=[...selected].sort((a,b)=>a-b);
  queuedEntries.push({id:++entrySeq,picks,stake,mode:'demo'});
  recordStakeOnline();
+ // The entry is saved in the list below, so clear the highlighted numbers ready for the next pick.
+ selected.clear();document.querySelectorAll('#numberGrid .num').forEach(b=>b.classList.remove('selected'));updatePicks();
  document.getElementById('playBtn').textContent=joinLabel();
  updateStakeUI();
  status(`Entry #${queuedEntries.length} added: ${picks.length} number${picks.length===1?'':'s'}, ${fmt(stake)} points. Your balance changes after the draw. You can add more entries while you have available points.`);
