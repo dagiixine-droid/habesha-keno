@@ -1387,7 +1387,7 @@ function loadTgWallet(silent){
     const ok=await tgFlushInner();
     const {data,error}=await supabaseClient.functions.invoke('player-wallet',{body:{initData:tg.initData,action:'get'}});
     if(error||!data||data.balance===undefined){
-      if(!silent||ok)setWalletNote(false,'⚠ Could not load your saved balance — showing the last known amount.');
+      if(!silent||ok){const why=error?await tgFnMessage(error):'no data returned';console.error('player-wallet get failed:',why,error);setWalletNote(false,'⚠ Could not load your saved balance ('+why+') — showing the last known amount.');}
       return;
     }
     applyServerWallet(data);
