@@ -1118,9 +1118,16 @@ const playerTotal=p=>Number(p.practice_balance||0);
 // Finds the Telegram ID on a player record (field, metadata, or tg<id>@ email / tg_<id> username).
 function tgIdOfPlayer(p){const m=p.user_metadata||p.raw_user_meta_data||{};
   return [p.telegram_id,m.telegram_id,(String(p.email||'').match(/^tg(\d+)@/)||[])[1],(String(p.username||'').match(/^tg_(\d+)$/)||[])[1]].find(v=>v!==undefined&&v!==null&&String(v).trim()!=='');}
-function phoneOf(r,p){const m=(p&&(p.user_metadata||p.raw_user_meta_data))||{};
-  return r.phone_number||r.phone||r.phone_contact||(p&&(p.phone_number||p.phone||p.phone_contact))||m.phone_contact||'';}
-function fmtPhone(v){const d=String(v||'').replace(/[^\d+]/g,'');
+// Looks for a phone-like value under any field named phone / mobile / msisdn / contact / tel (also one level nested).
+function findPhone(o,depth){depth=depth||0;if(!o||typeof o!=='object'||depth>2)return '';
+  for(const [k,v] of Object.entries(o)){
+    if((typeof v==='string'||typeof v==='number')&&/phone|mobile|msisdn|contact|tel/i.test(k)&&/^\+?[\d\s\-().]{7,}$/.test(String(v).trim()))return String(v).trim();
+  }
+  for(const v of Object.values(o)){if(v&&typeof v==='object'){const f=findPhone(v,depth+1);if(f)return f;}}
+  return '';}
+function phoneOf(r,p){return r.phone_number||r.phone||r.phone_contact||(p&&(p.phone_number||p.phone||p.phone_contact))||findPhone(r)||findPhone(p)||'';}
+function fmtPhone(v){let d=String(v||'').replace(/[^\d+]/g,'');
+  if(/^0[79]\d{8}$/.test(d))d='+251'+d.slice(1);else if(/^251[79]\d{8}$/.test(d))d='+'+d;
   return /^\+251\d{9}$/.test(d)?d.replace(/^(\+251)(\d{2})(\d{3})(\d{4})$/,'$1 $2 $3 $4'):(d||String(v||''));}
 const num=v=>(v===undefined||v===null||v==='')?null:Number(v);
 function playerView(r){
@@ -1154,7 +1161,8 @@ function renderAdminDashboard(){
   const summary=document.getElementById('adminSummary');
   if(summary)summary.innerHTML=[['Telegram Registrations',rows.length],['Total practice points',pts(totalPts)],['Total games played',pts(totalGames)]]
     .map(([l,v])=>`<div style="background:#1d1436;padding:15px;border-radius:10px;flex:1;min-width:140px"><h3 style="margin:0 0 6px;font-size:13px;color:#5ee7f7">${l}</h3><h2 style="margin:0">${v}</h2></div>`).join('')
-    +(adminState.statsError?`<p style="flex-basis:100%;margin:0;font-size:12px;color:#ffb2a8">Balances, games and history could not be loaded: ${escHtml(adminState.statsError)}</p>`:'');
+    +(adminState.statsError?`<p style="flex-basis:100%;margin:0;font-size:12px;color:#ffb2a8">Balances, games and history could not be loaded: ${escHtml(adminState.statsError)}</p>`:'')
+    +((rows.length&&!rows.some(({v})=>v.phone))?`<p style="flex-basis:100%;margin:0;font-size:12px;color:#ffb2a8">No phone number came back from the server. Fields received for each player: ${escHtml(Object.keys(rows[0].r).join(', '))}. The admin-telegram-registrations function must also return the phone column.</p>`:'');
   const list=document.getElementById('telegramRegistrationList');
   if(list){
     if(adminState.error){
