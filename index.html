@@ -124,6 +124,12 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
 .app{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
 .nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,980px);margin:0;padding:8px 10px calc(8px + env(safe-area-inset-bottom));z-index:900;background:linear-gradient(180deg,#0b0720e8,#05030df5);border-top:1px solid #3df2ff55;box-shadow:0 -8px 28px #000a,0 -1px 18px #3df2ff22;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .nav button{min-height:44px}
+
+/* ===== During a draw: show only the drawing, entries and result ===== */
+#kenoGame.draw-mode{grid-template-columns:1fr}
+#kenoGame.draw-mode #pickCard{display:none}
+#kenoGame.draw-mode #stakeCard>:not(#entriesList){display:none}
+#kenoGame.draw-mode #stakeCard #entriesList{margin-top:0;max-height:none}
 </style>
 </head>
 <body>
@@ -174,7 +180,7 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
     <h3>🔒 Telegram registration required</h3>
     <p class="sub" style="line-height:1.6;margin:0">Open the Keno X Telegram bot, send <b>/start</b>, and share your own contact. Then open the game using the Play button sent by the bot.</p>
   </section>
-  <section class="countdown-card" aria-live="polite">
+  <section class="countdown-card" id="countdownCard" aria-live="polite">
     <div><div class="countdown-label">⏱ NEXT DRAW STARTS IN</div><div class="countdown-note" id="timerNote">Choose numbers and join during the countdown</div></div>
     <div class="countdown-time" id="countdown">01:00</div>
   </section>
@@ -184,14 +190,14 @@ button:hover:not(:disabled){transform:translateY(-2px)}button:active:not(:disabl
     <div class="drawballs" id="drawBalls" aria-live="polite" aria-label="Scheduled demo numbers revealed one at a time"></div>
   </section>
   <main class="layout" id="kenoGame">
-    <section class="card">
+    <section class="card" id="pickCard">
       <h3>Choose your numbers <span style="float:right;color:#a8b4aa;font-size:12px" id="picked">0 / 5 selected</span></h3>
       <div class="sub">Pick 1–5 numbers from 1 to 80.</div>
       <div class="grid" id="numberGrid" aria-label="Keno number grid"></div>
       <div class="controls"><span class="pill">Selected: <strong id="selectedList">—</strong></span><button class="pill" id="clearBtn">Clear selection</button><button class="pill" id="randomBtn">🎲 Random picks</button></div>
     </section>
     <aside class="stack">
-      <section class="card">
+      <section class="card" id="stakeCard">
         <h3>🎟️ Stake <span class="stake-bal" id="stakeBalance" hidden></span></h3>
         <div class="field"><label for="bet">Stake amount </label><input id="bet" type="number" min="10" max="500" step="10" value="50" inputmode="numeric"></div>
         <div class="quick"><button type="button" data-bet="10">10</button><button type="button" data-bet="50">50</button><button type="button" data-bet="100">100</button><button type="button" data-bet="250">250</button><button type="button" data-bet="500">500</button></div>
@@ -258,6 +264,7 @@ const grid=document.getElementById('numberGrid');
 const selected=new Set();
 const WALLET_BALANCE_KEY='habesha_keno_virtual_wallet_balance_v1';
 let balance=100, gamesPlayed=0;
+let holdUntil=0, ballsClearPending=false; // keeps the draw result on screen for a few seconds after a round ends
 const START_BALANCE=100;
 let rounds=0, wagered=0, totalMatches=0;
 let timerRemaining=60, timerInterval=null, revealInterval=null, lastDraw=new Set(), lastHits=new Set();
@@ -542,6 +549,7 @@ function updateStakeUI(){
   const valid=Number.isFinite(stake)&&stake>0;
   const set=(id,t)=>{const el=document.getElementById(id);if(el)el.textContent=t};
   if(typeof renderWalletStats==='function')renderWalletStats();
+  if(typeof updateRoundView==='function')updateRoundView();
   set('stakeBalance',isTelegramRegistered?'Practice points: '+fmt(balance):'');
   const sbEl=document.getElementById('stakeBalance');if(sbEl)sbEl.hidden=!isTelegramRegistered;
   renderEntries();
@@ -615,7 +623,7 @@ for(let n=1;n<=80;n++){const b=document.createElement('button');b.type='button';
 // ---- Universal-time schedule (shared by every player) ----
 // Every 80 seconds (counted from the Unix epoch, UTC) one round runs: 60 s entry window, then 20 s draw (1 number/sec).
 // Round number, countdown and drawn numbers are all computed from the UTC clock, so every player sees the same thing.
-const ENTRY_MS=60000, DRAW_MS=20000, CYCLE_MS=ENTRY_MS+DRAW_MS;
+const ENTRY_MS=60000, DRAW_MS=20000, RESULT_MS=8000, CYCLE_MS=ENTRY_MS+DRAW_MS+RESULT_MS; // entry window, draw, then results on screen before the next countdown
 let clockOffset=0, clockSource='', lastSyncAt=0, clockReady=false, currentRound=null;
 function nowUTC(){return Date.now()+clockOffset}
 function inEntryWindow(){return clockReady&&(nowUTC()%CYCLE_MS)<ENTRY_MS}
@@ -864,7 +872,7 @@ setInterval(()=>{const lp=document.getElementById('leaderPanel');if(lp&&!lp.hidd
 function resetRoundState(rid){
   currentRound=rid;roundSequence=rid;
   scheduledDrawNumbers=getRoundDraw(rid);revealCount=0;
-  document.getElementById('drawBalls').innerHTML='';
+  if(holdUntil>Date.now())ballsClearPending=true;else document.getElementById('drawBalls').innerHTML='';
 }
 function tickDraw(){
   if(!clockReady){paintCountdown(0,0);return}
@@ -876,14 +884,16 @@ function tickDraw(){
   }else if(rid!==currentRound){
     // A new UTC round has started: settle anything left from the previous one, then open the new entry window.
     while(revealCount<20)revealOneNumber();
+    holdUntil=0; // the results phase is now part of the round itself (RESULT_MS)
     resetRoundState(rid);phase='countdown';
-    document.getElementById('scheduledStatus').textContent=`Round #${rid}: the 60-second entry window is open. Join this draw with your picks.`;
+    if(!(holdUntil>Date.now()))document.getElementById('scheduledStatus').textContent=`Round #${rid}: the 60-second entry window is open. Join this draw with your picks.`;
     document.getElementById('playBtn').textContent=joinLabel();
     renderEntries();updateStakeUI();
   }
   if(pos>=ENTRY_MS){
     if(phase!=='drawing'){
       phase='drawing';
+      document.getElementById('result')?.classList.remove('show');
       if(queuedEntries.length)rounds++; // every entry's stake stays reserved until all 20 numbers appear
       document.getElementById('scheduledStatus').textContent=`Round #${rid}: draw starting — 20 numbers appear one per second.`;
       renderEntries();
@@ -892,6 +902,7 @@ function tickDraw(){
     while(revealCount<target)revealOneNumber();
   }
   paintCountdown(t,pos);
+  if(typeof updateRoundView==='function')updateRoundView();
 }
 // Save before the app is closed or hidden, and re-load the saved wallet when it comes back.
 window.addEventListener('pagehide', saveVirtualBalance);
@@ -1404,6 +1415,19 @@ document.getElementById('refreshWalletBtn')?.addEventListener('click',()=>loadTg
 document.getElementById('refreshBalance')?.addEventListener('click',()=>loadTgWallet(false));
 // Pick up points added/deducted by an admin while the player has the app open.
 setInterval(()=>{if(isTelegramRegistered&&!document.hidden)loadTgWallet(true)},15000);
+function updateRoundView(){
+  const g=document.getElementById('kenoGame');if(!g)return;
+  // Draw + results phases (after the 60 s entry window): show only the draw, the entries and the result.
+  const drawMode=clockReady&&(nowUTC()%CYCLE_MS)>=ENTRY_MS;
+  const was=g.classList.contains('draw-mode');
+  g.classList.toggle('draw-mode',drawMode);
+  const cd=document.getElementById('countdownCard');
+  if(cd)cd.hidden=drawMode;
+  const stake=document.getElementById('stakeCard');
+  if(stake)stake.style.display=(drawMode&&!queuedEntries.length)?'none':'';
+  const kp=document.getElementById('kenoPanel');
+  if(drawMode!==was&&kp&&!kp.hidden)window.scrollTo({top:0,behavior:'smooth'});
+}
 renderWalletStats();
 </script>
 <script>
