@@ -1106,25 +1106,51 @@ verifyTelegramRegistration();
 // ---------- Admin dashboard ----------
 // Shows every player's balance (welcome points + admin-assigned points) and updates right after
 // an admin adds or deducts points. It also refreshes itself every 15 seconds while it is open.
-const adminState={telegramRegistrations:[],search:'',sort:'newest',updatedAt:null,loading:false,timer:null,error:null};
+const adminState={players:[],transactions:[],statsError:null,telegramRegistrations:[],search:'',sort:'newest',updatedAt:null,loading:false,timer:null,error:null};
 const escHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pts=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:2});
 const playerTotal=p=>Number(p.practice_balance||0);
 
+// Finds the Telegram ID on a player record (field, metadata, or tg<id>@ email / tg_<id> username).
+function tgIdOfPlayer(p){const m=p.user_metadata||p.raw_user_meta_data||{};
+  return [p.telegram_id,m.telegram_id,(String(p.email||'').match(/^tg(\d+)@/)||[])[1],(String(p.username||'').match(/^tg_(\d+)$/)||[])[1]].find(v=>v!==undefined&&v!==null&&String(v).trim()!=='');}
+function phoneOf(r,p){const m=(p&&(p.user_metadata||p.raw_user_meta_data))||{};
+  return r.phone_number||r.phone||r.phone_contact||(p&&(p.phone_number||p.phone||p.phone_contact))||m.phone_contact||'';}
+function fmtPhone(v){const d=String(v||'').replace(/[^\d+]/g,'');
+  return /^\+251\d{9}$/.test(d)?d.replace(/^(\+251)(\d{2})(\d{3})(\d{4})$/,'$1 $2 $3 $4'):(d||String(v||''));}
+const num=v=>(v===undefined||v===null||v==='')?null:Number(v);
+function playerView(r){
+  const id=String(r.telegram_id),all=adminState.players||[];
+  const pl=all.find(p=>String(tgIdOfPlayer(p)??'')===id)||all.find(p=>p.id&&p.id===(r.user_id||r.auth_user_id))||null;
+  const uid=pl?.id||r.user_id||r.auth_user_id||null,cut=getTxClearedAt();
+  const tx=(Array.isArray(r.transactions)?r.transactions:(uid?(adminState.transactions||[]).filter(t=>t.auth_user_id===uid):[]))
+    .filter(t=>!cut||new Date(t.created_at).getTime()>cut).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  return {id,phone:String(phoneOf(r,pl)||''),bal:num(r.practice_balance??r.balance??pl?.practice_balance),games:num(r.games_played??r.rounds_played??pl?.games_played),tx};
+}
+function txRow(t){
+  const ty=String(t.transaction_type||'').toUpperCase(),a=Number(t.amount||0),neg=ty==='DEDUCT'||a<0;
+  const label={ADD:'Added',DEDUCT:'Deducted'}[ty]||String(t.transaction_type||'Transaction');
+  return `<div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #2a1f40;font-size:13px">
+    <span style="overflow-wrap:anywhere">${t.created_at?new Date(t.created_at).toLocaleString():'—'} • ${escHtml(label)}${t.reason?' — '+escHtml(t.reason):''}</span>
+    <b style="white-space:nowrap;color:${neg?'#ff8a8a':'#19dc83'}">${neg?'−':'+'}${pts(Math.abs(a))}</b></div>`;
+}
+const tile=(label,val)=>`<div style="background:#1d1436;border-radius:9px;padding:9px;text-align:center"><div style="font-size:11px;color:#5ee7f7">${label}</div><div style="font-size:20px;font-weight:700">${val}</div></div>`;
+
 function renderAdminDashboard(){
   const dash=document.getElementById('adminDashboard');
   if(!dash)return;
-  // Display only records that have a Telegram ID. Email-based player profiles are ignored.
-  const rows=(adminState.telegramRegistrations||[]).filter(r =>
-    r && r.telegram_id !== null && r.telegram_id !== undefined && String(r.telegram_id).trim() !== ''
-  );
-  const q=String(adminState.search||'').trim().toLowerCase();
-  const filtered=rows.filter(r=>String(r.telegram_id).toLowerCase().includes(q));
-  if(adminState.sort==='newest') filtered.sort((a,b)=>new Date(b.registered_at||0)-new Date(a.registered_at||0));
-  else filtered.sort((a,b)=>String(a.telegram_id||'').localeCompare(String(b.telegram_id||''),undefined,{numeric:true}));
+  const rows=(adminState.telegramRegistrations||[]).filter(r=>r&&r.telegram_id!==null&&r.telegram_id!==undefined&&String(r.telegram_id).trim()!=='')
+    .map(r=>({r,v:playerView(r)}));
+  const q=String(adminState.search||'').trim().toLowerCase(),qd=q.replace(/\D/g,'');
+  const filtered=rows.filter(({v})=>!q||(v.phone+' '+v.id).toLowerCase().includes(q)||(qd&&v.phone.replace(/\D/g,'').includes(qd)));
+  if(adminState.sort==='newest')filtered.sort((a,b)=>new Date(b.r.registered_at||0)-new Date(a.r.registered_at||0));
+  else filtered.sort((a,b)=>String(a.v.phone||a.v.id).localeCompare(String(b.v.phone||b.v.id),undefined,{numeric:true}));
 
+  const totalPts=rows.reduce((n,{v})=>n+(v.bal||0),0),totalGames=rows.reduce((n,{v})=>n+(v.games||0),0);
   const summary=document.getElementById('adminSummary');
-  if(summary) summary.innerHTML=`<div style="background:#1d1436;padding:15px;border-radius:10px;flex:1;min-width:140px"><h3 style="margin:0 0 6px;font-size:13px;color:#5ee7f7">Telegram Registrations</h3><h2 style="margin:0">${rows.length}</h2></div>`;
+  if(summary)summary.innerHTML=[['Telegram Registrations',rows.length],['Total practice points',pts(totalPts)],['Total games played',pts(totalGames)]]
+    .map(([l,v])=>`<div style="background:#1d1436;padding:15px;border-radius:10px;flex:1;min-width:140px"><h3 style="margin:0 0 6px;font-size:13px;color:#5ee7f7">${l}</h3><h2 style="margin:0">${v}</h2></div>`).join('')
+    +(adminState.statsError?`<p style="flex-basis:100%;margin:0;font-size:12px;color:#ffb2a8">Balances, games and history could not be loaded: ${escHtml(adminState.statsError)}</p>`:'');
   const list=document.getElementById('telegramRegistrationList');
   if(list){
     if(adminState.error){
@@ -1132,10 +1158,17 @@ function renderAdminDashboard(){
     }else if(!filtered.length){
       list.innerHTML='<p style="color:#a8b4aa">No Telegram contact registrations found.</p>';
     }else{
-      list.innerHTML=filtered.map((r,i)=>`<div style="padding:13px;border-bottom:1px solid #49365f;background:#171027;border-radius:9px;margin:8px 0">
-        <strong>#${i+1} Registered Telegram Player</strong>
-        <p style="margin:6px 0;color:#83f3ff;overflow-wrap:anywhere">Telegram ID: <b>${escHtml(r.telegram_id)}</b></p>
-        <small style="color:#a8b4aa">Registered: ${r.registered_at?new Date(r.registered_at).toLocaleString():'—'}</small>
+      list.innerHTML=filtered.map(({r,v})=>`<div style="padding:13px;border:1px solid #49365f;background:#171027;border-radius:12px;margin:10px 0">
+        <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline">
+          <strong style="color:#83f3ff;font-size:17px;overflow-wrap:anywhere" title="Telegram ID ${escHtml(v.id)}">📱 ${v.phone?escHtml(fmtPhone(v.phone)):'Phone not shared <small style="color:#a8b4aa">(ID '+escHtml(v.id)+')</small>'}</strong>
+          <small style="color:#a8b4aa">Registered: ${r.registered_at?new Date(r.registered_at).toLocaleString():'—'}</small>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0">
+          ${tile('💰 Practice points',v.bal===null?'—':pts(v.bal))}${tile('🎮 Games played',v.games===null?'—':pts(v.games))}${tile('🧾 Transactions',v.tx.length)}
+        </div>
+        <details><summary style="cursor:pointer;color:#c927bb">Transaction history (${v.tx.length})</summary>
+          <div style="max-height:220px;overflow:auto;margin-top:6px">${v.tx.length?v.tx.slice(0,50).map(txRow).join(''):'<p style="color:#a8b4aa;font-size:13px">No transactions yet.</p>'}</div>
+        </details>
       </div>`).join('');
     }
   }
@@ -1156,6 +1189,12 @@ async function refreshAdminData(silent=true){
       throw new Error(data?.error||'The function did not return a registrations list.');
     }
     adminState.telegramRegistrations=data.registrations;
+    // Balances, games played and transaction history come from admin-players (same Telegram admin header).
+    try{
+      const pr=await supabaseClient.functions.invoke('admin-players',{headers:{'x-telegram-init-data':tg?.initData||''}});
+      if(!pr.error&&Array.isArray(pr.data?.players)){adminState.players=pr.data.players;adminState.transactions=Array.isArray(pr.data.transactions)?pr.data.transactions:[];adminState.statsError=null;}
+      else adminState.statsError=pr.error?.message||pr.data?.error||'the server returned no player list';
+    }catch(e){adminState.statsError=e?.message||'admin-players is unavailable';}
     adminState.updatedAt=Date.now();
     renderAdminDashboard();
   }catch(error){
@@ -1226,12 +1265,12 @@ async function loadAdminDashboard() {
         <h2 style="color:#c927bb">Admin Dashboard</h2>
         <div id="adminSummary" style="display:flex;gap:12px;flex-wrap:wrap;margin:20px 0;"></div>
         <h3 style="color:#c927bb">Registered Telegram Players</h3>
-        <p style="font-size:12px;color:#a8b4aa">Only records containing a Telegram ID are displayed. Email-based player accounts are excluded.</p>
+        <p style="font-size:12px;color:#a8b4aa">Players who registered through the Telegram bot, shown by their Telegram phone number.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:15px;">
-          <input id="playerSearch" placeholder="Search by Telegram ID..." style="padding:10px;flex:1;min-width:180px;">
+          <input id="playerSearch" placeholder="Search by phone number..." style="padding:10px;flex:1;min-width:180px;">
           <select id="playerSort" style="padding:10px;">
             <option value="newest">Sort: newest</option>
-            <option value="id">Sort: Telegram ID</option>
+            <option value="id">Sort: phone number</option>
           </select>
           <button id="adminRefresh" type="button" style="padding:10px;cursor:pointer;">↻ Refresh</button>
           <small id="adminUpdated" style="color:#a8b4aa"></small>
